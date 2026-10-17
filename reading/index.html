@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Trail 🦉</title>
+  <meta name="description" content="A stage-by-stage learn-to-read adventure for early elementary students: syllables, blending, sight words, fluency and more — with stickers, points and trophies!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="sky-deco" aria-hidden="true">
+    <span class="deco c1">☁️</span>
+    <span class="deco c2">🌤️</span>
+    <span class="deco c3">🍃</span>
+    <span class="deco c4">🦋</span>
+    <span class="deco c5">📖</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Back to the trail" hidden>← Trail</button>
+    <h1 class="app-title">🦉 Reading Trail</h1>
+    <div class="points-badge" id="pointsBadge" title="Reading points you have earned">
+      <span class="pt-icon">⭐</span>
+      <span id="pointCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME / READING TRAIL ============ -->
+    <section id="homeScreen" class="screen active">
+      <div class="ollie-banner">
+        <span class="ollie" id="ollie">🦉</span>
+        <p class="ollie-say" id="ollieSay">Hi, I'm Ollie! Let's learn to read, step by step. Tap a stage to start! 📖</p>
+      </div>
+      <div class="home-actions">
+        <button class="sticker-btn" id="stickerBtn">🎟️ Sticker Book</button>
+        <button class="trophy-btn" id="trophyBtn">🏆 Trophies</button>
+      </div>
+      <div class="trail" id="trail"><!-- stage stops built by JS --></div>
+    </section>
+
+    <!-- ============ PLAY / ACTIVITY ============ -->
+    <section id="playScreen" class="screen">
+      <div class="play-top">
+        <h2 id="stageName">Letter Sounds</h2>
+        <p class="step-text">Step <span id="stepNow">1</span> of <span id="stepTotal">5</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="playProgress"></div></div>
+      <div class="activity-body" id="activityBody"><!-- activity UI built by JS --></div>
+      <p class="activity-feedback" id="activityFeedback"></p>
+    </section>
+
+    <!-- ============ STAGE COMPLETE / REWARD ============ -->
+    <section id="stageResultScreen" class="screen">
+      <div class="result-card">
+        <span class="ollie big" aria-hidden="true">🦉</span>
+        <h2 id="resultHeadline">Stage Complete!</h2>
+        <p class="sticker-earned-label">You earned a sticker!</p>
+        <div class="sticker-earned" id="stickerEarned">🌟</div>
+        <p class="sticker-earned-name" id="stickerEarnedName">Sound Star</p>
+        <p class="result-points" id="resultPoints">+5 ⭐</p>
+        <p class="reward-unlock" id="rewardUnlock" hidden></p>
+        <div class="result-actions">
+          <button class="next-btn" id="nextStageBtn">Next Stage →</button>
+          <button class="ghost-btn" id="resultTrailBtn">🦉 Back to Trail</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STICKER BOOK ============ -->
+    <section id="stickerScreen" class="screen">
+      <div class="play-top">
+        <h2>🎟️ My Sticker Book</h2>
+        <p class="step-text"><span id="stickerCount">0</span> / <span id="stickerTotal">0</span></p>
+      </div>
+      <p class="shelf-tagline">Finish each stage of the trail to collect its sticker! ✨</p>
+      <div class="sticker-grid" id="stickerGrid"></div>
+    </section>
+
+    <!-- ============ TROPHY SHELF ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="play-top">
+        <h2>🏆 My Trophies</h2>
+        <p class="step-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="shelf-tagline">Big rewards for big reading milestones! 🌟</p>
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="reading"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

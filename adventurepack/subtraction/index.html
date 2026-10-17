@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Number Explorers: Subtraction Notebook Quest</title>
+<style>
+  :root{
+    --paper:#fffdf6;
+    --line:#cfe3f5;
+    --margin:#ffb4b4;
+    --ink:#2b2a4a;
+    --accent:#4f8cff;
+    --accent2:#ff9f43;
+    --good:#2ecc71;
+    --bad:#ff6b6b;
+    --purple:#8a6bff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Trebuchet MS','Segoe UI',Verdana,sans-serif;
+    background:linear-gradient(160deg,#dff1ff 0%, #f3e9ff 50%, #ffe9f0 100%);
+    min-height:100vh;
+    color:var(--ink);
+  }
+  #app{
+    max-width:1100px;
+    margin:0 auto;
+    padding:16px 16px 60px;
+  }
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:14px 20px;
+    background:linear-gradient(120deg,#6c63ff,#4f8cff);
+    border-radius:20px;
+    color:white;
+    box-shadow:0 8px 20px rgba(80,80,160,.25);
+    margin-bottom:18px;
+  }
+  header.top h1{
+    font-size:clamp(18px,2.4vw,26px);
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .stats{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    font-weight:bold;
+    font-size:15px;
+  }
+  .stat-pill{
+    background:rgba(255,255,255,.2);
+    padding:6px 14px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+  }
+  .btn{
+    background:var(--accent);
+    color:white;
+    padding:10px 20px;
+    border-radius:14px;
+    font-weight:bold;
+    font-size:15px;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    transition:transform .1s;
+  }
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .btn.secondary{background:#eef1ff;color:var(--ink);box-shadow:0 4px 0 #d8dcff;}
+  .btn.good{background:var(--good);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn.small{padding:6px 12px;font-size:13px;border-radius:10px;}
+
+  /* MENU */
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+  }
+  .section-card{
+    background:var(--paper);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 6px 16px rgba(80,80,160,.12);
+    border:3px solid #eee;
+    position:relative;
+    overflow:hidden;
+  }
+  .section-card .emoji{font-size:40px;}
+  .section-card h3{margin:8px 0 4px;font-size:18px;}
+  .section-card p{margin:0 0 10px;font-size:13px;color:#777;}
+  .section-card .progress-track{
+    background:#eee;height:10px;border-radius:6px;overflow:hidden;margin-bottom:10px;
+  }
+  .section-card .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),#ffd27d);}
+  .stars-row{font-size:16px;letter-spacing:2px;}
+
+  /* QUESTION CARD / NOTEBOOK PAGE */
+  .notebook{
+    background:
+      repeating-linear-gradient(var(--paper), var(--paper) 33px, var(--line) 34px);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(60,40,100,.18);
+    position:relative;
+    padding:22px 22px 22px 54px;
+    border:1px solid #e9e2d0;
+  }
+  .notebook::before{
+    content:"";
+    position:absolute;left:34px;top:0;bottom:0;width:2px;background:var(--margin);
+  }
+  .crumb{
+    font-size:13px;
+    font-weight:bold;
+    color:var(--purple);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    margin-bottom:6px;
+  }
+  .prompt-row{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    margin-bottom:10px;
+  }
+  .avatar{
+    font-size:46px;
+    flex:0 0 auto;
+    background:white;
+    border-radius:50%;
+    width:64px;height:64px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 8px rgba(0,0,0,.12);
+  }
+  .prompt-text{
+    font-size:clamp(16px,2vw,20px);
+    line-height:1.5;
+    font-weight:600;
+  }
+  .part-pill{
+    display:inline-block;
+    background:var(--accent2);
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+    padding:3px 10px;
+    border-radius:999px;
+    margin-bottom:8px;
+  }
+  .hint-toggle{
+    font-size:12.5px;
+    color:var(--accent);
+    font-weight:bold;
+    text-decoration:underline;
+    cursor:pointer;
+    margin:2px 0 10px;
+    display:inline-block;
+  }
+  .bond-hint{
+    display:flex;gap:30px;align-items:center;justify-content:center;
+    background:#f6f3ff;border-radius:12px;padding:14px;margin-bottom:10px;font-size:13px;
+  }
+  .bond-hint .circ{
+    width:46px;height:46px;border-radius:50%;border:2px solid var(--purple);
+    display:flex;align-items:center;justify-content:center;font-weight:bold;background:white;
+  }
+  .bond-hint .bond-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+
+  /* scratch pad */
+  .scratch-wrap{margin:10px 0 16px;}
+  .scratch-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .scratch-head span{font-size:13px;font-weight:bold;color:#888;}
+  .scratch-tools{display:flex;gap:6px;}
+  canvas.scratch{
+    width:100%;height:150px;
+    background:white;border:2px dashed #cfcfe8;border-radius:12px;
+    touch-action:none;cursor:crosshair;
+  }
+
+  /* board */
+  .board-wrap{
+    background:#f4f7ff;
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .board-label{font-size:13px;font-weight:bold;color:var(--accent);margin-bottom:10px;}
+  .board-grid{
+    display:inline-grid;
+    gap:4px 6px;
+    margin-bottom:10px;
+  }
+  .cell{
+    width:40px;height:40px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:bold;
+  }
+  .cell.op{color:var(--accent2);font-size:26px;justify-self:start;}
+  .cell.sep{font-size:22px;font-weight:bold;color:var(--ink);}
+  .cell.point{font-size:26px;font-weight:900;align-self:end;}
+  .cell.slot{
+    background:white;
+    border:3px solid #cdd7ee;
+    border-radius:10px;
+    color:var(--accent);
+    transition:all .15s;
+  }
+  .cell.slot.filled{border-color:var(--accent);}
+  .cell.slot.correct{border-color:var(--good);background:#eafff1;color:var(--good);}
+  .cell.slot.wrong{border-color:var(--bad);background:#fff0f0;color:var(--bad);animation:shake .3s;}
+  .cell.slot.dragover{border-color:var(--accent2);background:#fff6e8;}
+  .cell.slot:focus, .cell.regroup:focus{
+    outline:3px solid var(--accent2);outline-offset:1px;
+  }
+  .cell.regroup{
+    width:30px;height:26px;font-size:14px;border:2px dashed #e0cfff;border-radius:7px;color:var(--purple);background:#faf8ff;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .cell.regroup.hint{border-color:#ffc27a;background:#fff7ea;}
+  .cell.regroup .ghost{font-size:10.5px;color:#c9a96b;pointer-events:none;font-weight:bold;}
+  .cell.regroup.filled{color:var(--purple);font-weight:bold;font-size:16px;}
+  .line-row{grid-column:1/-1;border-top:3px solid var(--ink);margin:2px 0 4px;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    75%{transform:translateX(5px);}
+  }
+
+  .tray{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;
+    padding:10px;background:#fff;border-radius:12px;border:2px solid #e7ecfb;
+  }
+  .tile{
+    width:42px;height:42px;
+    background:linear-gradient(160deg,#6c63ff,#4f8cff);
+    color:white;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:bold;
+    box-shadow:0 3px 0 #3e55c7;
+    user-select:none;touch-action:none;
+    cursor:grab;
+  }
+  .tile.dragging{opacity:.35;}
+  .floating-tile{
+    position:fixed;z-index:999;pointer-events:none;
+    width:46px;height:46px;border-radius:10px;
+    background:linear-gradient(160deg,#6c63ff,#4f8cff);
+    color:white;display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:bold;box-shadow:0 6px 14px rgba(0,0,0,.3);
+  }
+
+  /* mcq */
+  .mcq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;}
+  .mcq-choice{
+    background:white;border:3px solid #dde4f7;border-radius:12px;
+    padding:12px;font-weight:bold;font-size:15px;text-align:center;
+    transition:all .15s;
+  }
+  .mcq-choice.selected{border-color:var(--accent);}
+  .mcq-choice.correct{border-color:var(--good);background:#eafff1;}
+  .mcq-choice.wrong{border-color:var(--bad);background:#fff0f0;}
+
+  .feedback-banner{
+    margin:10px 0;padding:10px 14px;border-radius:12px;font-weight:bold;font-size:15px;
+    display:none;
+  }
+  .feedback-banner.show{display:block;}
+  .feedback-banner.good{background:#eafff1;color:#1f9d55;}
+  .feedback-banner.bad{background:#fff0f0;color:#d9534f;}
+
+  .answer-summary{
+    margin-top:6px;font-size:15px;font-weight:bold;color:var(--good);display:none;
+  }
+  .answer-summary.show{display:block;}
+
+  .nav-row{
+    display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:10px;
+  }
+
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(90deg,#ffe28a,#ffd166);
+    color:#5b4300;padding:10px 20px;border-radius:999px;font-weight:bold;
+    box-shadow:0 6px 16px rgba(0,0,0,.2);z-index:1000;
+    opacity:0;transition:opacity .3s, top .3s;
+  }
+  .toast.show{opacity:1;top:28px;}
+
+  .progress-strip{
+    background:#e9eefc;border-radius:999px;height:10px;overflow:hidden;margin-bottom:14px;
+  }
+  .progress-strip-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .3s;}
+
+  @media (max-width:520px){
+    .notebook{padding:16px 14px 16px 40px;}
+    .avatar{width:50px;height:50px;font-size:34px;}
+    .cell{width:30px;height:30px;font-size:17px;}
+    .tile{width:36px;height:36px;font-size:16px;}
+  }
+</style>
+<script src="../../js/profile-store.js"></script>
+  <script src="../../js/voice.js"></script>
+<script src="../../js/activitydb.js"></script>
+<script src="../../js/tracker.js" data-app="subtraction"></script>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1>📓 Number Explorers: Subtraction Notebook Quest</h1>
+    <div class="stats">
+      <div class="stat-pill">⭐ <span id="starCount">0</span></div>
+      <div class="stat-pill">✅ <span id="correctCount">0</span>/<span id="totalCount">0</span></div>
+      <button class="btn secondary small" id="menuBtn">🗂 Menu</button>
+    </div>
+  </header>
+  <div id="stage"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================= QUESTION DATA ============================= */
+// op: 'subtract' | 'add'. decimals: 0 or 2 (money). ref steps use previous result automatically
+// a part can be: {kind:'compute', steps:[{op,a,b,note}], prefix:'', suffix:''}
+//            or  {kind:'mcq', choices:[...], correctIndex}
+
+function Q(id, section, character, emoji, title, parts, bondHint){
+  return {id, section, character, emoji, title, parts, bondHint};
+}
+
+const SECTIONS = [
+  {key:'mental', name:'Mental Math Warm-Up', emoji:'🧠', desc:'2-digit subtraction, number bonds'},
+  {key:'three', name:'3-Digit Subtraction', emoji:'📏', desc:'Regrouping across 3 digits'},
+  {key:'four', name:'4-Digit Subtraction', emoji:'🏰', desc:'Regrouping across 4 digits'},
+  {key:'subfrom', name:'"Subtract From" Phrasing', emoji:'🔄', desc:'Reading word order carefully'},
+  {key:'diff', name:'"Difference Between" Phrasing', emoji:'⚖️', desc:'Comparing two numbers'},
+  {key:'word', name:'Word Problem Adventures', emoji:'🗺️', desc:'Real-life subtraction stories'},
+  {key:'multi', name:'Multi-Part Challenges', emoji:'🧩', desc:'Two-part brain teasers'},
+];
+
+const QUESTIONS = [
+  // ---------------- MENTAL MATH ----------------
+  Q(1,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:87,b:62}]}
+  ], {a:87,b:62,bt:60,bo:2}),
+  Q(2,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:53,b:11}]}
+  ], {a:53,b:11,bt:10,bo:1}),
+  Q(3,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:65,b:27}]}
+  ], {a:65,b:27,bt:20,bo:7}),
+  Q(4,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:92,b:44}]}
+  ], {a:92,b:44,bt:40,bo:4}),
+  Q(5,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:76,b:54}]}
+  ], {a:76,b:54,bt:50,bo:4}),
+  Q(6,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:91,b:38}]}
+  ], {a:91,b:38,bt:30,bo:8}),
+  Q(7,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:68,b:19}]}
+  ], {a:68,b:19,bt:10,bo:9}),
+  Q(8,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:84,b:56}]}
+  ], {a:84,b:56,bt:50,bo:6}),
+  Q(9,'mental','Buddy the Explorer','🧭','Mental Subtraction',[
+    {kind:'compute', steps:[{op:'subtract',a:95,b:47}]}
+  ], {a:95,b:47,bt:40,bo:7}),
+
+  // ---------------- 3-DIGIT ----------------
+  Q(10,'three','Captain Rae','⛵','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:457,b:233}]}
+  ]),
+  Q(11,'three','Captain Rae','⛵','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:896,b:297}]}
+  ]),
+  Q(12,'three','Captain Rae','⛵','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:523,b:186}]}
+  ]),
+  Q(13,'three','Captain Rae','⛵','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:741,b:368}]}
+  ]),
+
+  // ---------------- 4-DIGIT ----------------
+  Q(14,'four','Nova the Robot','🤖','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:4368,b:546}]}
+  ]),
+  Q(15,'four','Nova the Robot','🤖','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:7134,b:2857}]}
+  ]),
+  Q(16,'four','Nova the Robot','🤖','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:5236,b:748}]}
+  ]),
+  Q(17,'four','Nova the Robot','🤖','Subtract. Show your work.',[
+    {kind:'compute', steps:[{op:'subtract',a:8403,b:2967}]}
+  ]),
+
+  // ---------------- SUBTRACT FROM ----------------
+  Q(18,'subfrom','Zoom the Fox','🦊','Subtract 427 from 821.',[
+    {kind:'compute', steps:[{op:'subtract',a:821,b:427}]}
+  ]),
+  Q(19,'subfrom','Zoom the Fox','🦊','Subtract 695 from 6,304.',[
+    {kind:'compute', steps:[{op:'subtract',a:6304,b:695}]}
+  ]),
+  Q(20,'subfrom','Zoom the Fox','🦊','Subtract 356 from 702.',[
+    {kind:'compute', steps:[{op:'subtract',a:702,b:356}]}
+  ]),
+  Q(21,'subfrom','Zoom the Fox','🦊','Subtract 1,284 from 5,000.',[
+    {kind:'compute', steps:[{op:'subtract',a:5000,b:1284}]}
+  ]),
+
+  // ---------------- DIFFERENCE BETWEEN ----------------
+  Q(22,'diff','Pip the Owl','🦉','The difference between 1,981 and 5,000 is ____.',[
+    {kind:'compute', steps:[{op:'subtract',a:5000,b:1981}]}
+  ]),
+  Q(23,'diff','Pip the Owl','🦉','The difference between 7,200 and 2,305 is ____.',[
+    {kind:'compute', steps:[{op:'subtract',a:7200,b:2305}]}
+  ]),
+  Q(24,'diff','Pip the Owl','🦉','The difference between 2,345 and 6,000 is ____.',[
+    {kind:'compute', steps:[{op:'subtract',a:6000,b:2345}]}
+  ]),
+  Q(25,'diff','Pip the Owl','🦉','The difference between 8,100 and 3,452 is ____.',[
+    {kind:'compute', steps:[{op:'subtract',a:8100,b:3452}]}
+  ]),
+
+  // ---------------- WORD PROBLEMS ----------------
+  Q(26,'word','a piano & organ shop','🎹','A piano costs $4,770. An organ costs $3,250 less than the piano. Find the total cost of the piano and the organ.',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:4770,b:3250, note:'Find the organ\'s price.'},
+      {op:'add',a:4770,b:1520, note:'Add the piano + organ to find the total.'}
+    ]}
+  ]),
+  Q(27,'word','a school fundraiser','🎒','A school prepared 9,000 red and green goody bags in all. There were 3,845 red goody bags. How many more green goody bags than red goody bags were there?',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:9000,b:3845, note:'Find the number of green goody bags.'},
+      {op:'subtract',a:5155,b:3845, note:'Find how many more green than red.'}
+    ]}
+  ]),
+  Q(28,'word','Luna & Milo','🌙','Luna and Milo saved the same amount of money. Milo bought a bag for $9.14 and had $16.25 left. Luna bought a book and had $19.51 left. How much did the book cost?',[
+    {kind:'compute', decimals:2, steps:[
+      {op:'add',a:16.25,b:9.14, note:'Find how much money they each saved.'},
+      {op:'subtract',a:25.39,b:19.51, note:'Find the cost of the book.'}
+    ]}
+  ]),
+  Q(29,'word','Mr. Diaz','👨‍🍳','Mr. Diaz bought some nuts and raisins. He bought 1,425 grams of nuts and 1,098 grams of raisins. How much greater is the mass of the nuts than the mass of the raisins?',[
+    {kind:'compute', decimals:0, suffix:' grams', steps:[
+      {op:'subtract',a:1425,b:1098, note:'Find how much greater the mass of the nuts is.'}
+    ]}
+  ]),
+  Q(30,'word','a toy store shelf','🧸','There were 2,800 fruit bars on a shelf at a store. 1,855 of the fruit bars were sold. The store then put up another 738 fruit bars on the shelf. How many fruit bars were on the shelf in the end?',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:2800,b:1855, note:'Subtract the fruit bars that were sold.'},
+      {op:'add',a:945,b:738, note:'Add the new fruit bars that were put up.'}
+    ]}
+  ]),
+  Q(31,'word','Maya the Stargazer','🔭','A telescope costs $3,680. A microscope costs $1,450 less than the telescope. Find the total cost of the telescope and the microscope.',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:3680,b:1450, note:'Find the microscope\'s price.'},
+      {op:'add',a:3680,b:2230, note:'Add the telescope + microscope to find the total.'}
+    ]}
+  ]),
+  Q(32,'word','Diego\'s Bakery','🧁','A bakery made 8,000 blue and yellow cupcakes in all. There were 3,415 blue cupcakes. How many more yellow cupcakes than blue cupcakes were there?',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:8000,b:3415, note:'Find the number of yellow cupcakes.'},
+      {op:'subtract',a:4585,b:3415, note:'Find how many more yellow than blue.'}
+    ]}
+  ]),
+  Q(33,'word','Leo & Mia','🧩','Leo and Mia saved the same amount of money. Leo bought a toy for $12.45 and had $8.30 left. Mia bought a puzzle and had $11.60 left. How much did the puzzle cost?',[
+    {kind:'compute', decimals:2, steps:[
+      {op:'add',a:8.30,b:12.45, note:'Find how much money they each saved.'},
+      {op:'subtract',a:20.75,b:11.60, note:'Find the cost of the puzzle.'}
+    ]}
+  ]),
+  Q(34,'word','Mr. Lee\'s Kitchen','👨‍🍳','Mr. Lee bought some flour and sugar. He bought 2,350 grams of flour and 1,675 grams of sugar. How much greater is the mass of the flour than the mass of the sugar?',[
+    {kind:'compute', decimals:0, suffix:' grams', steps:[
+      {op:'subtract',a:2350,b:1675, note:'Find how much greater the mass of the flour is.'}
+    ]}
+  ]),
+  Q(35,'word','the Riverbend Library','📚','A library had 4,500 books. 1,275 books were checked out. The library then added 920 new books. How many books were on the shelf in the end?',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:4500,b:1275, note:'Subtract the books that were checked out.'},
+      {op:'add',a:3225,b:920, note:'Add the new books.'}
+    ]}
+  ]),
+
+  Q(40,'word','the City Zoo','🦁','A zoo had 3,800 visitors on Saturday. 1,462 visitors left by noon. The zoo then welcomed another 615 visitors in the afternoon. How many visitors were at the zoo by the end of the day?',[
+    {kind:'compute', decimals:0, steps:[
+      {op:'subtract',a:3800,b:1462, note:'Subtract the visitors who left.'},
+      {op:'add',a:2338,b:615, note:'Add the visitors who arrived in the afternoon.'}
+    ]}
+  ]),
+
+  // ---------------- MULTI-PART CHALLENGES ----------------
+  Q(36,'multi','Max, Zoe & Theo','🎉','A class of students raised $1,000 for charity. Max raised $28. Zoe raised $67.',[
+    {kind:'compute', label:'Part A', decimals:0,
+      prompt:'How much money did the rest of the class raise for the charity?',
+      steps:[
+        {op:'subtract',a:1000,b:28, note:'Subtract Max\'s money.'},
+        {op:'subtract',a:972,b:67, note:'Subtract Zoe\'s money.'}
+      ]},
+    {kind:'compute', label:'Part B', decimals:0,
+      prompt:'Theo raised $5 less than Max. How much more money did Zoe raise than Theo?',
+      steps:[
+        {op:'subtract',a:28,b:5, note:'Find how much Theo raised.'},
+        {op:'subtract',a:67,b:23, note:'Find how much more Zoe raised than Theo.'}
+      ]}
+  ]),
+  Q(37,'multi','a football stadium','🏈','There were 3,524 people at a football game. 1,045 people supported Team A. 894 people supported Team B. The rest were neutral.',[
+    {kind:'mcq', label:'Part A',
+      prompt:'Which of these shows the three given numbers, each rounded to the nearest hundred?',
+      choices:['3,520, 1,050, 890','3,500, 1,000, 890','3,500, 1,100, 900','3,500, 1,000, 900'],
+      correctIndex:3},
+    {kind:'compute', label:'Part B', decimals:0,
+      prompt:'Use the rounded numbers to estimate the number of people who were neutral.',
+      steps:[
+        {op:'subtract',a:3500,b:1000, note:'Subtract the rounded Team A number.'},
+        {op:'subtract',a:2500,b:900, note:'Subtract the rounded Team B number.'}
+      ]}
+  ]),
+  Q(38,'multi','Noah, Ivy & Ella','🎈','A bake sale raised $1,500 in total. Noah raised $235. Ivy raised $389.',[
+    {kind:'compute', label:'Part A', decimals:0,
+      prompt:'How much money did the rest of the bake sale raise?',
+      steps:[
+        {op:'subtract',a:1500,b:235, note:'Subtract Noah\'s money.'},
+        {op:'subtract',a:1265,b:389, note:'Subtract Ivy\'s money.'}
+      ]},
+    {kind:'compute', label:'Part B', decimals:0,
+      prompt:'Ella raised $15 less than Noah. How much more money did Ivy raise than Ella?',
+      steps:[
+        {op:'subtract',a:235,b:15, note:'Find how much Ella raised.'},
+        {op:'subtract',a:389,b:220, note:'Find how much more Ivy raised than Ella.'}
+      ]}
+  ]),
+  Q(39,'multi','a summer concert','🎤','There were 4,268 people at a concert. 1,356 people sat in Section A. 1,872 people sat in Section B. The rest stood.',[
+    {kind:'mcq', label:'Part A',
+      prompt:'Which of these shows the three given numbers, each rounded to the nearest hundred?',
+      choices:['4,300, 1,400, 1,900','4,200, 1,300, 1,800','4,300, 1,300, 1,900','4,300, 1,400, 1,800'],
+      correctIndex:0},
+    {kind:'compute', label:'Part B', decimals:0,
+      prompt:'Use the rounded numbers to estimate the number of people who stood.',
+      steps:[
+        {op:'subtract',a:4300,b:1400, note:'Subtract the rounded Section A number.'},
+        {op:'subtract',a:2900,b:1900, note:'Subtract the rounded Section B number.'}
+      ]}
+  ]),
+];
+
+/* ============================= STATE & PERSISTENCE ============================= */
+const stage = document.getElementById('stage');
+const toastEl = document.getElementById('toast');
+
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem('numberExplorersProgress_v1');
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {completed:{}, stars:{}};
+}
+let progress = loadProgress();
+function saveProgress(){
+  try{ localStorage.setItem('numberExplorersProgress_v1', JSON.stringify(progress)); }catch(e){}
+}
+
+const state = {
+  screen:'menu',
+  queue:[],
+  sectionKey:'all',
+  qIndex:0,
+  partIndex:0,
+  stepIndex:0,
+  mistakeMade:false,
+};
+
+const PRAISE = ['Awesome work! 🎉','You got it! ⭐','Super subtracting! 🚀','Math whiz! 🧠✨','Nailed it! 🏆','Great job, explorer! 🗺️','Fantastic! 🌟'];
+function pickPraise(){ return PRAISE[Math.floor(Math.random()*PRAISE.length)]; }
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastEl.classList.remove('show'), 1800);
+}
+
+function updateTopBar(){
+  const starTotal = Object.values(progress.stars).reduce((a,b)=>a+b,0);
+  const doneTotal = Object.keys(progress.completed).length;
+  document.getElementById('starCount').textContent = starTotal;
+  document.getElementById('correctCount').textContent = doneTotal;
+  document.getElementById('totalCount').textContent = QUESTIONS.length;
+}
+
+/* ============================= MATH / FORMAT HELPERS ============================= */
+function round2(n){ return Math.round((n+Number.EPSILON)*100)/100; }
+function computeResult(step){
+  return step.op==='add' ? round2(step.a+step.b) : round2(step.a-step.b);
+}
+function digitPlan(num, decimals){
+  num = Math.abs(num);
+  if(decimals>0){
+    const cents = Math.round(num*Math.pow(10,decimals));
+    const s = String(cents).padStart(decimals+1,'0');
+    const intPart = s.slice(0, s.length-decimals) || '0';
+    const fracPart = s.slice(s.length-decimals);
+    return {intDigits:intPart.split(''), fracDigits:fracPart.split('')};
+  }
+  return {intDigits: String(Math.round(num)).split(''), fracDigits:[]};
+}
+function formatAnswer(num, decimals, prefix, suffix){
+  let s = decimals>0 ? num.toFixed(decimals) : String(Math.round(num));
+  let [intPart, fracPart] = s.split('.');
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (prefix||'') + intPart + (fracPart ? '.'+fracPart : '') + (suffix||'');
+}
+
+/* ============================= DRAG ENGINE ============================= */
+function makeTileDraggable(tile){
+  tile.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    const digit = tile.dataset.digit;
+    const floating = document.createElement('div');
+    floating.className = 'floating-tile';
+    floating.textContent = digit;
+    document.body.appendChild(floating);
+    tile.classList.add('dragging');
+    position(e.clientX, e.clientY);
+    function position(x,y){ floating.style.left=(x-23)+'px'; floating.style.top=(y-23)+'px'; }
+    function findSlot(x,y){
+      const el = document.elementFromPoint(x,y);
+      return el && el.closest ? el.closest('.cell.slot, .cell.regroup') : null;
+    }
+    function onMove(ev){
+      position(ev.clientX, ev.clientY);
+      document.querySelectorAll('.dragover').forEach(s=>s.classList.remove('dragover'));
+      const slot = findSlot(ev.clientX, ev.clientY);
+      if(slot) slot.classList.add('dragover');
+    }
+    function onUp(ev){
+      const slot = findSlot(ev.clientX, ev.clientY);
+      if(slot){
+        slot.textContent = digit;
+        slot.dataset.value = digit;
+        slot.classList.add('filled');
+        slot.classList.remove('correct','wrong');
+      }
+      floating.remove();
+      tile.classList.remove('dragging');
+      document.querySelectorAll('.dragover').forEach(s=>s.classList.remove('dragover'));
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+function wireSlotClear(slot){
+  slot.addEventListener('click', ()=>{
+    slot.textContent='';
+    delete slot.dataset.value;
+    slot.classList.remove('filled','correct','wrong');
+  });
+}
+
+function fillSlot(slot, digit){
+  slot.textContent = digit;
+  slot.dataset.value = digit;
+  slot.classList.add('filled');
+  slot.classList.remove('correct','wrong');
+}
+
+function wireSlotKeyboard(slot){
+  slot.setAttribute('tabindex','0');
+  slot.addEventListener('keydown', (e)=>{
+    if(e.key>='0' && e.key<='9'){
+      e.preventDefault();
+      fillSlot(slot, e.key);
+    } else if(e.key==='Backspace' || e.key==='Delete'){
+      e.preventDefault();
+      slot.textContent='';
+      delete slot.dataset.value;
+      slot.classList.remove('filled','correct','wrong');
+    } else if(e.key==='ArrowRight' || e.key==='ArrowLeft'){
+      e.preventDefault();
+      const all = Array.from(document.querySelectorAll('.cell.slot[tabindex], .cell.regroup[tabindex]'));
+      const idx = all.indexOf(slot);
+      const next = e.key==='ArrowLeft' ? all[idx-1] : all[idx+1];
+      if(next) next.focus();
+    }
+  });
+}
+
+function buildTray(containerEl){
+  containerEl.innerHTML = '<div class="tray" id="trayRow"></div>';
+  const tray = containerEl.querySelector('#trayRow');
+  for(let d=0; d<=9; d++){
+    const tile = document.createElement('div');
+    tile.className='tile';
+    tile.dataset.digit = String(d);
+    tile.textContent = String(d);
+    tray.appendChild(tile);
+    makeTileDraggable(tile);
+  }
+}
+
+/* ============================= BOARD RENDERER ============================= */
+function renderBoard(boardWrap, step, decimals){
+  const result = computeResult(step);
+  const aPlan = digitPlan(step.a, decimals);
+  const bPlan = digitPlan(step.b, decimals);
+  const rPlan = digitPlan(result, decimals);
+  const intCols = Math.max(aPlan.intDigits.length, bPlan.intDigits.length, rPlan.intDigits.length);
+  const hasDec = decimals>0;
+  const totalCols = 1 + intCols + (hasDec ? 1+decimals : 0); // 1 = operator gutter
+
+  let cells = [];
+  function push(row, col, cls, text, extra){
+    cells.push(`<div class="cell ${cls}" style="grid-row:${row};grid-column:${col};" ${extra||''}>${text!==undefined?text:''}</div>`);
+  }
+
+  // Row 1: regroup scratch boxes above each int digit column.
+  // Each box holds exactly ONE digit: for subtraction, the ones-place box that
+  // needs to borrow gets a faint "+10" tip (write a single 1, not "15"); the
+  // column it borrows from gets a faint "-1" tip. For addition, a column that
+  // overflows gets a faint "+1" tip on the column that receives the carry.
+  const regroupHint = new Array(intCols).fill('');
+  if(intCols>0){
+    const digitsA = aPlan.intDigits.slice(); // length === intCols by construction (a is largest)
+    const digitsB = Array(intCols - bPlan.intDigits.length).fill('0').concat(bPlan.intDigits);
+    if(step.op==='subtract'){
+      let borrow = 0;
+      for(let i=intCols-1;i>=0;i--){
+        const top = Number(digitsA[i]) - borrow;
+        const bot = Number(digitsB[i]);
+        if(top < bot){
+          regroupHint[i] = '+10';
+          if(i-1>=0) regroupHint[i-1] = '-1';
+          borrow = 1;
+        } else {
+          borrow = 0;
+        }
+      }
+    } else {
+      let carry = 0;
+      for(let i=intCols-1;i>=0;i--){
+        const sum = Number(digitsA[i]) + Number(digitsB[i]) + carry;
+        if(sum>=10){
+          if(i-1>=0) regroupHint[i-1] = '+1';
+          carry = 1;
+        } else {
+          carry = 0;
+        }
+      }
+    }
+  }
+  for(let i=0;i<intCols;i++){
+    const hint = regroupHint[i];
+    const inner = hint ? `<span class="ghost">${hint}</span>` : '';
+    push(1, 2+i, 'regroup'+(hint?' hint':''), inner);
+  }
+
+  // Row 2: minuend (a)
+  const aStart = 2 + (intCols - aPlan.intDigits.length);
+  aPlan.intDigits.forEach((d,i)=> push(2, aStart+i, '', d));
+  if(hasDec){
+    push(2, 2+intCols, 'point', '.');
+    aPlan.fracDigits.forEach((d,i)=> push(2, 2+intCols+1+i, '', d));
+  }
+
+  // Row 3: operator + subtrahend (b)
+  push(3, 1, 'op', step.op==='add' ? '+' : '−');
+  const bStart = 2 + (intCols - bPlan.intDigits.length);
+  bPlan.intDigits.forEach((d,i)=> push(3, bStart+i, '', d));
+  if(hasDec){
+    push(3, 2+intCols, 'point', '.');
+    bPlan.fracDigits.forEach((d,i)=> push(3, 2+intCols+1+i, '', d));
+  }
+
+  // Row 4: line
+  cells.push(`<div class="line-row" style="grid-row:4;"></div>`);
+
+  // Row 5: answer slots
+  const rStart = 2 + (intCols - rPlan.intDigits.length);
+  rPlan.intDigits.forEach((d,i)=>{
+    push(5, rStart+i, 'slot', '', `data-expected="${d}"`);
+  });
+  if(hasDec){
+    push(5, 2+intCols, 'point', '.');
+    rPlan.fracDigits.forEach((d,i)=>{
+      push(5, 2+intCols+1+i, 'slot', '', `data-expected="${d}"`);
+    });
+  }
+
+  boardWrap.innerHTML = `
+    <div class="board-grid" style="grid-template-columns:repeat(${totalCols},40px);grid-template-rows:28px 44px 44px 6px 44px;">
+      ${cells.join('')}
+    </div>
+    <div id="trayHost"></div>
+    <div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn good" id="checkBtn">✅ Check My Work</button>
+      <span style="font-size:12.5px;color:#888;">Drag a tile in, or click a box and type a number. Tap a filled box to erase it.</span>
+    </div>
+    ${regroupHint.some(h=>h) ? `<div style="margin-top:6px;font-size:12px;color:#8a6bff;">💜 The little dashed boxes are for regrouping — each one holds just <b>one</b> digit (write "1" to show a borrowed ten, not the whole number).</div>` : ''}
+  `;
+  buildTray(boardWrap.querySelector('#trayHost'));
+  boardWrap.querySelectorAll('.cell.slot').forEach(s=>{ wireSlotClear(s); wireSlotKeyboard(s); });
+  boardWrap.querySelectorAll('.cell.regroup').forEach(s=>{ wireSlotClear(s); wireSlotKeyboard(s); });
+
+  return { result, boardWrap };
+}
+
+/* ============================= SCRATCH PAD ============================= */
+function setupScratch(canvasEl){
+  const ctx = canvasEl.getContext('2d');
+  let erasing = false, drawing = false;
+  function resize(){
+    const rect = canvasEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvasEl.width = Math.max(1,rect.width*dpr);
+    canvasEl.height = Math.max(1,rect.height*dpr);
+    ctx.scale(dpr,dpr);
+    ctx.lineWidth = 3; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#33335c';
+  }
+  resize();
+  canvasEl.addEventListener('pointerdown', e=>{
+    drawing = true;
+    const r = canvasEl.getBoundingClientRect();
+    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    ctx.beginPath();
+    ctx.moveTo(e.clientX-r.left, e.clientY-r.top);
+  });
+  canvasEl.addEventListener('pointermove', e=>{
+    if(!drawing) return;
+    const r = canvasEl.getBoundingClientRect();
+    ctx.lineTo(e.clientX-r.left, e.clientY-r.top);
+    ctx.stroke();
+  });
+  window.addEventListener('pointerup', ()=>drawing=false);
+  return {
+    clear(){ ctx.clearRect(0,0,canvasEl.width,canvasEl.height); },
+    setErase(v){ erasing=v; }
+  };
+}
+
+/* ============================= MENU ============================= */
+function sectionStats(key){
+  const qs = QUESTIONS.filter(q=>q.section===key);
+  const total = qs.length;
+  const done = qs.filter(q=>progress.completed[q.id]).length;
+  const stars = qs.reduce((s,q)=>s+(progress.stars[q.id]||0),0);
+  return {total,done,stars};
+}
+function starsStr(n){
+  if(n<=0) return '<span style="color:#bbb;">no stars yet</span>';
+  const full = Math.min(n,8);
+  return '⭐'.repeat(full) + (n>8? ' +'+(n-8) : '');
+}
+function renderMenu(){
+  updateTopBar();
+  const overallDone = Object.keys(progress.completed).length;
+  const cards = SECTIONS.map(sec=>{
+    const {total,done,stars} = sectionStats(sec.key);
+    const pct = total? Math.round(done/total*100):0;
+    const label = done===total ? '↻ Review' : done>0 ? '▶ Continue' : '▶ Start';
+    return `<div class="section-card" data-section="${sec.key}">
+      <div class="emoji">${sec.emoji}</div>
+      <h3>${sec.name}</h3>
+      <p>${sec.desc}</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="stars-row">${starsStr(stars)} <span style="color:#999;font-weight:normal;font-size:13px;">(${done}/${total})</span></div>
+      <button class="btn small" style="margin-top:10px;width:100%;">${label}</button>
+    </div>`;
+  }).join('');
+  const allCard = `<div class="section-card" data-section="all" style="background:linear-gradient(160deg,#fff7e0,#ffe9d6);">
+      <div class="emoji">🏆</div>
+      <h3>Full Quest — All ${QUESTIONS.length}!</h3>
+      <p>Play every question from start to finish.</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${QUESTIONS.length?Math.round(overallDone/QUESTIONS.length*100):0}%"></div></div>
+      <div class="stars-row">${overallDone}/${QUESTIONS.length} complete</div>
+      <button class="btn small" style="margin-top:10px;width:100%;">${overallDone>0?'▶ Continue Quest':'▶ Start Quest'}</button>
+  </div>`;
+  stage.innerHTML = `
+    <p style="text-align:center;font-size:15px;color:#555;max-width:640px;margin:0 auto 16px;">
+      Pick a notebook section below. Drag the number tiles into the boxes to solve each problem — use the scratch pad to work things out first!
+    </p>
+    <div class="menu-grid">${cards}${allCard}</div>
+  `;
+  stage.querySelectorAll('.section-card').forEach(card=>{
+    card.querySelector('button').addEventListener('click', ()=>startSection(card.dataset.section));
+  });
+}
+
+function startSection(key){
+  state.queue = key==='all' ? QUESTIONS.slice() : QUESTIONS.filter(q=>q.section===key);
+  state.sectionKey = key;
+  state.qIndex = 0;
+  // resume at first incomplete question within this queue
+  const firstIncomplete = state.queue.findIndex(q=>!progress.completed[q.id]);
+  state.qIndex = firstIncomplete===-1 ? 0 : firstIncomplete;
+  state.partIndex = 0;
+  state.stepIndex = 0;
+  state.mistakeMade = false;
+  state.screen = 'quest';
+  renderQuestion();
+}
+
+/* ============================= QUESTION FLOW ============================= */
+function currentQuestion(){ return state.queue[state.qIndex]; }
+
+function renderQuestion(){
+  updateTopBar();
+  const q = currentQuestion();
+  if(!q){ renderSectionComplete(); return; }
+  const part = q.parts[state.partIndex];
+  const sec = SECTIONS.find(s=>s.key===q.section);
+  const multiPart = q.parts.length>1;
+
+  let bondHintHtml = '';
+  if(q.bondHint && state.partIndex===0 && state.stepIndex===0){
+    const bh = q.bondHint;
+    bondHintHtml = `
+      <span class="hint-toggle" id="bondToggle">💡 Show a number bond hint</span>
+      <div class="bond-hint" id="bondPanel" style="display:none;">
+        <div class="bond-col"><div class="circ">${bh.a}</div></div>
+        <div style="font-size:20px;">&minus;</div>
+        <div class="bond-col">
+          <div class="circ">${bh.b}</div>
+          <div style="font-size:11px;color:#888;">splits into</div>
+          <div style="display:flex;gap:6px;">
+            <div class="circ" style="width:36px;height:36px;font-size:13px;">${bh.bt}</div>
+            <div class="circ" style="width:36px;height:36px;font-size:13px;">${bh.bo}</div>
+          </div>
+        </div>
+        <div style="max-width:180px;font-size:12.5px;color:#555;">
+          ${bh.a} &minus; ${bh.bt} = ${bh.a-bh.bt}, then ${bh.a-bh.bt} &minus; ${bh.bo} = ${bh.a-bh.b}
+        </div>
+      </div>`;
+  }
+
+  stage.innerHTML = `
+    <div class="progress-strip"><div class="progress-strip-fill" style="width:${Math.round((state.qIndex)/state.queue.length*100)}%"></div></div>
+    <div class="notebook">
+      <div class="crumb">${sec.emoji} ${sec.name} • Question ${state.qIndex+1} of ${state.queue.length}</div>
+      <div class="prompt-row">
+        <div class="avatar">${q.emoji}</div>
+        <div>
+          <div class="prompt-text">${q.title}</div>
+        </div>
+      </div>
+      ${multiPart ? `<div class="part-pill">${part.label}</div><div class="prompt-text" style="margin-bottom:10px;">${part.prompt}</div>` : ''}
+      ${bondHintHtml}
+      <div class="scratch-wrap">
+        <div class="scratch-head">
+          <span>📝 Scratch Pad (your own work — not graded)</span>
+          <div class="scratch-tools">
+            <button class="btn secondary small" id="penBtn">✏️ Pen</button>
+            <button class="btn secondary small" id="eraseBtn">🧽 Erase</button>
+            <button class="btn secondary small" id="clearBtn">🗑️ Clear</button>
+          </div>
+        </div>
+        <canvas class="scratch" id="scratchCanvas"></canvas>
+      </div>
+      <div id="stepNote" style="font-weight:bold;margin-bottom:8px;color:var(--purple);"></div>
+      <div class="board-wrap" id="boardWrap"></div>
+      <div class="feedback-banner" id="feedback"></div>
+      <div class="answer-summary" id="answerSummary"></div>
+      <div class="nav-row">
+        <button class="btn secondary" id="backToMenu">🗂 Back to Menu</button>
+        <div id="nextArea"></div>
+      </div>
+    </div>
+  `;
+
+  // scratch pad
+  const scratch = setupScratch(document.getElementById('scratchCanvas'));
+  document.getElementById('penBtn').addEventListener('click', ()=>scratch.setErase(false));
+  document.getElementById('eraseBtn').addEventListener('click', ()=>scratch.setErase(true));
+  document.getElementById('clearBtn').addEventListener('click', ()=>scratch.clear());
+
+  // bond hint toggle
+  const bt = document.getElementById('bondToggle');
+  if(bt){
+    bt.addEventListener('click', ()=>{
+      const panel = document.getElementById('bondPanel');
+      const open = panel.style.display!=='none';
+      panel.style.display = open?'none':'flex';
+      bt.textContent = open ? '💡 Show a number bond hint' : '🙈 Hide hint';
+    });
+  }
+
+  document.getElementById('backToMenu').addEventListener('click', ()=>{ state.screen='menu'; renderMenu(); });
+
+  if(part.kind==='mcq'){
+    renderMcqPart(part);
+  } else {
+    renderComputePart(part, state.stepIndex);
+  }
+}
+
+function renderComputePart(part, stepIdx){
+  const step = part.steps[stepIdx];
+  const noteEl = document.getElementById('stepNote');
+  noteEl.textContent = part.steps.length>1 ? `Step ${stepIdx+1} of ${part.steps.length}: ${step.note||''}` : (step.note||'');
+  const boardWrap = document.getElementById('boardWrap');
+  const { result } = renderBoard(boardWrap, step, part.decimals||0);
+
+  document.getElementById('checkBtn').addEventListener('click', ()=>{
+    const slots = Array.from(boardWrap.querySelectorAll('.cell.slot'));
+    const allFilled = slots.every(s=>s.dataset.value!==undefined);
+    const feedback = document.getElementById('feedback');
+    if(!allFilled){
+      feedback.className = 'feedback-banner show bad';
+      feedback.textContent = '✏️ Fill in every answer box first!';
+      return;
+    }
+    const allCorrect = slots.every(s=>s.dataset.value===s.dataset.expected);
+    if(window.Tracker) Tracker.answer(allCorrect, 'Subtraction: ' + state.sectionKey);
+    slots.forEach(s=>{
+      const ok = s.dataset.value===s.dataset.expected;
+      s.classList.toggle('correct', ok);
+      s.classList.toggle('wrong', !ok);
+    });
+    if(allCorrect){
+      feedback.className = 'feedback-banner show good';
+      feedback.textContent = '🎉 ' + pickPraise();
+      document.getElementById('checkBtn').disabled = true;
+      boardWrap.querySelectorAll('.tile').forEach(t=>t.style.pointerEvents='none');
+      if(stepIdx+1 < part.steps.length){
+        const nextArea = document.getElementById('nextArea');
+        nextArea.innerHTML = `<button class="btn" id="continueStepBtn">Next Step ▶</button>`;
+        document.getElementById('continueStepBtn').addEventListener('click', ()=>{
+          state.stepIndex++;
+          renderQuestion();
+        });
+      } else {
+        onPartComplete(part, result);
+      }
+    } else {
+      state.mistakeMade = true;
+      feedback.className = 'feedback-banner show bad';
+      feedback.textContent = '🤔 Close! Fix the red boxes — tap a box to erase it, then drag a new digit in.';
+    }
+  });
+}
+
+function renderMcqPart(part){
+  const boardWrap = document.getElementById('boardWrap');
+  let chosen = null;
+  boardWrap.innerHTML = `
+    <div class="mcq-grid" id="mcqGrid">
+      ${part.choices.map((c,i)=>`<div class="mcq-choice" data-i="${i}">${c}</div>`).join('')}
+    </div>
+    <button class="btn good" id="checkBtn">✅ Check My Answer</button>
+  `;
+  const choiceEls = Array.from(boardWrap.querySelectorAll('.mcq-choice'));
+  choiceEls.forEach(el=>{
+    el.addEventListener('click', ()=>{
+      choiceEls.forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      chosen = Number(el.dataset.i);
+    });
+  });
+  document.getElementById('checkBtn').addEventListener('click', ()=>{
+    const feedback = document.getElementById('feedback');
+    if(chosen===null){
+      feedback.className = 'feedback-banner show bad';
+      feedback.textContent = '👉 Pick an answer first!';
+      return;
+    }
+    const ok = chosen===part.correctIndex;
+    if(window.Tracker) Tracker.answer(ok, 'Subtraction: ' + state.sectionKey + ' (choice)');
+    choiceEls.forEach((el,i)=>{
+      if(i===part.correctIndex) el.classList.add('correct');
+      if(i===chosen && !ok) el.classList.add('wrong');
+    });
+    if(ok){
+      feedback.className = 'feedback-banner show good';
+      feedback.textContent = '🎉 ' + pickPraise();
+      document.getElementById('checkBtn').disabled = true;
+      onPartComplete(part, part.choices[part.correctIndex]);
+    } else {
+      state.mistakeMade = true;
+      feedback.className = 'feedback-banner show bad';
+      feedback.textContent = '🤔 Not quite — the green one is correct. Try the next part!';
+      document.getElementById('checkBtn').disabled = true;
+      onPartComplete(part, part.choices[part.correctIndex]);
+    }
+  });
+}
+
+function onPartComplete(part, result){
+  const q = currentQuestion();
+  const summary = document.getElementById('answerSummary');
+  if(part.kind==='compute'){
+    const prefix = part.decimals>0 ? '$' : '';
+    const suffix = part.suffix || '';
+    summary.textContent = `✅ Answer: ${formatAnswer(result, part.decimals||0, prefix, suffix)}`;
+  } else {
+    summary.textContent = `✅ Answer: ${result}`;
+  }
+  summary.classList.add('show');
+
+  const nextArea = document.getElementById('nextArea');
+  const isLastPart = state.partIndex >= q.parts.length-1;
+  if(!isLastPart){
+    nextArea.innerHTML = `<button class="btn" id="nextPartBtn">Continue to ${q.parts[state.partIndex+1].label||'Next Part'} ▶</button>`;
+    document.getElementById('nextPartBtn').addEventListener('click', ()=>{
+      state.partIndex++;
+      state.stepIndex=0;
+      renderQuestion();
+    });
+  } else {
+    finishQuestion();
+    nextArea.innerHTML = state.qIndex+1 < state.queue.length
+      ? `<button class="btn" id="nextQBtn">Next Question ▶</button>`
+      : `<button class="btn" id="nextQBtn">🏁 Finish Section</button>`;
+    document.getElementById('nextQBtn').addEventListener('click', ()=>{
+      state.qIndex++;
+      state.partIndex=0; state.stepIndex=0; state.mistakeMade=false;
+      renderQuestion();
+    });
+  }
+}
+
+function finishQuestion(){
+  const q = currentQuestion();
+  const starsEarned = state.mistakeMade ? 1 : 2;
+  const wasAlreadyDone = !!progress.completed[q.id];
+  progress.completed[q.id] = true;
+  if(!wasAlreadyDone || (progress.stars[q.id]||0) < starsEarned){
+    progress.stars[q.id] = Math.max(progress.stars[q.id]||0, starsEarned);
+  }
+  saveProgress();
+  updateTopBar();
+  showToast(starsEarned===2 ? '🌟🌟 Perfect! +2 stars' : '🌟 Nice! +1 star');
+}
+
+function renderSectionComplete(){
+  stage.innerHTML = `
+    <div class="notebook" style="text-align:center;">
+      <div style="font-size:60px;">🏆</div>
+      <h2>Section Complete!</h2>
+      <p>Amazing work, explorer! Head back to the menu to pick another notebook section.</p>
+      <button class="btn" id="backBtn2">🗂 Back to Menu</button>
+    </div>`;
+  document.getElementById('backBtn2').addEventListener('click', ()=>{ state.screen='menu'; renderMenu(); });
+}
+
+/* ============================= INIT ============================= */
+document.getElementById('menuBtn').addEventListener('click', ()=>{ state.screen='menu'; renderMenu(); });
+updateTopBar();
+renderMenu();
+</script>
+<a href="../../index.html" title="Back to the Learning Hub" style="position:fixed;left:10px;bottom:10px;z-index:9999;background:rgba(36,48,74,.85);color:#fff;font:700 13px/1 Trebuchet MS,sans-serif;padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)">&#127890; Hub</a>
+</body>
+</html>

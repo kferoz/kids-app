@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hub Filter Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #1a1533; color: #eee; }
+    header { padding: 14px 18px; background: #241a4e; }
+    h1 { margin: 0; font-size: 1.2rem; }
+    #summary { font-size: 1.4rem; font-weight: 800; padding: 12px 18px; }
+    #summary.pass { color: #34c98a; }
+    #summary.fail { color: #ff6f9c; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 6px 18px; border-bottom: 1px solid #33294f; font-size: 0.95rem; }
+    .ok { color: #34c98a; } .bad { color: #ff6f9c; font-weight: 700; }
+    .grp { background: #2b2150; font-weight: 700; }
+    iframe { display: none; }
+    .note { padding: 8px 18px; color: #b9b0d6; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎒 Kids Learning Hub — Category Filter Test</h1>
+  </header>
+  <div id="summary">Running…</div>
+  <p class="note">
+    Verifies the All / Kindergarten / Elementary filter shows &amp; hides the right app
+    cards — including the <b>two Grade 3 cards</b> (Times Table Takeoff &amp; Homeschool
+    Academy) and the both-sections Homeschool Kindergarten card.
+    <br>Open via a local server or with Chrome's <code>--allow-file-access-from-files</code>
+    flag so this page can read the hub inside the iframe.
+  </p>
+  <table id="results"></table>
+  <iframe id="hub" src="../index.html"></iframe>
+
+  <script>
+  (function () {
+    var iframe = document.getElementById("hub");
+    var t = 0;
+    var poll = setInterval(function () {
+      t++;
+      var doc;
+      try { doc = iframe.contentDocument; } catch (e) { doc = null; }
+      if (doc && doc.readyState === "complete" && doc.querySelector(".filter-chip")) {
+        clearInterval(poll);
+        try { run(doc); }
+        catch (e) { fail("Test crashed: " + e.message); }
+      } else if (t > 60) {
+        clearInterval(poll);
+        fail("Could not read the hub iframe (file:// cross-origin?). Use a local server or --allow-file-access-from-files.");
+      }
+    }, 100);
+
+    function fail(msg) {
+      var s = document.getElementById("summary");
+      s.className = "fail"; s.textContent = "✗ " + msg;
+      document.title = "FAIL";
+    }
+
+    function run(doc) {
+      var checks = [];
+      function group(name) { checks.push({ group: name }); }
+      function check(name, cond) { checks.push({ name: name, pass: !!cond }); }
+      // Visible = the element and none of its ancestors carry the `hidden`
+      // attribute (what the filter toggles). Layout-independent, so it works
+      // even though this test hides the iframe itself.
+      function vis(el) {
+        if (!el) return false;
+        for (var n = el; n && n !== doc.body; n = n.parentElement) {
+          if (n.hidden) return false;
+        }
+        return true;
+      }
+
+      // --- element handles ---
+      var chip = function (f) { return doc.querySelector('.filter-chip[data-filter="' + f + '"]'); };
+      var kinderSection = doc.querySelector('.cat-section[data-cat="kinder"]');
+      var elemSection   = doc.querySelector('.cat-section[data-cat="elementary"]');
+      var funCard       = doc.querySelector('.feature-card'); // Fun Zone, never a cat-section
+      var kgHome   = doc.querySelector('.cat-section[data-cat="kinder"] .app-card.homeschool');
+      var g3Prep   = doc.querySelector('.cat-section[data-cat="elementary"] .app-card.multiply');    // "Grade 3 Prep"
+      var g3Home   = doc.querySelector('.cat-section[data-cat="elementary"] .app-card.homeschool');   // "Grade 3"
+
+      // --- sanity: the two Grade 3 cards exist and carry a Grade 3 badge ---
+      group("The two Grade 3 cards exist (Elementary)");
+      check('Times Table Takeoff card present', g3Prep);
+      check('  its badge reads "Grade 3 Prep"', g3Prep && /Grade 3/.test(g3Prep.querySelector('.level-badge').textContent));
+      check('Homeschool Academy card present', g3Home);
+      check('  its badge reads "Grade 3"', g3Home && /Grade 3/.test(g3Home.querySelector('.level-badge').textContent));
+      check('Homeschool Kindergarten card present (Ages 4–6)', kgHome && /Ages/.test(kgHome.querySelector('.level-badge').textContent));
+
+      // --- ALL ---
+      chip("all").click();
+      group('Filter = "All"');
+      check("Kindergarten section shown", vis(kinderSection));
+      check("Elementary section shown", vis(elemSection));
+      check("Grade 3 card · Times Table Takeoff shown", vis(g3Prep));
+      check("Grade 3 card · Homeschool Academy shown", vis(g3Home));
+      check("Homeschool Kindergarten card shown", vis(kgHome));
+      check("Fun Zone shown", vis(funCard));
+
+      // --- KINDERGARTEN ---
+      chip("kinder").click();
+      group('Filter = "Kindergarten"');
+      check("Kindergarten section shown", vis(kinderSection));
+      check("Elementary section hidden", !vis(elemSection));
+      check("Grade 3 card · Times Table Takeoff HIDDEN", !vis(g3Prep));
+      check("Grade 3 card · Homeschool Academy HIDDEN", !vis(g3Home));
+      check("Homeschool Kindergarten card shown", vis(kgHome));
+      check("Fun Zone still shown", vis(funCard));
+
+      // --- ELEMENTARY ---
+      chip("elementary").click();
+      group('Filter = "Elementary"');
+      check("Elementary section shown", vis(elemSection));
+      check("Kindergarten section hidden", !vis(kinderSection));
+      check("Grade 3 card · Times Table Takeoff shown", vis(g3Prep));
+      check("Grade 3 card · Homeschool Academy shown", vis(g3Home));
+      check("Homeschool Kindergarten card HIDDEN", !vis(kgHome));
+      check("Fun Zone still shown", vis(funCard));
+
+      // reset to All so the hub looks normal
+      chip("all").click();
+
+      render(checks);
+    }
+
+    function render(checks) {
+      var tbl = document.getElementById("results");
+      var pass = 0, total = 0, html = "";
+      checks.forEach(function (c) {
+        if (c.group) { html += '<tr class="grp"><td colspan="2">' + c.group + "</td></tr>"; return; }
+        total++; if (c.pass) pass++;
+        html += "<tr><td>" + (c.pass ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>') +
+                "</td><td>" + c.name + "</td></tr>";
+      });
+      tbl.innerHTML = html;
+      var s = document.getElementById("summary");
+      var allPass = pass === total;
+      s.className = allPass ? "pass" : "fail";
+      s.textContent = (allPass ? "✓ PASS" : "✗ FAIL") + " — " + pass + " / " + total + " checks";
+      document.title = allPass ? ("PASS " + pass + "/" + total) : ("FAIL " + pass + "/" + total);
+    }
+  })();
+  </script>
+</body>
+</html>

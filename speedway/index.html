@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏎️ Learning Speedway</title>
+  <meta name="description" content="A car-racing learning game for Kindergarten — steer into the right gate to practise letters, sounds, rhymes, sight words, numbers, counting, shapes, adding and patterns." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="confetti" class="confetti-box" aria-hidden="true"></div>
+
+  <!-- ================= HOME ================= -->
+  <section id="homeScreen" class="screen active">
+    <header class="hud">
+      <span class="hud-pill" id="hudPoints">⭐ 0</span>
+      <span class="hud-pill" id="hudRaces">🏁 0/16</span>
+      <button class="hud-pill btn" id="garageBtn" title="Your garage">🚗 Garage</button>
+      <button class="hud-pill btn" id="muteBtn" title="Sound on/off">🔊</button>
+    </header>
+
+    <div class="home-hero">
+      <div class="rev" id="revCar">🏎️</div>
+      <h1 class="app-title">Learning Speedway</h1>
+      <p class="app-tag">Hi, I'm <b>Rev</b>! Pick a road and steer into the <b>right gate</b> to zoom ahead! 🏁</p>
+    </div>
+
+    <button class="dash-card" id="dashBtn">
+      <span class="dash-emoji">🌈</span>
+      <span class="dash-text">
+        <b>Highway Dash</b>
+        <span>A never-ending drive that mixes every question. No timer, no losing — just keep zooming! 🎟️ every 5 gates.</span>
+      </span>
+      <span class="dash-go">Drive →</span>
+    </button>
+
+    <div id="zoneList"></div>
+
+    <footer class="mini-foot">Every race gives ⭐ points, a new 🚗 car and a 🎟️ ticket for the Prize Wheel!</footer>
+  </section>
+
+  <!-- ================= RACE ================= -->
+  <section id="raceScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="raceBack">← Home</button>
+      <h2 id="raceTitle">Race</h2>
+      <button class="hud-pill btn small" id="raceMute" title="Sound on/off">🔊</button>
+    </header>
+
+    <div class="lap-bar">
+      <div class="lap-dots" id="lapDots"></div>
+      <span class="lap-count" id="lapCount">Lap 1</span>
+    </div>
+
+    <div class="question-card">
+      <button class="say-btn" id="sayBtn" title="Say it again">🔊</button>
+      <p class="question" id="qText">Ready?</p>
+    </div>
+    <div class="q-visual" id="qVisual"></div>
+
+    <!-- the road -->
+    <div class="road" id="road">
+      <div class="sky" aria-hidden="true">
+        <span class="cloud c1">☁️</span><span class="cloud c2">☁️</span><span class="sun">☀️</span>
+      </div>
+      <div class="asphalt" id="asphalt">
+        <div class="lane-line l1" aria-hidden="true"></div>
+        <div class="lane-line l2" aria-hidden="true"></div>
+        <div class="gates" id="gates"></div>
+        <div class="car" id="car">🚗</div>
+      </div>
+      <div class="verge left" aria-hidden="true"></div>
+      <div class="verge right" aria-hidden="true"></div>
+    </div>
+
+    <div class="race-feedback" id="raceFeedback"></div>
+    <p class="drive-help">Tap a gate — or use ← → and Enter on a keyboard.</p>
+    <button class="big-btn ghost" id="dashStop" hidden>🏁 Finish my drive</button>
+  </section>
+
+  <!-- ================= FINISH ================= -->
+  <section id="finishScreen" class="screen">
+    <div class="finish-box" id="finishBox"></div>
+    <div class="finish-actions">
+      <button class="big-btn go" id="raceAgainBtn">↺ Race Again</button>
+      <button class="big-btn ghost" id="finishHome">🏠 Back to Roads</button>
+    </div>
+  </section>
+
+  <!-- ================= GARAGE ================= -->
+  <section id="garageScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="garageBack">← Home</button>
+      <h2>🚗 My Garage</h2>
+      <span class="bar-spacer"></span>
+    </header>
+
+    <div class="gr-totals" id="grTotals"></div>
+
+    <h3 class="gr-h">🚙 My Cars <span class="gr-sub">tap one to drive it</span></h3>
+    <div class="car-grid" id="carGrid"></div>
+
+    <h3 class="gr-h">🏆 Trophies</h3>
+    <div class="wall" id="trophyWall"></div>
+
+    <p class="gr-note">Tip: your ⭐ points and 🏆 trophies also show up in the <b>Rewards Center</b>, and every finished race gives a 🎟️ ticket for the Prize Wheel!</p>
+  </section>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="speedway"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

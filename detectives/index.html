@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔍 Reading Detectives</title>
+  <meta name="description" content="A Grade-3 reading-comprehension journey with Roco the Raccoon — 15 story 'cases' from beginner to expert, with ranks, stickers, trophies and a Clue Hunt game." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="confetti" class="confetti-box" aria-hidden="true"></div>
+
+  <!-- ================= HOME ================= -->
+  <section id="homeScreen" class="screen active">
+    <header class="hud">
+      <button class="hud-pill btn" id="kitBtn" title="Detective Kit">🎒 Detective Kit</button>
+      <span class="hud-pill" id="homePoints">⭐ 0</span>
+      <button class="hud-pill btn" id="muteBtn" title="Sound on/off">🔊</button>
+    </header>
+
+    <div class="home-hero">
+      <div class="roco">🦝<span class="glass">🔍</span></div>
+      <h1 class="app-title">Reading Detectives</h1>
+      <p class="app-tag">Hi, I'm <b>Roco</b>! Every story is a <b>mystery</b> to solve. Read the clues and crack all 15 cases!</p>
+    </div>
+
+    <div class="rank-card">
+      <div class="rank-badge" id="rankBadge">🔰</div>
+      <div class="rank-meta">
+        <span class="rank-title">Your Rank: <b id="rankName">Rookie Reader</b></span>
+        <div class="power-bar"><i id="powerFill" style="width:0%"></i></div>
+        <span class="power-label" id="powerLabel">0 / 15 cases solved</span>
+      </div>
+    </div>
+
+    <div class="home-actions">
+      <button class="big-btn go" id="startBtn">🔍 Start Case 1</button>
+      <button class="big-btn ghost" id="clueBtn">🔦 Clue Hunt Game</button>
+    </div>
+
+    <footer class="mini-foot">Solve cases to earn ⭐ points, 🎟️ stickers, 🎖️ detective ranks &amp; 🏆 trophies!</footer>
+  </section>
+
+  <!-- ================= CASES ================= -->
+  <section id="casesScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="casesBack">← Home</button>
+      <h2>🗂️ The Case Files</h2>
+      <span class="bar-rank" id="casesRank"></span>
+    </header>
+    <div class="case-list" id="caseList"></div>
+  </section>
+
+  <!-- ================= CASE PLAYER ================= -->
+  <section id="caseScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="caseBack">← Cases</button>
+      <h2 id="caseTitle">Case</h2>
+      <span class="bar-rank"></span>
+    </header>
+    <div class="step-dots" id="stepDots"></div>
+    <div class="case-body" id="caseBody"></div>
+    <div class="case-feedback" id="caseFeedback"></div>
+  </section>
+
+  <!-- ================= REWARD ================= -->
+  <section id="rewardScreen" class="screen">
+    <div class="reward-box" id="rewardBox"></div>
+    <div class="reward-actions">
+      <button class="big-btn go" id="nextCaseBtn">Next Case →</button>
+      <button class="big-btn ghost" id="rewardToCases">🗂️ Back to Cases</button>
+    </div>
+  </section>
+
+  <!-- ================= DETECTIVE KIT ================= -->
+  <section id="kitScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="kitBack">← Home</button>
+      <h2>🎒 Detective Kit</h2>
+      <span class="bar-rank"></span>
+    </header>
+    <div class="kit-totals" id="kitTotals"></div>
+
+    <h3 class="kit-h">🎖️ Detective Ranks</h3>
+    <div class="wall" id="rankLadder"></div>
+
+    <h3 class="kit-h">🎟️ Sticker Book</h3>
+    <div class="sticker-book" id="stickerBook"></div>
+
+    <h3 class="kit-h">🏆 Trophies</h3>
+    <div class="wall" id="trophyWall"></div>
+
+    <h3 class="kit-h">📚 Case File Bookshelf</h3>
+    <div class="bookshelf" id="bookshelf"></div>
+    <p class="kit-note" id="clueBest">🔦 Clue Hunt: not played yet</p>
+    <p class="kit-note">Your points &amp; stickers also show up in the <b>Rewards Center</b>, and every case gives a 🎟️ ticket for the Prize Wheel!</p>
+  </section>
+
+  <!-- ================= CLUE HUNT ================= -->
+  <section id="clueScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="clueBack">← Home</button>
+      <h2>🔦 Clue Hunt</h2>
+      <span class="bar-rank" id="clueScore">⭐ 0</span>
+    </header>
+    <div class="clue-progress" id="clueProgress">Clue 1 / 10</div>
+    <div class="case-body">
+      <div class="q-text" id="clueQ">Tap the meaning of the mystery word!</div>
+      <div class="choices" id="clueChoices"></div>
+    </div>
+    <div class="case-feedback" id="clueFeedback"></div>
+    <div class="reward-actions">
+      <button class="big-btn go" id="clueAgain">🔁 Play Again</button>
+      <button class="big-btn ghost" id="clueBackBtn" style="display:none"></button>
+    </div>
+  </section>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="detectives"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

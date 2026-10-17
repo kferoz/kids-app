@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏁 Turbo Grand Prix</title>
+  <meta name="description" content="A Grade 3 championship racing game — beat three rival drivers over 8 Grands Prix by answering math and English questions fast, then spend your parts on car upgrades." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="confetti" class="confetti-box" aria-hidden="true"></div>
+
+  <!-- ================= HOME / PADDOCK ================= -->
+  <section id="homeScreen" class="screen active">
+    <header class="hud">
+      <span class="hud-pill" id="hudRank">🔰 Rookie</span>
+      <span class="hud-pill" id="hudPts">🏅 0 pts</span>
+      <span class="hud-pill" id="hudParts">🔧 0</span>
+      <button class="hud-pill btn" id="garageBtn">🛠️ Garage</button>
+    </header>
+
+    <div class="home-hero">
+      <div class="hero-car">🏎️</div>
+      <h1 class="app-title">Turbo <span>Grand Prix</span></h1>
+      <p class="app-tag">Eight races. Three rivals. Answer fast, keep your streak alive, and take the championship.</p>
+    </div>
+
+    <div class="season-bar">
+      <div class="season-track"><i id="seasonFill"></i></div>
+      <span id="seasonText">Season 0 / 8 races</span>
+    </div>
+
+    <h2 class="sec-h">🏁 Championship Calendar</h2>
+    <div class="gp-list" id="gpList"></div>
+
+    <h2 class="sec-h">⏱️ Time Trial <span class="sec-sub">practice any track, no rivals</span></h2>
+    <div class="tt-list" id="ttList"></div>
+
+    <footer class="mini-foot">Points &amp; 🔧 parts carry across the season — spend parts in the Garage to make your car faster.</footer>
+  </section>
+
+  <!-- ================= RACE ================= -->
+  <section id="raceScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="raceQuit">← Retire</button>
+      <h2 id="raceTitle">Grand Prix</h2>
+      <span class="lap-pill" id="lapPill">Lap 1/10</span>
+    </header>
+
+    <!-- live positions -->
+    <div class="track" id="track"></div>
+
+    <!-- speed / streak -->
+    <div class="gauges">
+      <div class="speed-wrap"><i id="speedFill"></i><span id="speedLabel">SPEED BONUS</span></div>
+      <span class="streak-pill" id="streakPill">STREAK 0</span>
+    </div>
+
+    <div class="q-card">
+      <p class="q-text" id="qText">Ready?</p>
+      <div class="answers" id="answers"></div>
+      <form class="type-form" id="typeForm" hidden>
+        <input class="type-input" id="typeInput" type="text" inputmode="numeric" autocomplete="off" aria-label="Your answer" placeholder="Type your answer" />
+        <button class="big-btn go" type="submit">Lock it in →</button>
+      </form>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </section>
+
+  <!-- ================= RESULT ================= -->
+  <section id="resultScreen" class="screen">
+    <div class="result-box" id="resultBox"></div>
+    <div class="result-actions">
+      <button class="big-btn go" id="nextGpBtn">Next Race →</button>
+      <button class="big-btn ghost" id="resultHome">🏁 Paddock</button>
+    </div>
+  </section>
+
+  <!-- ================= GARAGE ================= -->
+  <section id="garageScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="garageBack">← Paddock</button>
+      <h2>🛠️ Garage</h2>
+      <span class="lap-pill" id="partsPill">🔧 0</span>
+    </header>
+
+    <div class="gr-totals" id="grTotals"></div>
+
+    <h2 class="sec-h">⚙️ Upgrades</h2>
+    <div class="upg-list" id="upgList"></div>
+
+    <h2 class="sec-h">📊 Championship Standings</h2>
+    <div class="standings" id="standings"></div>
+
+    <h2 class="sec-h">🏆 Trophy Cabinet</h2>
+    <div class="wall" id="trophyWall"></div>
+
+    <p class="gr-note">Your 🏅 points and 🏆 trophies also appear in the <b>Rewards Center</b>, and every race finished earns a 🎟️ ticket for the Prize Wheel.</p>
+  </section>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="grandprix"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

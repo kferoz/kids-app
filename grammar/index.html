@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grammar Galaxy 🚀</title>
+  <meta name="description" content="A fun, interactive way for elementary students to learn English grammar: nouns, verbs, adjectives and more!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="bg-shapes" aria-hidden="true">
+    <span class="shape s1">📚</span>
+    <span class="shape s2">✏️</span>
+    <span class="shape s3">🔤</span>
+    <span class="shape s4">⭐</span>
+    <span class="shape s5">💬</span>
+    <span class="shape s6">✨</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Go back" hidden>← Back</button>
+    <h1 class="app-title">🚀 Grammar Galaxy</h1>
+    <div class="score-badge" id="scoreBadge" title="Stars you have collected">
+      <span class="star-icon">⭐</span>
+      <span id="starCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME / TOPIC PICKER ============ -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Pick a grammar topic and become a word wizard! 🪄</p>
+      <div class="category-grid" id="categoryGrid"><!-- filled by JS --></div>
+
+      <div class="home-actions">
+        <button class="story-btn" id="storyBtn">🦸 Superhero Story Rescue</button>
+        <button class="surprise-btn" id="surpriseBtn">🎲 Surprise Lesson!</button>
+        <button class="game-btn" id="playGameBtn">🕵️ Play Word Detective</button>
+        <button class="trophy-btn" id="trophyBtn">🏆 My Trophies</button>
+      </div>
+      <p class="game-lock-hint" id="gameLockHint" hidden>🔒 Finish any topic's quiz to unlock Word Detective!</p>
+    </section>
+
+    <!-- ============ LESSON CARDS SCREEN ============ -->
+    <section id="factScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="factCategoryTitle">Nouns</h2>
+        <p class="progress-text"><span id="factIndex">1</span> of <span id="factTotal">5</span></p>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="flashcard-area">
+        <button class="nav-arrow" id="prevBtn" aria-label="Previous lesson">‹</button>
+
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-inner" id="flashcardInner">
+            <div class="flashcard-front">
+              <div class="card-emoji" id="cardEmoji">📛</div>
+              <p class="card-question" id="cardQuestion">What is a noun?</p>
+              <p class="card-hint">Tap the card to learn the rule! 👆</p>
+            </div>
+            <div class="flashcard-back">
+              <p class="card-rule" id="cardRule">The rule goes here.</p>
+              <ul class="card-examples" id="cardExamples"></ul>
+              <button class="read-btn" id="readBtn" title="Read this lesson aloud">🔊 Read to me</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="nav-arrow" id="nextBtn" aria-label="Next lesson">›</button>
+      </div>
+
+      <div class="fact-actions">
+        <button class="learned-btn" id="learnedBtn">⭐ I Got It!</button>
+        <button class="quiz-btn" id="startQuizBtn">🧠 Take the Quiz</button>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ SCREEN ============ -->
+    <section id="quizScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="quizTitle">Noun Quiz</h2>
+        <p class="progress-text">Question <span id="quizIndex">1</span> of <span id="quizTotal">5</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quizProgressFill"></div></div>
+
+      <div class="quiz-card">
+        <p class="quiz-question" id="quizQuestion">Question?</p>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p class="quiz-feedback" id="quizFeedback"></p>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS SCREEN ============ -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <h2 id="resultHeadline">Great job!</h2>
+        <p class="result-score" id="resultScore">You got 4 out of 5!</p>
+        <div class="result-stars" id="resultStars"></div>
+        <p id="resultMessage" class="result-message"></p>
+        <p class="reward-unlock" id="rewardUnlock" hidden>🎉 You unlocked Word Detective!</p>
+        <div class="result-actions">
+          <button class="game-btn" id="rewardGameBtn">🕵️ Play the Game!</button>
+          <button class="quiz-btn" id="retryQuizBtn">🔁 Try Again</button>
+          <button class="learned-btn" id="backHomeBtn">🏠 Pick New Topic</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TROPHY CASE SCREEN ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="fact-header">
+        <h2>🏆 My Trophy Case</h2>
+        <p class="progress-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="trophy-tagline">Learn all the lessons in a topic and win its quiz to fill your case!</p>
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </section>
+
+    <!-- ============ STORY PICKER SCREEN ============ -->
+    <section id="storyScreen" class="screen">
+      <div class="fact-header">
+        <h2>🦸 Superhero Story Rescue</h2>
+        <p class="progress-text">Read &amp; solve!</p>
+      </div>
+      <p class="story-intro">Meet the <b>Rescue Squad</b> — ⚡ Bolt, 🌊 Marina, 🔥 Ember, 🌪️ Gale, 💪 Titan &amp; 🐾 Scout! Pick a story, read along, then answer the questions.</p>
+      <div class="story-grid" id="storyGrid"><!-- filled by JS --></div>
+    </section>
+
+    <!-- ============ STORY READER SCREEN ============ -->
+    <section id="readScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="readTitle">Story</h2>
+        <p class="progress-text">Page <span id="pageNow">1</span> of <span id="pageTotal">3</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="readProgress"></div></div>
+
+      <div class="story-card">
+        <div class="story-scene" id="storyScene">🦸</div>
+        <p class="story-text" id="storyText">Once upon a time…</p>
+        <button class="read-btn" id="storyReadBtn" title="Read this page aloud">🔊 Read to me</button>
+        <div class="story-dots" id="storyDots"></div>
+      </div>
+
+      <div class="fact-actions">
+        <button class="learned-btn" id="readPrevBtn">‹ Back</button>
+        <button class="quiz-btn" id="readNextBtn">Next Page ›</button>
+        <button class="quiz-btn" id="readQuizBtn" hidden>🧠 Answer Questions</button>
+      </div>
+    </section>
+
+    <!-- ============ STORY COMPREHENSION QUIZ ============ -->
+    <section id="storyQuizScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="sqTitle">Story Questions</h2>
+        <p class="progress-text">Question <span id="sqIndex">1</span> of <span id="sqTotal">3</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="sqProgress"></div></div>
+
+      <div class="quiz-card">
+        <p class="quiz-question" id="sqQuestion">Question?</p>
+        <div class="quiz-options" id="sqOptions"></div>
+        <p class="quiz-feedback" id="sqFeedback"></p>
+      </div>
+    </section>
+
+    <!-- ============ STORY RESULT SCREEN ============ -->
+    <section id="storyResultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="srEmoji">🎉</div>
+        <h2 id="srHeadline">Great reading!</h2>
+        <p class="result-score" id="srScore">You got 3 out of 3!</p>
+        <div class="result-stars" id="srStars"></div>
+        <p id="srMessage" class="result-message"></p>
+        <p class="reward-unlock" id="srUnlock" hidden></p>
+        <div class="result-actions">
+          <button class="game-btn" id="srMoreBtn">📖 More Stories</button>
+          <button class="quiz-btn" id="srAgainBtn">🔁 Read Again</button>
+          <button class="learned-btn" id="srHomeBtn">🏠 Home</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORD DETECTIVE GAME SCREEN ============ -->
+    <section id="gameScreen" class="screen">
+      <div class="fact-header">
+        <h2>🕵️ Word Detective</h2>
+        <p class="progress-text"><span id="gameRound">1</span> / <span id="gameTotal">6</span></p>
+      </div>
+      <p class="game-tagline" id="gameTagline">Tap the correct word in the sentence! 🔍</p>
+      <div class="detective-card">
+        <p class="detective-prompt" id="detectivePrompt">Find the naming word</p>
+        <div class="detective-sentence" id="detectiveSentence"></div>
+        <p class="quiz-feedback" id="gameFeedback"></p>
+      </div>
+      <div class="fact-actions">
+        <button class="quiz-btn" id="newGameBtn">🔄 New Game</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="grammar"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

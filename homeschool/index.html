@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎓 Homeschool Academy</title>
+  <meta name="description" content="Numbered homeschool lessons in Math & English for Kindergarten and Grade 3, with Ziggy the robot tutor — stickers, badges & trophies." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="confetti" class="confetti-box" aria-hidden="true"></div>
+
+  <!-- ================= HOME ================= -->
+  <section id="homeScreen" class="screen active">
+    <header class="hud">
+      <span class="hud-pill" id="hudDone">📚 0/80</span>
+      <button class="hud-pill btn" id="trophyBtn" title="Trophy Room">🏆 Trophy Room</button>
+      <span class="hud-pill" id="hudPoints">⭐ 0</span>
+      <button class="hud-pill btn" id="muteBtn" title="Sound on/off">🔊</button>
+    </header>
+
+    <div class="home-hero">
+      <div class="ziggy">🤖</div>
+      <h1 class="app-title">Homeschool Academy</h1>
+      <p class="app-tag">Hi, I'm <b>Ziggy</b>! Pick a subject and let's do lessons <b>1, 2, 3…</b> together!</p>
+    </div>
+
+    <div class="group-label">🐣 Kindergarten <span>Ages 4–6</span> &nbsp;·&nbsp; 🎒 Grade 3</div>
+    <div class="track-grid" id="trackGrid"></div>
+
+    <footer class="mini-foot">Every lesson wins ⭐ points, 🎟️ stickers, 🎖️ badges &amp; 🏆 trophies!</footer>
+  </section>
+
+  <!-- ================= PATH ================= -->
+  <section id="pathScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="toPathBack">← Home</button>
+      <h2 id="pathTitle">Lessons</h2>
+      <span class="bar-spacer"></span>
+    </header>
+    <div class="path-badge" id="pathBadge"></div>
+    <div class="path-list" id="pathList"></div>
+  </section>
+
+  <!-- ================= LESSON ================= -->
+  <section id="lessonScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="toLessonBack">← Path</button>
+      <h2 id="lessonTitle">Lesson</h2>
+      <span class="bar-spacer"></span>
+    </header>
+    <div class="step-dots" id="stepDots"></div>
+    <div class="lesson-body" id="lessonBody"></div>
+    <div class="lesson-feedback" id="lessonFeedback"></div>
+  </section>
+
+  <!-- ================= REWARD ================= -->
+  <section id="rewardScreen" class="screen">
+    <div class="reward-box" id="rewardBox"></div>
+    <div class="reward-actions">
+      <button class="big-btn go" id="nextLessonBtn">Next Lesson →</button>
+      <button class="big-btn ghost" id="rewardToPath">📋 Back to Lessons</button>
+    </div>
+  </section>
+
+  <!-- ================= TROPHY ROOM ================= -->
+  <section id="trophyScreen" class="screen">
+    <header class="bar">
+      <button class="back-btn" id="trophyBack">← Home</button>
+      <h2>🏆 Trophy Room</h2>
+      <span class="bar-spacer"></span>
+    </header>
+    <div class="tr-totals" id="trTotals"></div>
+
+    <h3 class="tr-h">🎟️ Sticker Book</h3>
+    <div class="sticker-book" id="stickerBook"></div>
+
+    <h3 class="tr-h">🎖️ Badges</h3>
+    <div class="wall" id="badgeWall"></div>
+
+    <h3 class="tr-h">🏆 Trophies</h3>
+    <div class="wall" id="trophyWall"></div>
+
+    <p class="tr-note">Tip: your stickers &amp; points also show up in the <b>Rewards Center</b>, and each lesson gives a 🎟️ ticket for the Prize Wheel!</p>
+  </section>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="homeschool"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

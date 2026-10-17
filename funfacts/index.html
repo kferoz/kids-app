@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fun Facts Explorer 🔍</title>
+  <meta name="description" content="A fun, interactive way for elementary students to discover amazing facts about animals, plants, the universe and more!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Floating background shapes -->
+  <div class="bg-shapes" aria-hidden="true">
+    <span class="shape s1">⭐</span>
+    <span class="shape s2">🪐</span>
+    <span class="shape s3">🍃</span>
+    <span class="shape s4">🦋</span>
+    <span class="shape s5">☁️</span>
+    <span class="shape s6">✨</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Go back" hidden>← Back</button>
+    <h1 class="app-title">🔍 Fun Facts Explorer</h1>
+    <div class="score-badge" id="scoreBadge" title="Stars you have collected">
+      <span class="star-icon">⭐</span>
+      <span id="starCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME / CATEGORY PICKER ============ -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Pick a topic and discover something amazing! 🌈</p>
+      <div class="category-grid" id="categoryGrid"><!-- filled by JS --></div>
+
+      <div class="home-actions">
+        <button class="surprise-btn" id="surpriseBtn">🎲 Surprise Me!</button>
+        <button class="game-btn" id="playGameBtn">🎮 Play a Game</button>
+        <button class="trophy-btn" id="trophyBtn">🏆 My Trophies</button>
+      </div>
+      <p class="game-lock-hint" id="gameLockHint" hidden>🔒 Complete any topic's quiz to unlock the game!</p>
+    </section>
+
+    <!-- ============ TROPHY CASE SCREEN ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="fact-header">
+        <h2>🏆 My Trophy Case</h2>
+        <p class="progress-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="trophy-tagline">Learn all the facts in a topic and win its quiz to fill your case!</p>
+      <div class="trophy-grid" id="trophyGrid"><!-- filled by JS --></div>
+    </section>
+
+    <!-- ============ GAME SCREEN (Memory Match) ============ -->
+    <section id="gameScreen" class="screen">
+      <div class="fact-header">
+        <h2>🎮 Memory Match</h2>
+        <p class="progress-text">Moves: <span id="gameMoves">0</span></p>
+      </div>
+      <p class="game-tagline" id="gameTagline">Find all the matching pairs! 🧩</p>
+      <div class="memory-board" id="memoryBoard"><!-- filled by JS --></div>
+      <div class="fact-actions">
+        <button class="quiz-btn" id="newGameBtn">🔄 New Game</button>
+      </div>
+    </section>
+
+    <!-- ============ FACT CARDS SCREEN ============ -->
+    <section id="factScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="factCategoryTitle">Animals</h2>
+        <p class="progress-text"><span id="factIndex">1</span> of <span id="factTotal">10</span></p>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="flashcard-area">
+        <button class="nav-arrow" id="prevBtn" aria-label="Previous fact">‹</button>
+
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-inner" id="flashcardInner">
+            <div class="flashcard-front">
+              <div class="card-emoji" id="cardEmoji">🐘</div>
+              <p class="card-hint">Tap the card to reveal the fact! 👆</p>
+              <p class="card-question" id="cardQuestion">Did you know...?</p>
+            </div>
+            <div class="flashcard-back">
+              <p class="card-fact" id="cardFact">Fact goes here</p>
+              <button class="read-btn" id="readBtn" title="Read this fact aloud">🔊 Read to me</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="nav-arrow" id="nextBtn" aria-label="Next fact">›</button>
+      </div>
+
+      <div class="fact-actions">
+        <button class="learned-btn" id="learnedBtn">⭐ I Learned It!</button>
+        <button class="quiz-btn" id="startQuizBtn">🧠 Take the Quiz</button>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ SCREEN ============ -->
+    <section id="quizScreen" class="screen">
+      <div class="fact-header">
+        <h2 id="quizTitle">Animal Quiz</h2>
+        <p class="progress-text">Question <span id="quizIndex">1</span> of <span id="quizTotal">5</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quizProgressFill"></div></div>
+
+      <div class="quiz-card">
+        <p class="quiz-question" id="quizQuestion">Question?</p>
+        <div class="quiz-options" id="quizOptions"><!-- filled by JS --></div>
+        <p class="quiz-feedback" id="quizFeedback"></p>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS SCREEN ============ -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <h2 id="resultHeadline">Great job!</h2>
+        <p class="result-score" id="resultScore">You got 4 out of 5!</p>
+        <div class="result-stars" id="resultStars"></div>
+        <p id="resultMessage" class="result-message"></p>
+        <p class="reward-unlock" id="rewardUnlock" hidden>🎉 You unlocked the Memory Game!</p>
+        <div class="result-actions">
+          <button class="game-btn" id="rewardGameBtn">🎮 Play the Game!</button>
+          <button class="quiz-btn" id="retryQuizBtn">🔁 Try Again</button>
+          <button class="learned-btn" id="backHomeBtn">🏠 Pick New Topic</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="funfacts"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

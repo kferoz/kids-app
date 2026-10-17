@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/android/build-apk.mjs\" --if-changed --hook",
+            "timeout": 180,
+            "statusMessage": "Updating Android APK…"
+          }
+        ]
+      }
+    ]
+  }
+}

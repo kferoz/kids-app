@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive-icon foreground (art kept inside the 66dp safe zone) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+  <path android:fillColor="#FFFFFF" android:pathData="M28,50L52,55L52,82L28,77Z" />
+  <path android:fillColor="#E8E2FF" android:pathData="M56,55L80,50L80,77L56,82Z" />
+  <path android:fillColor="#FFD23F"
+      android:pathData="M54,28L56.47,34.6L63.51,34.91L57.99,39.3L59.88,46.09L54,42.2L48.12,46.09L50.01,39.3L44.49,34.91L51.53,34.6Z" />
+</vector>

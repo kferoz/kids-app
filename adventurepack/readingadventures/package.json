@@ -1,0 +1,12 @@
+{
+  "name": "reading-adventures",
+  "private": true,
+  "description": "Single-file reading + science test-prep app for kids (no runtime dependencies)",
+  "scripts": {
+    "build": "node build.js",
+    "serve": "python3 -m http.server 8000",
+    "test:data": "node tests/science-data-check.js",
+    "test:e2e": "node tests/science-e2e.js"
+  },
+  "devDependencies": { "playwright": "^1.40.0" }
+}

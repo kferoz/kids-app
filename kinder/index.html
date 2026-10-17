@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Little Learners 🐣</title>
+  <meta name="description" content="A playful, game-first learning app for kindergarteners (ages 4–6): letters, numbers, colors, shapes and matching — with stars and trophies!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="bg-shapes" aria-hidden="true">
+    <span class="shape s1">🎈</span>
+    <span class="shape s2">⭐</span>
+    <span class="shape s3">🧸</span>
+    <span class="shape s4">🌈</span>
+    <span class="shape s5">🐥</span>
+    <span class="shape s6">🎨</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Go back" hidden>← Back</button>
+    <h1 class="app-title">🐣 Little Learners</h1>
+    <div class="score-badge" id="scoreBadge" title="Stars you have collected">
+      <span class="star-icon">⭐</span>
+      <span id="starCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME / GAME PICKER ============ -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Tap a game and let's play! 🎉</p>
+      <div class="game-grid" id="gameGrid"><!-- filled by JS --></div>
+      <div class="home-actions">
+        <button class="summer-btn" id="summerBtn">☀️ Summer School</button>
+        <button class="trophy-btn" id="trophyBtn">🏆 My Trophies</button>
+      </div>
+    </section>
+
+    <!-- ============ SUMMER SCHOOL SCREEN ============ -->
+    <section id="summerScreen" class="screen">
+      <p class="tagline">☀️ Summer School — get ready for Kindergarten! Pick a game:</p>
+      <div class="game-grid" id="summerGrid"><!-- filled by JS --></div>
+    </section>
+
+    <!-- ============ PLAY SCREEN (letters/numbers/colors/shapes) ============ -->
+    <section id="playScreen" class="screen">
+      <div class="play-top">
+        <h2 id="gameName">Letter Land</h2>
+        <p class="progress-text"><span id="roundNow">1</span> of <span id="roundTotal">5</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="playProgress"></div></div>
+
+      <div class="stage" id="stage"><!-- optional count objects / hint --></div>
+
+      <div class="prompt-row">
+        <p class="prompt" id="prompt">Find the letter A</p>
+        <button class="replay-btn" id="replayBtn" aria-label="Hear it again" title="Hear it again">🔊</button>
+      </div>
+
+      <div class="choices" id="choices"><!-- tiles filled by JS --></div>
+      <p class="feedback" id="feedback"></p>
+    </section>
+
+    <!-- ============ MEMORY MATCH SCREEN ============ -->
+    <section id="matchScreen" class="screen">
+      <div class="play-top">
+        <h2>🧩 Memory Match</h2>
+        <p class="progress-text"><span id="matchFound">0</span> / <span id="matchPairs">0</span> pairs</p>
+      </div>
+      <p class="match-tagline">Tap two cards to find a matching pair! 🐾</p>
+      <div class="match-board" id="matchBoard"><!-- cards filled by JS --></div>
+    </section>
+
+    <!-- ============ RESULT SCREEN ============ -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <h2 id="resultHeadline">You did it!</h2>
+        <p class="result-stars-earned" id="resultStarsEarned">You earned 5 ⭐</p>
+        <div class="result-stars" id="resultStars"></div>
+        <p class="reward-unlock" id="rewardUnlock" hidden></p>
+        <div class="result-actions">
+          <button class="play-again-btn" id="playAgainBtn">🔁 Play Again</button>
+          <button class="trophy-btn" id="resultTrophyBtn">🏆 Trophies</button>
+          <button class="home-btn" id="resultHomeBtn">🏠 More Games</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TROPHY CASE SCREEN ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="play-top">
+        <h2>🏆 My Trophy Case</h2>
+        <p class="progress-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="trophy-tagline">Finish games and collect stars to win shiny trophies! ✨</p>
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="kinder"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

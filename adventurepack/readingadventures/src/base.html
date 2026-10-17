@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reading Adventures</title>
+<style>
+  :root{
+    --accent:#4d7cfe;
+    --accent2:#ff9f43;
+    --pink:#ff6b9d;
+    --green:#2ecc71;
+    --bg1:#eef4ff;
+    --bg2:#fff6ea;
+    --ink:#24304a;
+    --kinder:#ff6b9d;
+  }
+  html{ font-size:clamp(15px, 0.85vw + 11px, 22px); }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+    background:linear-gradient(160deg, var(--bg1), var(--bg2) 70%);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  #app{ max-width:clamp(360px, 70vw, 1500px); margin:0 auto; padding:clamp(10px,1.5vw,22px) clamp(10px,1.5vw,22px) 50px; }
+
+  header.top{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
+    background:linear-gradient(120deg,var(--accent),#7b9bff);
+    color:white; padding:0.9rem 1.3rem; border-radius:20px;
+    box-shadow:0 8px 20px rgba(77,124,254,.25); margin-bottom:1.1rem;
+  }
+  header.top h1{ font-size:1.4rem; margin:0; display:flex; align-items:center; gap:0.5rem; cursor:pointer; }
+  header.top .sub{ font-size:0.8rem; opacity:0.9; margin-top:2px; }
+  .head-actions{ display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .btn{
+    border:none; border-radius:999px; cursor:pointer; font-weight:700;
+    padding:0.6rem 1.2rem; font-size:0.95rem; font-family:inherit;
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:inline-flex; align-items:center; gap:0.4rem;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn.primary{ background:white; color:var(--accent); box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  .btn.ghost{ background:rgba(255,255,255,.18); color:white; padding:0.5rem 1rem; font-size:0.85rem; }
+  .btn.orange{ background:var(--accent2); color:white; }
+  .btn.green{ background:var(--green); color:white; }
+  .btn.pink{ background:var(--pink); color:white; }
+  .btn.small{ padding:0.4rem 0.8rem; font-size:0.78rem; }
+
+  #toolbar{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center; }
+  #toolbar .btn.ghost{ background:white; color:var(--accent); box-shadow:0 3px 8px rgba(0,0,0,.08); border:2px solid #dbe6ff; }
+  #toolbar .btn.ghost.active{ background:var(--accent); color:white; border-color:var(--accent); }
+  #toolbar .tip{ font-size:0.85rem; color:#5a6475; }
+
+  /* ---------- Home ---------- */
+  #homeView{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.3rem; }
+  .grade-card{
+    background:white; border-radius:26px; padding:1.8rem 1.6rem; cursor:pointer; text-align:center;
+    box-shadow:0 10px 26px rgba(0,0,0,.1); border:4px solid transparent; transition:transform .15s ease, border-color .15s ease;
+  }
+  .grade-card:hover{ transform:translateY(-5px); }
+  .grade-card.g3{ border-color:#dbe6ff; }
+  .grade-card.g3:hover{ border-color:var(--accent); }
+  .grade-card.kinder{ border-color:#ffd9e6; }
+  .grade-card.kinder:hover{ border-color:var(--kinder); }
+  .grade-card .icon-wrap{ width:clamp(110px,12vw,160px); height:clamp(110px,12vw,160px); margin:0 auto 0.8rem; }
+  .grade-card .icon-wrap svg{ width:100%; height:100%; }
+  .grade-card h2{ font-size:1.5rem; margin:0.2rem 0 0.3rem; }
+  .grade-card.g3 h2{ color:var(--accent); }
+  .grade-card.kinder h2{ color:var(--kinder); }
+  .grade-card p.desc{ font-size:0.9rem; color:#5a6475; margin:0 0 0.8rem; }
+  .home-progress{ background:#f3f6fc; border-radius:999px; height:0.9rem; overflow:hidden; margin:0.5rem 0 0.4rem; }
+  .home-progress .fill{ height:100%; border-radius:999px; transition:width .4s ease; }
+  .g3 .home-progress .fill{ background:var(--accent); }
+  .kinder .home-progress .fill{ background:var(--kinder); }
+  .home-progress-label{ font-size:0.78rem; color:#7a8296; }
+  .sticker-count{ font-size:0.8rem; margin-top:0.5rem; color:#b5680a; font-weight:700; }
+
+  /* ---------- Library grid ---------- */
+  .progress-strip{
+    display:flex; align-items:center; gap:0.8rem; background:white; border-radius:18px; padding:0.8rem 1.1rem;
+    margin-bottom:1rem; box-shadow:0 4px 12px rgba(0,0,0,.06); flex-wrap:wrap;
+  }
+  .progress-strip .home-progress{ flex:1 1 180px; margin:0; }
+  .progress-strip strong{ white-space:nowrap; }
+
+  #library{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1rem; }
+  .story-card{
+    position:relative; background:white; border-radius:20px; padding:1.1rem 1.1rem 1.3rem; cursor:pointer;
+    box-shadow:0 6px 16px rgba(0,0,0,.08); border:3px solid transparent;
+    transition:transform .15s ease, border-color .15s ease; text-align:center;
+  }
+  .story-card:hover{ transform:translateY(-4px); border-color:var(--accent2); }
+  .story-card.completed{ border-color:#9be8b8; }
+  .story-card .icon-wrap{ width:clamp(90px,9vw,130px); height:clamp(90px,9vw,130px); margin:0 auto 0.6rem; }
+  .story-card .icon-wrap svg{ width:100%; height:100%; }
+  .story-card h3{ font-size:1.1rem; margin:0.2rem 0 0.3rem; color:var(--accent); }
+  .story-card .level{
+    display:inline-block; background:var(--bg1); color:var(--accent); font-size:0.72rem;
+    padding:0.2rem 0.6rem; border-radius:999px; font-weight:700; margin-bottom:0.4rem;
+  }
+  .story-card p{ font-size:0.82rem; color:#5a6475; margin:0; }
+  .story-card .cast{ font-size:0.75rem; color:#9199ab; margin-top:0.4rem; }
+  .completed-badge{
+    position:absolute; top:-10px; right:-8px; background:var(--green); color:white; border-radius:999px;
+    padding:0.25rem 0.55rem; font-size:0.7rem; font-weight:800; box-shadow:0 3px 8px rgba(0,0,0,.15);
+  }
+  .story-sticker{ position:absolute; top:-12px; left:-8px; font-size:1.7rem; filter:drop-shadow(0 3px 4px rgba(0,0,0,.2)); }
+
+  /* ---------- Story view ---------- */
+  .card{
+    background:white; border-radius:26px; padding:1.5rem 1.6rem; box-shadow:0 10px 30px rgba(0,0,0,.08);
+    margin-bottom:1.2rem;
+  }
+  .story-head{ display:flex; gap:1.1rem; align-items:center; flex-wrap:wrap; margin-bottom:0.9rem; }
+  .story-head .icon-wrap{ width:clamp(80px,8vw,120px); height:clamp(80px,8vw,120px); flex:0 0 auto; }
+  .story-head .icon-wrap svg{ width:100%; height:100%; }
+  .story-title-block{ flex:1 1 220px; }
+  .story-title-block h2{ font-size:1.6rem; margin:0 0 0.2rem; color:var(--ink); }
+  .story-title-block .level{ font-size:0.75rem; color:white; background:var(--accent2); padding:0.2rem 0.65rem; border-radius:999px; font-weight:700; }
+
+  .action-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center; }
+
+  .tricky-panel{
+    background:var(--bg1); border-radius:16px; padding:0.8rem 1rem; margin-bottom:1rem;
+  }
+  .tricky-panel h4{ margin:0 0 0.5rem; font-size:0.9rem; color:var(--accent); }
+  .tricky-chip{
+    display:inline-block; background:white; border:2px solid #dbe6ff; border-radius:12px;
+    padding:0.35rem 0.7rem; margin:0.2rem 0.3rem 0.2rem 0; font-size:0.85rem;
+  }
+  .tricky-chip .syll{ color:var(--accent2); font-weight:700; }
+  .tricky-chip .meaning{ display:block; font-size:0.7rem; color:#7a8296; margin-top:2px; }
+
+  .story-text p{ font-size:1.12rem; line-height:1.9; margin:0 0 0.55rem; }
+  .story-text.big-text p{ font-size:1.45rem; line-height:2.1; font-weight:600; }
+  .story-text .word{ display:inline-block; padding:0 1px; border-radius:5px; }
+  .story-text .word.tricky{ font-weight:800; color:#b5680a; text-decoration:underline wavy #ffce9b; text-decoration-thickness:2px; }
+  .story-text .word.speaking{ background:#fff1b8; box-shadow:0 0 0 2px #ffd666; }
+  .syll-dot{ color:var(--accent2); }
+
+  hr.divider{ border:none; border-top:2px dashed #e4e8f3; margin:1.1rem 0; }
+
+  /* ---------- Questions ---------- */
+  .q-block{ margin-bottom:1.1rem; padding:0.9rem 1rem; border-radius:16px; background:#fafcff; border:2px solid #eef2fb; }
+  .q-block h4{ margin:0 0 0.6rem; font-size:1rem; color:var(--ink); }
+  .opt{
+    display:flex; align-items:center; gap:0.55rem; padding:0.5rem 0.7rem; border-radius:12px;
+    margin-bottom:0.4rem; cursor:pointer; background:white; border:2px solid #e6eaf4; font-size:0.95rem;
+  }
+  .opt:hover{ border-color:var(--accent); }
+  .opt.selected{ border-color:var(--accent); background:#eef2ff; }
+  .opt.correct{ border-color:var(--green); background:#eafff2; }
+  .opt.wrong{ border-color:#ff5c5c; background:#fff0f0; }
+  .opt input{ accent-color:var(--accent); width:1.05rem; height:1.05rem; }
+
+  .score-box{
+    text-align:center; padding:1rem; border-radius:18px; background:linear-gradient(120deg,#fff4da,#ffe4ef);
+    font-size:1.15rem; font-weight:700; color:var(--ink); display:none;
+  }
+  .score-box.show{ display:block; }
+
+  /* ---------- Stickers page ---------- */
+  #stickerGrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:0.9rem; }
+  .sticker-slot{
+    background:white; border-radius:18px; padding:1rem 0.6rem; text-align:center; box-shadow:0 5px 14px rgba(0,0,0,.07);
+    border:3px solid #f0f2f8;
+  }
+  .sticker-slot.earned{ border-color:#ffd56b; background:linear-gradient(160deg,#fffbe9,#fff2d6); }
+  .sticker-slot .emoji{ font-size:2.4rem; filter:grayscale(1) opacity(0.35); }
+  .sticker-slot.earned .emoji{ filter:none; }
+  .sticker-slot .sname{ font-size:0.78rem; color:#5a6475; margin-top:0.4rem; font-weight:700; }
+  .sticker-slot .sgrade{ font-size:0.65rem; color:#aab1c2; }
+  .sticker-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:0.9rem; margin-bottom:1.2rem; }
+  .sticker-shelf{ margin:1.1rem 0 0.2rem; font-size:1.15rem; color:var(--ink); display:flex; align-items:center; gap:0.5rem; }
+  .sticker-shelf span{ font-size:0.75rem; background:#eef2ff; color:var(--accent); padding:0.15rem 0.6rem; border-radius:999px; }
+  .sticker-note{ margin:0 0 0.7rem; font-size:0.8rem; color:#7a8296; }
+  /* car stickers: little road with a dashed lane line */
+  .sticker-slot.car{ position:relative; overflow:hidden; padding-bottom:1.4rem; }
+  .sticker-slot.car::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:0.7rem; background:#3b4252;
+    background-image:repeating-linear-gradient(90deg, transparent 0 10px, #ffd43b 10px 22px); background-size:100% 3px; background-repeat:no-repeat; background-position:0 50%; }
+  .sticker-slot.car.earned{ border-color:#4d7cfe; background:linear-gradient(160deg,#eaf1ff,#dfe8ff); }
+  .sticker-slot.car.earned .emoji{ animation:carVroom 2.4s ease-in-out infinite; display:inline-block; }
+  @keyframes carVroom{ 0%,100%{ transform:translateX(-6px); } 50%{ transform:translateX(6px) rotate(-3deg); } }
+  /* bonus stickers: shiny rainbow border */
+  .sticker-slot.bonus.earned{ border-color:transparent;
+    background:linear-gradient(#fffbe9,#fff2d6) padding-box, linear-gradient(120deg,#ff6b9d,#ffd43b,#2ecc71,#4d7cfe,#8a6bff) border-box; }
+  .sticker-slot.bonus.earned .emoji{ animation:bonusSpin 3s ease-in-out infinite; display:inline-block; }
+  @keyframes bonusSpin{ 0%,100%{ transform:scale(1) rotate(0); } 50%{ transform:scale(1.15) rotate(8deg); } }
+  @media (prefers-reduced-motion: reduce){ .sticker-slot .emoji{ animation:none !important; } }
+
+  /* ---------- Settings panel ---------- */
+  #settingsPanel{
+    display:none; background:white; border-radius:20px; padding:1.1rem 1.3rem; margin-bottom:1rem;
+    box-shadow:0 8px 22px rgba(0,0,0,.1);
+  }
+  #settingsPanel.open{ display:block; }
+  #settingsPanel h3{ margin:0 0 0.8rem; font-size:1.1rem; color:var(--accent); }
+  .set-row{ margin-bottom:0.9rem; }
+  .set-row label{ display:block; font-size:0.85rem; font-weight:700; color:var(--ink); margin-bottom:0.3rem; }
+  .set-row select, .set-row input[type=range]{ width:100%; }
+  .set-row select{ padding:0.5rem; border-radius:10px; border:2px solid #e6eaf4; font-family:inherit; font-size:0.9rem; }
+  .set-val{ font-size:0.78rem; color:#7a8296; }
+
+  /* ---------- Celebration overlay ---------- */
+  #celebrateOverlay{
+    position:fixed; inset:0; background:rgba(36,48,74,.55); display:none; align-items:center; justify-content:center;
+    z-index:50; padding:1rem;
+  }
+  #celebrateOverlay.show{ display:flex; }
+  .celebrate-card{
+    background:white; border-radius:28px; padding:2rem 1.8rem; text-align:center; max-width:360px; position:relative; overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);
+  }
+  .celebrate-card .big-emoji{ font-size:4.2rem; margin-bottom:0.4rem; }
+  .celebrate-card h3{ margin:0 0 0.3rem; font-size:1.3rem; color:var(--ink); }
+  .celebrate-card p{ font-size:0.95rem; color:#5a6475; margin:0 0 1rem; }
+  .confetti-piece{
+    position:absolute; top:-10%; font-size:1.3rem; animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform:translateY(420px) rotate(360deg); opacity:0.2; }
+  }
+  .celebrate-card.reward{ background:linear-gradient(160deg,#fffbe6,#fff2d0); }
+  .celebrate-card.reward .big-emoji{ font-size:4.6rem; }
+
+  /* ---------- Question voice button ---------- */
+  .q-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:0.6rem; margin-bottom:0.6rem; }
+  .q-head h4{ margin:0; font-size:1rem; color:var(--ink); flex:1; }
+  .q-voice-btn{
+    flex:0 0 auto; background:#fff3da; border:2px solid #ffd9a0; border-radius:999px;
+    width:2.2rem; height:2.2rem; font-size:1.05rem; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; transition:transform .15s ease, background .15s ease;
+  }
+  .q-voice-btn:hover{ background:#ffe6bb; transform:translateY(-2px); }
+
+  /* ---------- Admin ---------- */
+  #pinOverlay{
+    position:fixed; inset:0; background:rgba(36,48,74,.65); display:none; align-items:center; justify-content:center;
+    z-index:60; padding:1rem;
+  }
+  #pinOverlay.show{ display:flex; }
+  .pin-card{ background:white; border-radius:24px; padding:1.8rem; text-align:center; max-width:320px; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .pin-card h3{ margin:0 0 0.4rem; color:var(--ink); }
+  .pin-card p{ font-size:0.85rem; color:#5a6475; margin:0 0 1rem; }
+  .pin-card input{
+    width:100%; text-align:center; font-size:1.4rem; letter-spacing:0.3rem; padding:0.6rem; border-radius:12px;
+    border:2px solid #e6eaf4; margin-bottom:0.8rem; font-family:inherit;
+  }
+  .pin-error{ color:#ff5c5c; font-size:0.8rem; margin-bottom:0.6rem; min-height:1.1rem; }
+
+  .admin-section{ margin-bottom:1.3rem; }
+  .admin-section h3{ font-size:1.05rem; color:var(--accent); margin:0 0 0.7rem; }
+  .admin-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:0.9rem; }
+  .admin-field label{ display:block; font-size:0.82rem; font-weight:700; color:var(--ink); margin-bottom:0.3rem; }
+  .admin-field input, .admin-field select{
+    width:100%; padding:0.55rem 0.7rem; border-radius:10px; border:2px solid #e6eaf4; font-family:inherit; font-size:0.9rem;
+  }
+  .stat-tiles{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:0.8rem; margin-bottom:1rem; }
+  .stat-tile{ background:var(--bg1); border-radius:16px; padding:0.9rem 1rem; text-align:center; }
+  .stat-tile .num{ font-size:1.6rem; font-weight:800; color:var(--accent); }
+  .stat-tile .lbl{ font-size:0.75rem; color:#5a6475; margin-top:0.2rem; }
+  .ledger{ max-height:220px; overflow-y:auto; border:2px solid #eef2fb; border-radius:14px; padding:0.6rem 0.8rem; }
+  .ledger-row{ display:flex; justify-content:space-between; font-size:0.85rem; padding:0.35rem 0; border-bottom:1px dashed #eef2fb; }
+  .ledger-row:last-child{ border-bottom:none; }
+  .ledger-empty{ font-size:0.85rem; color:#9199ab; text-align:center; padding:0.8rem 0; }
+
+  footer.note{ text-align:center; font-size:0.75rem; color:#9199ab; margin-top:1.5rem; }
+
+  @media (max-width:620px){
+    .story-head{ flex-direction:column; align-items:flex-start; text-align:left; }
+    .card{ padding:1.1rem 1rem; }
+    header.top h1{ font-size:1.15rem; }
+    #app{ padding-left:0; padding-right:0; }
+  }
+  @media (min-width:1700px){
+    #app{ max-width:1500px; }
+    .card{ padding:2.2rem 2.6rem; border-radius:30px; }
+  }
+  /*SCIENCE_CSS*/
+</style>
+<script src="../../js/profile-store.js"></script>
+<script src="../../js/voice.js"></script>
+<script src="../../js/activitydb.js"></script>
+<script src="../../js/tracker.js" data-app="readingadventures"></script>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <div onclick="showHome()" title="Go home">
+      <h1>📖 Reading Adventures</h1>
+      <div class="sub" id="headerSub">Fun stories with your favorite characters!</div>
+    </div>
+    <div class="head-actions">
+      <button class="btn ghost" id="backBtn" style="display:none;" onclick="goBack()">⬅ Back</button>
+      <button class="btn ghost" onclick="showStickers()">🎒 My Stickers</button>
+      <button class="btn ghost" onclick="toggleSettings()">⚙️ Voice</button>
+      <button class="btn ghost" onclick="showAdmin()">🛠️ Admin</button>
+    </div>
+  </header>
+
+  <div id="settingsPanel">
+    <h3>🎙️ Read-Aloud Voice Settings</h3>
+    <div class="set-row">
+      <label for="voiceSelect">Choose a Voice</label>
+      <select id="voiceSelect" onchange="onVoiceChange()"></select>
+    </div>
+    <div class="set-row">
+      <label for="pitchRange">Pitch (higher = squeakier, more fun for kids): <span class="set-val" id="pitchVal">1.2</span></label>
+      <input type="range" id="pitchRange" min="0.6" max="2" step="0.1" value="1.2" oninput="onPitchChange()" />
+    </div>
+    <div class="set-row">
+      <label for="rateRange">Speed: <span class="set-val" id="rateVal">0.9</span></label>
+      <input type="range" id="rateRange" min="0.6" max="1.3" step="0.1" value="0.9" oninput="onRateChange()" />
+    </div>
+    <button class="btn orange small" onclick="testVoice()">🔊 Test Voice</button>
+  </div>
+
+  <div id="toolbar" style="display:none;">
+    <button class="btn ghost active" id="syllToggleBtn" onclick="toggleSyllables()">🔤 Syllable Helper: ON</button>
+    <span class="tip">Tip: tap <b>Read Aloud</b> in any story to hear it read while words light up!</span>
+  </div>
+
+  <div id="homeView"></div>
+  <div id="library" style="display:none;"></div>
+  <div id="storyView" style="display:none;"></div>
+  <div id="stickersView" style="display:none;"></div>
+  <div id="adminView" style="display:none;"></div>
+  <div id="scienceView" style="display:none;"></div>
+
+  <footer class="note">Made for curious young readers. Ask for more stories any time! 🌟</footer>
+</div>
+
+<div id="celebrateOverlay">
+  <div class="celebrate-card" id="celebrateCard"></div>
+</div>
+
+<div id="pinOverlay">
+  <div class="pin-card">
+    <h3>🔒 Parent / Admin Access</h3>
+    <p>Enter the admin PIN to configure rewards.</p>
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="8" placeholder="PIN" onkeydown="if(event.key==='Enter') submitPin();" />
+    <div class="pin-error" id="pinError"></div>
+    <div style="display:flex; gap:0.6rem; justify-content:center;">
+      <button class="btn ghost" style="background:#eef2ff;color:var(--accent);" onclick="closePinOverlay()">Cancel</button>
+      <button class="btn primary" style="box-shadow:0 4px 10px rgba(0,0,0,.12); border:2px solid #dbe6ff;" onclick="submitPin()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========================= ICONS (original illustrations) ========================= */
+const ICONS = {
+  catowl: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#dceaff"/>
+    <g transform="translate(38,58)">
+      <path d="M10 70 C10 30 35 5 55 5 C75 5 100 30 100 70 C100 100 80 118 55 118 C30 118 10 100 10 70 Z" fill="#5aa9ff"/>
+      <polygon points="18,15 30,45 6,45" fill="#5aa9ff"/>
+      <polygon points="92,15 104,45 80,45" fill="#5aa9ff"/>
+      <circle cx="40" cy="68" r="7" fill="white"/>
+      <circle cx="70" cy="68" r="7" fill="white"/>
+      <circle cx="40" cy="68" r="3" fill="#24304a"/>
+      <circle cx="70" cy="68" r="3" fill="#24304a"/>
+      <path d="M48 86 Q55 92 62 86" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(118,36)">
+      <ellipse cx="34" cy="46" rx="34" ry="30" fill="#b07bdb"/>
+      <polygon points="2,24 18,6 24,30" fill="#b07bdb"/>
+      <polygon points="66,24 50,6 44,30" fill="#b07bdb"/>
+      <circle cx="22" cy="44" r="10" fill="white"/>
+      <circle cx="46" cy="44" r="10" fill="white"/>
+      <circle cx="22" cy="44" r="4" fill="#24304a"/>
+      <circle cx="46" cy="44" r="4" fill="#24304a"/>
+      <polygon points="34,50 29,58 39,58" fill="#f4a94c"/>
+    </g>
+  </svg>`,
+  gecko: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#dcffe8"/>
+    <g transform="translate(35,45)">
+      <path d="M20 120 Q10 70 40 40 Q60 15 95 15 Q120 15 120 40 Q120 55 100 60 Q115 70 110 90 Q105 115 80 125 Q50 135 20 120Z" fill="#3fbf7f"/>
+      <circle cx="95" cy="35" r="9" fill="white"/>
+      <circle cx="95" cy="35" r="4" fill="#24304a"/>
+      <circle cx="75" cy="28" r="9" fill="white"/>
+      <circle cx="75" cy="28" r="4" fill="#24304a"/>
+      <path d="M30 100 Q25 108 18 110" stroke="#2ea36a" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <path d="M55 120 Q52 130 46 134" stroke="#2ea36a" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <circle cx="40" cy="60" r="4" fill="#2ea36a"/>
+      <circle cx="60" cy="80" r="4" fill="#2ea36a"/>
+      <circle cx="80" cy="95" r="4" fill="#2ea36a"/>
+    </g>
+  </svg>`,
+  sheriffdog: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#fff3da"/>
+    <g transform="translate(45,40)">
+      <ellipse cx="55" cy="75" rx="52" ry="46" fill="#e8b873"/>
+      <path d="M8 45 Q-5 10 25 5 Q15 35 30 50Z" fill="#c9924c"/>
+      <path d="M102 45 Q115 10 85 5 Q95 35 80 50Z" fill="#c9924c"/>
+      <path d="M-3 28 Q55 -6 113 28 L108 40 Q55 14 2 40Z" fill="#8a5a2b"/>
+      <circle cx="40" cy="78" r="8" fill="white"/>
+      <circle cx="70" cy="78" r="8" fill="white"/>
+      <circle cx="40" cy="78" r="3.5" fill="#24304a"/>
+      <circle cx="70" cy="78" r="3.5" fill="#24304a"/>
+      <ellipse cx="55" cy="95" rx="10" ry="7" fill="#5a3a20"/>
+      <polygon points="55,112 35,138 75,138" fill="#e8b873"/>
+      <polygon points="55,118 47,130 63,130" fill="#f4c542" stroke="#c99a00" stroke-width="1.5"/>
+    </g>
+  </svg>`,
+  bus: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#e3f0ff"/>
+    <g transform="translate(30,55)">
+      <rect x="5" y="20" width="130" height="75" rx="18" fill="#4d7cfe"/>
+      <rect x="15" y="32" width="35" height="30" rx="6" fill="#dceeff"/>
+      <rect x="58" y="32" width="35" height="30" rx="6" fill="#dceeff"/>
+      <rect x="101" y="32" width="26" height="30" rx="6" fill="#dceeff"/>
+      <circle cx="40" cy="105" r="16" fill="#24304a"/>
+      <circle cx="40" cy="105" r="7" fill="#9fb3d1"/>
+      <circle cx="105" cy="105" r="16" fill="#24304a"/>
+      <circle cx="105" cy="105" r="7" fill="#9fb3d1"/>
+      <circle cx="25" cy="45" r="6" fill="white"/>
+      <circle cx="25" cy="45" r="2.5" fill="#24304a"/>
+      <circle cx="40" cy="45" r="6" fill="white"/>
+      <circle cx="40" cy="45" r="2.5" fill="#24304a"/>
+      <path d="M22 70 Q32 78 42 70" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>`,
+  speedster: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#dbe9ff"/>
+    <g transform="translate(40,45)">
+      <ellipse cx="60" cy="75" rx="55" ry="45" fill="#3a6df0"/>
+      <polygon points="10,35 -10,18 15,15" fill="#3a6df0"/>
+      <polygon points="25,20 10,0 32,8" fill="#3a6df0"/>
+      <polygon points="45,12 38,-8 58,4" fill="#3a6df0"/>
+      <circle cx="45" cy="70" r="8" fill="white"/>
+      <circle cx="75" cy="70" r="8" fill="white"/>
+      <circle cx="45" cy="70" r="3.5" fill="#24304a"/>
+      <circle cx="75" cy="70" r="3.5" fill="#24304a"/>
+      <path d="M50 92 Q60 98 70 92" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M-20 60 Q-35 60 -48 56" stroke="#9fc1ff" stroke-width="5" stroke-linecap="round"/>
+      <path d="M-18 78 Q-33 80 -46 78" stroke="#9fc1ff" stroke-width="5" stroke-linecap="round"/>
+    </g>
+  </svg>`,
+  grade3icon: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#dceaff"/>
+    <g transform="translate(40,55)">
+      <rect x="0" y="55" width="120" height="14" rx="4" fill="#4d7cfe"/>
+      <rect x="6" y="38" width="108" height="14" rx="4" fill="#7b9bff"/>
+      <rect x="12" y="21" width="96" height="14" rx="4" fill="#a7bdff"/>
+      <path d="M20 21 L60 5 L100 21 L60 35 Z" fill="#ff9f43"/>
+      <circle cx="60" cy="27" r="4" fill="white"/>
+    </g>
+  </svg>`,
+  kindericon: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="96" fill="#ffe3ee"/>
+    <g transform="translate(45,45)">
+      <rect x="0" y="60" width="16" height="50" rx="5" fill="#ff6b9d" transform="rotate(-10 8 85)"/>
+      <rect x="28" y="60" width="16" height="50" rx="5" fill="#4d7cfe" transform="rotate(-4 36 85)"/>
+      <rect x="56" y="60" width="16" height="50" rx="5" fill="#ffc542" transform="rotate(3 64 85)"/>
+      <rect x="84" y="60" width="16" height="50" rx="5" fill="#3fbf7f" transform="rotate(9 92 85)"/>
+      <circle cx="55" cy="25" r="24" fill="#fff2da" stroke="#ffb15c" stroke-width="4"/>
+      <circle cx="47" cy="22" r="3" fill="#24304a"/>
+      <circle cx="63" cy="22" r="3" fill="#24304a"/>
+      <path d="M46 32 Q55 38 64 32" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>`
+};
+
+/* ---- Generated kid / character icons (original illustrations, no external images) ---- */
+function iconFrame(bg, inner){
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="96" fill="${bg}"/>${inner}</svg>`;
+}
+function kidSvg(x, y, s, skin, hair, shirt){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <rect x="-24" y="26" width="48" height="44" rx="16" fill="${shirt}"/>
+    <circle cx="0" cy="0" r="28" fill="${skin}"/>
+    <path d="M-29 -2 Q-30 -36 0 -36 Q30 -36 29 -2 Q16 -18 0 -16 Q-16 -18 -29 -2Z" fill="${hair}"/>
+    <circle cx="-10" cy="5" r="3.6" fill="#24304a"/>
+    <circle cx="10" cy="5" r="3.6" fill="#24304a"/>
+    <path d="M-9 16 Q0 24 9 16" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>`;
+}
+function duoIcon(bg, k1, k2, extra){
+  return iconFrame(bg,
+    kidSvg(66, 92, 1, k1[0], k1[1], k1[2]) +
+    kidSvg(136, 96, 0.94, k2[0], k2[1], k2[2]) +
+    (extra || ''));
+}
+const EXTRAS = {
+  lemon: `<g transform="translate(100,30)"><ellipse rx="17" ry="12" fill="#ffe14d" stroke="#e0b800" stroke-width="2"/><path d="M-4 -11 Q2 -20 10 -13Z" fill="#4caf50"/></g>`,
+  book: `<g transform="translate(100,30)"><rect x="-18" y="-12" width="36" height="24" rx="3" fill="#ff7a59"/><rect x="-15" y="-9" width="30" height="18" fill="#fff"/><line x1="0" y1="-9" x2="0" y2="9" stroke="#ccc" stroke-width="2"/></g>`,
+  flask: `<g transform="translate(100,30)"><path d="M-7 -16 H7 V-5 L18 13 Q20 18 15 18 H-15 Q-20 18 -18 13 L-7 -5Z" fill="#7be0c3" stroke="#2a9d7f" stroke-width="2"/></g>`,
+  kites: `<g transform="translate(66,26)"><path d="M0 -18 L14 0 L0 18 L-14 0Z" fill="#ff6b6b"/></g><g transform="translate(136,30)"><path d="M0 -18 L14 0 L0 18 L-14 0Z" fill="#4d7cfe"/></g>`,
+  apple: `<g transform="translate(100,30)"><circle r="15" fill="#ff5252"/><path d="M0 -14 Q2 -22 9 -22" stroke="#4caf50" stroke-width="3" fill="none"/></g>`,
+  trophy: `<g transform="translate(100,24)"><path d="M-13 -14 H13 V0 Q13 11 0 13 Q-13 11 -13 0Z" fill="#ffc83d" stroke="#d99a00" stroke-width="2"/><rect x="-4" y="13" width="8" height="6" fill="#d99a00"/><rect x="-10" y="19" width="20" height="5" rx="2" fill="#a86f00"/></g>`,
+  notebook: `<g transform="translate(100,26)"><rect x="-16" y="-14" width="32" height="26" rx="3" fill="#7bb6ff"/><rect x="-12" y="-10" width="24" height="18" fill="#fff"/><line x1="-8" y1="-4" x2="8" y2="-4" stroke="#bbb" stroke-width="2"/><line x1="-8" y1="2" x2="8" y2="2" stroke="#bbb" stroke-width="2"/></g>`
+};
+ICONS.lemonade = duoIcon('#fff8d6', ['#f6c9a3','#3b2a1e','#ffd43b'], ['#8d5a3b','#1f1a17','#ff8fab'], EXTRAS.lemon);
+ICONS.library  = duoIcon('#e9ecff', ['#f1c27d','#2b2018','#6c8cff'], ['#c68642','#1f1a17','#4ecdc4'], EXTRAS.book);
+ICONS.science  = duoIcon('#e0fff4', ['#8d5a3b','#1f1a17','#ff9f43'], ['#f6c9a3','#6b4423','#7b5cff'], EXTRAS.flask);
+ICONS.kites    = duoIcon('#e5f4ff', ['#f1c27d','#3b2a1e','#ff6b6b'], ['#c68642','#1f1a17','#4d7cfe'], EXTRAS.kites);
+ICONS.share    = duoIcon('#ffeceb', ['#8d5a3b','#1f1a17','#4ecdc4'], ['#f6c9a3','#2b2018','#ff9f43'], EXTRAS.apple);
+ICONS.speller  = iconFrame('#fff3d9', kidSvg(100, 96, 1.25, '#f1c27d', '#6b4423', '#ff7a59') + EXTRAS.trophy);
+ICONS.artist   = iconFrame('#eaf3ff', kidSvg(100, 96, 1.25, '#f6c9a3', '#3b2a1e', '#6c8cff') + EXTRAS.notebook);
+ICONS.capeHero = iconFrame('#ffe6e6', `
+  <path d="M58 82 Q100 64 142 82 L160 172 Q100 152 40 172Z" fill="#e53935"/>
+  <rect x="76" y="104" width="48" height="56" rx="16" fill="#4d7cfe"/>
+  <polygon points="100,114 104,124 115,124 106,131 110,142 100,135 90,142 94,131 85,124 96,124" fill="#ffd43b"/>
+  <circle cx="100" cy="78" r="30" fill="#ffdcb5"/>
+  <path d="M94 50 Q100 38 108 50" stroke="#6b4423" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="90" cy="74" r="4" fill="#24304a"/><circle cx="110" cy="74" r="4" fill="#24304a"/>
+  <path d="M84 88 Q100 104 116 88Z" fill="#fff" stroke="#24304a" stroke-width="3" stroke-linejoin="round"/>
+`);
+ICONS.inventor = iconFrame('#efe9ff',
+  kidSvg(96, 94, 1.25, '#f1c27d', '#8e8e9a', '#ffffff') +
+  `<g transform="translate(96,66)"><circle cx="-14" cy="0" r="11" fill="#9be7ff" stroke="#5c6b80" stroke-width="3"/><circle cx="14" cy="0" r="11" fill="#9be7ff" stroke="#5c6b80" stroke-width="3"/><rect x="-4" y="-3" width="8" height="6" fill="#5c6b80"/></g>` +
+  `<g transform="translate(160,148)"><rect x="-14" y="-16" width="28" height="26" rx="6" fill="#b0bec5"/><circle cx="-5" cy="-6" r="3" fill="#ff5252"/><circle cx="5" cy="-6" r="3" fill="#ff5252"/><rect x="-8" y="10" width="6" height="10" fill="#78909c"/><rect x="2" y="10" width="6" height="10" fill="#78909c"/></g>`);
+ICONS.elf = iconFrame('#e8f5e9', `
+  <path d="M70 150 Q100 172 130 150 L126 180 Q100 188 74 180Z" fill="#ffd8a8"/>
+  <path d="M68 100 Q38 78 32 108 Q44 124 68 116Z" fill="#cfa77a"/>
+  <path d="M132 100 Q162 78 168 108 Q156 124 132 116Z" fill="#cfa77a"/>
+  <ellipse cx="100" cy="108" rx="34" ry="40" fill="#cfa77a"/>
+  <circle cx="86" cy="104" r="12" fill="#fff"/><circle cx="114" cy="104" r="12" fill="#fff"/>
+  <circle cx="86" cy="104" r="6" fill="#4a7c59"/><circle cx="114" cy="104" r="6" fill="#4a7c59"/>
+  <circle cx="86" cy="104" r="2.5" fill="#24304a"/><circle cx="114" cy="104" r="2.5" fill="#24304a"/>
+  <path d="M90 128 Q100 138 110 128" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M96 118 Q100 114 104 118" stroke="#a9825a" stroke-width="3" fill="none" stroke-linecap="round"/>
+`);
+
+/* ---- Car-themed icons for stories 11–15 (driver drawn first, car body in front) ---- */
+function carSvg(x, y, s, body, trim){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <path d="M-46 4 Q-46 -14 -30 -16 L30 -16 Q46 -14 46 4 L46 14 Q46 20 40 20 L-40 20 Q-46 20 -46 14Z" fill="${body}"/>
+    <rect x="-40" y="-6" width="80" height="6" rx="3" fill="${trim}"/>
+    <circle cx="-26" cy="20" r="11" fill="#2b2f3a"/><circle cx="-26" cy="20" r="4.5" fill="#cfd6e4"/>
+    <circle cx="26" cy="20" r="11" fill="#2b2f3a"/><circle cx="26" cy="20" r="4.5" fill="#cfd6e4"/>
+    <circle cx="41" cy="2" r="4" fill="#fff59d"/>
+  </g>`;
+}
+function roboHead(x, y, s, metal, eye){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <line x1="0" y1="-34" x2="0" y2="-46" stroke="#5c6b80" stroke-width="4"/><circle cx="0" cy="-48" r="6" fill="#ff5252"/>
+    <rect x="-28" y="-34" width="56" height="50" rx="14" fill="${metal}" stroke="#5c6b80" stroke-width="3"/>
+    <circle cx="-11" cy="-12" r="8" fill="#fff"/><circle cx="11" cy="-12" r="8" fill="#fff"/>
+    <circle cx="-11" cy="-12" r="4" fill="${eye}"/><circle cx="11" cy="-12" r="4" fill="${eye}"/>
+    <path d="M-12 4 Q0 12 12 4" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>`;
+}
+ICONS.noodle = iconFrame('#fff1d6',
+  kidSvg(100, 80, 1, '#f6c9a3', '#ffd166', '#2f80ed') +
+  `<path d="M70 48 Q72 30 100 30 Q128 30 130 48Z" fill="#b0bec5" stroke="#78909c" stroke-width="3"/><rect x="128" y="40" width="14" height="5" rx="2" fill="#78909c"/>` +
+  `<g transform="translate(158,104)"><ellipse rx="16" ry="11" fill="#c47a3a"/><ellipse cx="-12" cy="-4" rx="5" ry="9" fill="#8a4f1f"/><circle cx="6" cy="-3" r="2.5" fill="#24304a"/></g>` +
+  carSvg(100, 150, 1.25, '#ff5252', '#ffd43b'));
+ICONS.pickles = iconFrame('#e7fbe9',
+  kidSvg(100, 80, 1, '#ffdcb5', '#7cb342', '#ffffff') +
+  `<g transform="translate(100,82)"><circle cx="-10" cy="3" r="9" fill="none" stroke="#2e7d32" stroke-width="3"/><circle cx="10" cy="3" r="9" fill="none" stroke="#2e7d32" stroke-width="3"/></g>` +
+  `<circle cx="40" cy="60" r="10" fill="#d6f3ff" stroke="#7cc7ef" stroke-width="2"/><circle cx="160" cy="52" r="13" fill="#d6f3ff" stroke="#7cc7ef" stroke-width="2"/><circle cx="148" cy="86" r="7" fill="#d6f3ff" stroke="#7cc7ef" stroke-width="2"/>` +
+  carSvg(100, 150, 1.3, '#ffc107', '#ff7043'));
+ICONS.zoomzoom = iconFrame('#ffe9e3',
+  kidSvg(84, 80, 1, '#f1c27d', '#e0e0e0', '#8e44ad') +
+  `<g transform="translate(140,96)"><ellipse rx="20" ry="16" fill="#d7a26a"/><rect x="-16" y="-8" width="32" height="10" rx="5" fill="#4dd0e1" stroke="#24304a" stroke-width="2"/><ellipse cx="0" cy="8" rx="7" ry="4" fill="#24304a"/></g>` +
+  `<g stroke="#b0bec5" stroke-width="4"><line x1="40" y1="118" x2="150" y2="112"/></g>` +
+  carSvg(100, 150, 1.3, '#e53935', '#ffd43b'));
+ICONS.tacotruck = iconFrame('#fff6d9',
+  kidSvg(100, 80, 1, '#c68642', '#1f1a17', '#ff7043') +
+  `<g transform="translate(100,38)"><path d="M-22 6 Q0 -26 22 6Z" fill="#ffca28" stroke="#e0a100" stroke-width="2"/><path d="M-16 2 Q0 -14 16 2" stroke="#66bb6a" stroke-width="4" fill="none"/></g>` +
+  carSvg(100, 150, 1.3, '#ffd43b', '#ff5722') +
+  `<path d="M58 152 q6 -12 12 0 q6 -12 12 0" fill="#ff5722"/>`);
+ICONS.fizzlepop = iconFrame('#f1e9ff',
+  kidSvg(70, 84, 0.9, '#f6c9a3', '#9b59b6', '#ffffff') +
+  roboHead(140, 92, 0.75, '#cfd8dc', '#4d7cfe') +
+  carSvg(100, 152, 1.25, '#00bcd4', '#ff4081'));
+ICONS.walrus = iconFrame('#e3f2fd', `
+  <ellipse cx="100" cy="88" rx="46" ry="40" fill="#a1887f"/>
+  <circle cx="84" cy="76" r="5" fill="#24304a"/><circle cx="116" cy="76" r="5" fill="#24304a"/>
+  <ellipse cx="88" cy="96" rx="14" ry="11" fill="#bcaaa4"/><ellipse cx="112" cy="96" rx="14" ry="11" fill="#bcaaa4"/>
+  <circle cx="100" cy="88" r="6" fill="#5d4037"/>
+  <path d="M90 104 L86 132 L96 106Z" fill="#fffde7"/><path d="M110 104 L114 132 L104 106Z" fill="#fffde7"/>` +
+  carSvg(100, 152, 1.3, '#ff5252', '#ffffff'));
+ICONS.lulu = iconFrame('#ffeef6',
+  kidSvg(100, 80, 1, '#f6c9a3', '#ff6b9d', '#ffffff') +
+  `<g transform="translate(152,52)"><path d="M-10 0 L0 28 L10 0Z" fill="#e0a96d"/><circle cx="0" cy="-4" r="12" fill="#ff8fab"/><circle cx="-4" cy="-8" r="2" fill="#4d7cfe"/><circle cx="4" cy="-2" r="2" fill="#ffd43b"/></g>` +
+  carSvg(100, 150, 1.3, '#b2ebf2', '#ff6b9d'));
+ICONS.sneezy = iconFrame('#e8f5e9', `
+  <g fill="#66bb6a"><path d="M70 60 L78 38 L86 58Z"/><path d="M92 54 L100 32 L108 54Z"/><path d="M114 58 L122 38 L130 60Z"/></g>
+  <ellipse cx="100" cy="86" rx="38" ry="34" fill="#81c784"/>
+  <circle cx="86" cy="78" r="6" fill="#fff"/><circle cx="114" cy="78" r="6" fill="#fff"/>
+  <circle cx="86" cy="79" r="3" fill="#24304a"/><circle cx="114" cy="79" r="3" fill="#24304a"/>
+  <circle cx="92" cy="96" r="2.5" fill="#2e7d32"/><circle cx="108" cy="96" r="2.5" fill="#2e7d32"/>
+  <circle cx="150" cy="70" r="9" fill="#d6f3ff" stroke="#7cc7ef" stroke-width="2"/><circle cx="166" cy="92" r="6" fill="#d6f3ff" stroke="#7cc7ef" stroke-width="2"/>
+  <rect x="88" y="114" width="24" height="8" rx="3" fill="#ff5252"/><rect x="100" y="114" width="12" height="8" rx="3" fill="#2979ff"/>` +
+  carSvg(100, 152, 1.3, '#ffffff', '#2979ff'));
+ICONS.cucumber = iconFrame('#f1f8e9', `
+  <rect x="78" y="34" width="44" height="30" rx="4" fill="#24304a"/><rect x="70" y="60" width="60" height="7" rx="3" fill="#24304a"/>
+  <ellipse cx="100" cy="104" rx="26" ry="42" fill="#7cb342"/>
+  <circle cx="92" cy="92" r="2" fill="#558b2f"/><circle cx="110" cy="116" r="2" fill="#558b2f"/><circle cx="96" cy="128" r="2" fill="#558b2f"/>
+  <circle cx="90" cy="84" r="5" fill="#24304a"/><circle cx="110" cy="84" r="5" fill="#24304a"/>
+  <circle cx="110" cy="84" r="10" fill="none" stroke="#ffd43b" stroke-width="3"/>
+  <path d="M88 102 Q100 112 112 102" stroke="#24304a" stroke-width="3" fill="none" stroke-linecap="round"/>` +
+  carSvg(42, 158, 0.55, '#ffd43b', '#24304a') + carSvg(158, 158, 0.55, '#ff5252', '#ffffff'));
+ICONS.treasure = iconFrame('#fdf1d6', `
+  <path d="M26 40 L172 34 L176 120 L30 128Z" fill="#f2deb0" stroke="#b58a4a" stroke-width="3"/>
+  <path d="M44 106 Q64 60 94 84 T150 56" stroke="#b5483a" stroke-width="4" fill="none" stroke-dasharray="7 7" stroke-linecap="round"/>
+  <g stroke="#d33a3a" stroke-width="7" stroke-linecap="round"><line x1="140" y1="46" x2="160" y2="68"/><line x1="160" y1="46" x2="140" y2="68"/></g>
+  <circle cx="48" cy="108" r="6" fill="#3b82f6"/>
+  <rect x="66" y="132" width="68" height="40" rx="6" fill="#8d5a3b" stroke="#5d3a1f" stroke-width="3"/>
+  <path d="M66 140 Q100 116 134 140Z" fill="#a8693f" stroke="#5d3a1f" stroke-width="3"/>
+  <rect x="94" y="138" width="12" height="14" rx="2" fill="#ffd43b" stroke="#d99a00" stroke-width="2"/>
+`);
+ICONS.robotractor = iconFrame('#fff8e1',
+  roboHead(96, 82, 0.95, '#cfd8dc', '#43a047') + `
+  <g transform="translate(100,150)">
+    <rect x="-50" y="-22" width="70" height="30" rx="8" fill="#43a047"/>
+    <rect x="10" y="-44" width="34" height="40" rx="6" fill="#2e7d32"/><rect x="16" y="-38" width="22" height="16" rx="3" fill="#c8f7ff"/>
+    <circle cx="-34" cy="14" r="13" fill="#2b2f3a"/><circle cx="-34" cy="14" r="5" fill="#ffd43b"/>
+    <circle cx="30" cy="10" r="20" fill="#2b2f3a"/><circle cx="30" cy="10" r="8" fill="#ffd43b"/>
+  </g>`);
+
+/* ========================= STORY DATA ========================= */
+/* To add more stories later, push new objects into the relevant grade's `stories` array. */
+const GRADES = {
+  grade3: {
+    id: 'grade3',
+    label: '3rd Grade',
+    subtitle: 'Chapter-style stories & quizzes',
+    desc: 'Longer stories, syllable practice, and 5-question quizzes.',
+    icon: 'grade3icon',
+    stories: [
+      {
+        id: 1, level: 1, title: "Catboy and Owlet Help a Cat", icon: "catowl",
+        cast: "Catboy, Owlet", blurb: "A short, easy story about teamwork at night.",
+        sticker: {emoji:'🐾', name:'Helper Paws'},
+        lines: [
+          "Catboy and Owlet are good friends.",
+          "They like to help people at night.",
+          "One night, a cat got stuck in a tall tree.",
+          "The cat was scared and could not get down.",
+          "“Don’t worry, little cat!” said Catboy.",
+          "Owlet flew up high to see the cat.",
+          "Catboy jumped up and used his claws to climb.",
+          "He held the cat close and climbed back down.",
+          "The cat was happy and safe on the ground.",
+          "“Great job, team!” said Owlet with a smile.",
+          "Catboy and Owlet always help their friends.",
+          "Being kind makes the night better for everyone."
+        ],
+        tricky: [
+          {word:"Catboy", syll:"Cat·boy", note:"a hero who is part cat"},
+          {word:"Owlet", syll:"Ow·let", note:"a hero who is part owl"},
+          {word:"people", syll:"peo·ple", note:"more than one person"},
+          {word:"happy", syll:"hap·py", note:"feeling good"},
+          {word:"everyone", syll:"ev·ery·one", note:"every single person"}
+        ],
+        questions: [
+          {q:"Who got stuck in a tree?", opts:["A dog","A cat","A bird","Owlet"], a:1},
+          {q:"Who flew up to see the cat?", opts:["Catboy","Owlet","Gekko","The cat"], a:1},
+          {q:"How did Catboy get the cat down?", opts:["He called for help","He climbed the tree","He used a ladder","He flew"], a:1},
+          {q:"How did the cat feel at the end?", opts:["Scared","Angry","Happy and safe","Sleepy"], a:2},
+          {q:"What is the lesson of the story?", opts:["Cats can fly","Being kind helps others","Trees are dangerous","Owls can't see at night"], a:1}
+        ]
+      },
+      {
+        id: 2, level: 2, title: "Gekko's Big Climb", icon: "gecko",
+        cast: "Gekko", blurb: "Gekko uses his super strength to help a friend.",
+        sticker: {emoji:'🦎', name:'Climbing Star'},
+        lines: [
+          "Gekko loved to climb walls and jump high.",
+          "His super strength made him very powerful.",
+          "One day, a kite got stuck on a tall building.",
+          "A little boy named Sam was sad about his kite.",
+          "“I can get it back for you,” said Gekko.",
+          "Gekko stuck to the wall with his sticky hands.",
+          "He climbed higher and higher without falling.",
+          "At the top, he carefully grabbed the kite.",
+          "Gekko climbed back down the building slowly.",
+          "He gave the kite to Sam with a big smile.",
+          "“Thank you, Gekko!” shouted Sam happily.",
+          "Gekko felt proud that he could help a friend."
+        ],
+        tricky: [
+          {word:"Gekko", syll:"Gek·ko", note:"a hero who is part gecko"},
+          {word:"powerful", syll:"pow·er·ful", note:"very strong"},
+          {word:"building", syll:"build·ing", note:"a tall structure"},
+          {word:"carefully", syll:"care·ful·ly", note:"doing something with care"},
+          {word:"happily", syll:"hap·pi·ly", note:"in a happy way"}
+        ],
+        questions: [
+          {q:"What is stuck on the building?", opts:["A balloon","A kite","A ball","A hat"], a:1},
+          {q:"Who is sad about the kite?", opts:["Gekko","Sam","Catboy","Owlet"], a:1},
+          {q:"How does Gekko climb the wall?", opts:["With a ladder","With sticky hands","He flies","He jumps"], a:1},
+          {q:"How does Sam feel when he gets his kite back?", opts:["Angry","Happy","Scared","Bored"], a:1},
+          {q:"What made Gekko feel proud?", opts:["Winning a race","Helping his friend","Climbing fast","Eating lunch"], a:1}
+        ]
+      },
+      {
+        id: 3, level: 3, title: "Sheriff Labrador and the Lost Puppy", icon: "sheriffdog",
+        cast: "Sheriff Labrador, Biscuit", blurb: "A gentle mystery about finding a lost puppy.",
+        sticker: {emoji:'⭐', name:'Deputy Badge'},
+        lines: [
+          "Sheriff Labrador kept Pawville safe every day.",
+          "He wore a shiny badge and a tall cowboy hat.",
+          "One morning, a small puppy named Biscuit got lost.",
+          "Biscuit wandered far away from his home.",
+          "Sheriff Labrador sniffed the ground to find clues.",
+          "He followed Biscuit's tracks through the park.",
+          "The tracks led to an old wooden barn.",
+          "Inside the barn, Biscuit was hiding and shaking.",
+          "“It's okay, little buddy,” said Sheriff Labrador gently.",
+          "He walked Biscuit safely back to his worried family.",
+          "Biscuit's family thanked the sheriff with big hugs.",
+          "Sheriff Labrador smiled, ready for his next adventure."
+        ],
+        tricky: [
+          {word:"Sheriff", syll:"Sher·iff", note:"a town's top helper and protector"},
+          {word:"Labrador", syll:"Lab·ra·dor", note:"a kind of dog"},
+          {word:"wandered", syll:"wan·dered", note:"walked around without a plan"},
+          {word:"gently", syll:"gent·ly", note:"in a soft, kind way"},
+          {word:"family", syll:"fam·i·ly", note:"people who love and live with you"},
+          {word:"adventure", syll:"ad·ven·ture", note:"an exciting new experience"}
+        ],
+        questions: [
+          {q:"What is Sheriff Labrador's job?", opts:["Baking bread","Keeping Pawville safe","Flying planes","Teaching school"], a:1},
+          {q:"Who got lost?", opts:["Sheriff Labrador","Biscuit the puppy","A cat","A bird"], a:1},
+          {q:"How did the sheriff find Biscuit's trail?", opts:["He asked a friend","He sniffed the ground for clues","He used a map","He guessed"], a:1},
+          {q:"Where was Biscuit hiding?", opts:["In a tree","In an old barn","At the park","At home"], a:1},
+          {q:"How did Biscuit's family feel when he came home?", opts:["Angry","Thankful and happy","Confused","Sleepy"], a:1}
+        ]
+      },
+      {
+        id: 4, level: 3, title: "Tayo the Little Bus Helps a Friend", icon: "bus",
+        cast: "Tayo, Rogi", blurb: "Tayo learns that teamwork makes hard jobs easier.",
+        sticker: {emoji:'🚌', name:'Friendly Wheels'},
+        lines: [
+          "Tayo was a cheerful little blue bus in the city.",
+          "Every day, Tayo carried passengers to school and work.",
+          "One rainy morning, Tayo saw his friend Rogi stuck in the mud.",
+          "Rogi's wheels were spinning but he could not move.",
+          "“Hold on, Rogi! I will help you,” called Tayo.",
+          "Tayo backed up carefully and pushed Rogi from behind.",
+          "Slowly, Rogi's wheels found the solid road again.",
+          "“Thank you so much, Tayo!” said Rogi with relief.",
+          "The passengers on both buses clapped and cheered.",
+          "Tayo felt warm inside knowing he helped a friend.",
+          "Working together made a hard problem much easier.",
+          "Tayo drove off, ready to help someone else that day."
+        ],
+        tricky: [
+          {word:"cheerful", syll:"cheer·ful", note:"happy and bright"},
+          {word:"passengers", syll:"pas·sen·gers", note:"people riding in a vehicle"},
+          {word:"carefully", syll:"care·ful·ly", note:"doing something with care"},
+          {word:"relief", syll:"re·lief", note:"a good feeling when worry goes away"},
+          {word:"together", syll:"to·geth·er", note:"doing something as a team"},
+          {word:"problem", syll:"prob·lem", note:"something that needs to be solved"}
+        ],
+        questions: [
+          {q:"What color is Tayo?", opts:["Red","Blue","Yellow","Green"], a:1},
+          {q:"What problem did Rogi have?", opts:["He was lost","He was stuck in the mud","He ran out of gas","He was sick"], a:1},
+          {q:"How did Tayo help Rogi?", opts:["He called for a tow truck","He pushed him from behind","He gave him a map","He towed him with a rope"], a:1},
+          {q:"How did the passengers react?", opts:["They were upset","They clapped and cheered","They got off the bus","They were scared"], a:1},
+          {q:"What is the lesson from this story?", opts:["Buses can fly","Working together solves problems","Mud is dangerous","Rainy days are bad"], a:1}
+        ]
+      },
+      {
+        id: 5, level: 4, title: "Sonic's Fast Race", icon: "speedster",
+        cast: "Sonic, Tails", blurb: "A faster-paced story about friendship over winning.",
+        sticker: {emoji:'⚡', name:'Speedy Heart'},
+        lines: [
+          "Sonic the Hedgehog could run faster than anyone in Green Hill Zone.",
+          "He loved racing through loops, rings, and winding paths.",
+          "One sunny afternoon, Tails challenged Sonic to a friendly race.",
+          "“Let's see who reaches the mountain first!” said Tails, grinning.",
+          "The race began, and Sonic zoomed ahead like lightning.",
+          "Suddenly, Sonic noticed Tails had tripped over a rock.",
+          "Sonic paused and ran back to check on his friend.",
+          "“Are you okay, Tails?” Sonic asked with concern.",
+          "Tails nodded, and together they finished the race side by side.",
+          "Crossing the finish line together felt better than winning alone.",
+          "Sonic realized that true friendship matters more than any race.",
+          "From that day on, Sonic and Tails raced just for fun."
+        ],
+        tricky: [
+          {word:"Hedgehog", syll:"Hedge·hog", note:"a small spiky animal"},
+          {word:"mountain", syll:"moun·tain", note:"a very tall hill"},
+          {word:"suddenly", syll:"sud·den·ly", note:"happening all at once"},
+          {word:"concern", syll:"con·cern", note:"a feeling of care or worry"},
+          {word:"realized", syll:"re·al·ized", note:"understood something new"},
+          {word:"friendship", syll:"friend·ship", note:"the bond between friends"}
+        ],
+        questions: [
+          {q:"Where does this story take place?", opts:["Green Hill Zone","A city","The ocean","The moon"], a:0},
+          {q:"Who challenged Sonic to a race?", opts:["Knuckles","Tails","Amy","Eggman"], a:1},
+          {q:"What happened to Tails during the race?", opts:["He won easily","He tripped over a rock","He got lost","He flew away"], a:1},
+          {q:"What did Sonic do when he saw Tails was hurt?", opts:["Kept racing","Ran back to check on him","Called for help","Laughed"], a:1},
+          {q:"What is the main lesson of the story?", opts:["Winning is everything","Friendship matters more than winning","Running fast is easy","Races should be avoided"], a:1}
+        ]
+      },
+      {
+        id: 6, level: 2, title: "Eesa and Maahi's Lemonade Stand", icon: "lemonade",
+        cast: "Eesa, Maahi", blurb: "Two friends team up to earn money for a new soccer ball.",
+        sticker: {emoji:'🍋', name:'Lemonade Stars'},
+        lines: [
+          "Eesa and Maahi wanted to earn money for a new soccer ball.",
+          "“Let’s sell lemonade!” said Eesa with a big smile.",
+          "Maahi squeezed the lemons while Eesa stirred in the sugar.",
+          "Together they made a sign that said “Fresh Lemonade, 50 cents.”",
+          "Soon the neighbors began to line up along the sidewalk.",
+          "Then a strong gust of wind knocked the sign right over.",
+          "“Oh no!” cried Maahi. “Nobody will see it now!”",
+          "Eesa quickly picked it up and taped it to the table.",
+          "By late afternoon, every single cup was sold.",
+          "They counted their coins and found ten whole dollars.",
+          "The two friends walked to the store and bought a shiny new soccer ball.",
+          "Eesa and Maahi learned that teamwork makes hard jobs feel easy."
+        ],
+        tricky: [
+          {word:"lemonade", syll:"lem·on·ade", note:"a sweet and sour lemon drink"},
+          {word:"neighbors", syll:"neigh·bors", note:"people who live near you"},
+          {word:"quickly", syll:"quick·ly", note:"very fast"},
+          {word:"afternoon", syll:"af·ter·noon", note:"the part of the day after lunch"},
+          {word:"together", syll:"to·geth·er", note:"doing something as a team"}
+        ],
+        questions: [
+          {q:"What did Eesa and Maahi want to buy?", opts:["A new soccer ball","A bike","A video game","A kite"], a:0},
+          {q:"What did Eesa and Maahi sell?", opts:["Cookies","Lemonade","Bracelets","Books"], a:1},
+          {q:"What happened to the sign?", opts:["The wind knocked it over","It got wet","It was lost","A dog ate it"], a:0},
+          {q:"How did they fix the problem?", opts:["They made a new sign","Eesa taped it to the table","They asked a neighbor for help","They gave up"], a:1},
+          {q:"What lesson did Eesa and Maahi learn?", opts:["Lemons are sour","Teamwork makes hard jobs easier","Wind is dangerous","Soccer is hard"], a:1}
+        ]
+      },
+      {
+        id: 7, level: 3, title: "Captain Underpants Saves Picture Day", icon: "capeHero",
+        cast: "Captain Underpants", blurb: "A silly hero helps fix a broken camera.",
+        sticker: {emoji:'📸', name:'Picture Perfect'},
+        lines: [
+          "It was Picture Day at the elementary school, and everyone looked their best.",
+          "Captain Underpants zoomed into the gym with his red cape flapping.",
+          "“Tra-la-laaa!” he sang. “I am here to help!”",
+          "The photographer frowned because her camera would not turn on.",
+          "The students groaned, and a few of them felt sad.",
+          "Captain Underpants scratched his head and thought very hard.",
+          "Then he noticed that the battery had fallen out of the camera.",
+          "He found it under a bench and popped it back inside.",
+          "The camera flashed, and the photographer cheered with joy.",
+          "Captain Underpants posed in the very first picture with a goofy grin.",
+          "Every student smiled, and the photos turned out great.",
+          "Even a silly hero can be truly helpful when he pays attention."
+        ],
+        tricky: [
+          {word:"Captain", syll:"Cap·tain", note:"a leader, like the boss of a team"},
+          {word:"elementary", syll:"el·e·men·ta·ry", note:"a school for younger kids"},
+          {word:"photographer", syll:"pho·tog·ra·pher", note:"a person who takes pictures"},
+          {word:"battery", syll:"bat·ter·y", note:"the part that gives a camera power"},
+          {word:"noticed", syll:"no·ticed", note:"saw something"}
+        ],
+        questions: [
+          {q:"What special day was it at school?", opts:["Test Day","Picture Day","Field Day","Pizza Day"], a:1},
+          {q:"What was wrong with the camera?", opts:["It would not turn on","It was too heavy","It had no film","It was broken in half"], a:0},
+          {q:"What did Captain Underpants find under the bench?", opts:["A hat","A battery","A lunchbox","A pencil"], a:1},
+          {q:"How did the photographer feel when the camera worked?", opts:["Angry","Full of joy","Sleepy","Worried"], a:1},
+          {q:"What is the lesson of the story?", opts:["Cameras break easily","Paying attention helps you solve problems","Capes are fun to wear","Never smile in photos"], a:1}
+        ]
+      },
+      {
+        id: 8, level: 3, title: "Umair and Aaqil and the Missing Library Book", icon: "library",
+        cast: "Umair, Aaqil", blurb: "Two friends play detective to find a missing book.",
+        sticker: {emoji:'📚', name:'Book Detective'},
+        lines: [
+          "Umair and Aaqil loved to visit the school library every Friday.",
+          "This week, Umair wanted to read his favorite book about space.",
+          "But when he reached the shelf, the book was gone!",
+          "“Maybe someone borrowed it,” said Aaqil.",
+          "The friends decided to look for clues like real detectives.",
+          "They checked the return cart, the reading corner, and the front desk.",
+          "Under a beanbag chair, Aaqil spotted a book with a rocket on the cover.",
+          "It was the missing book, and a note was tucked inside the pages.",
+          "The note said, “Sorry! I forgot to put this back. — Sam”",
+          "They took the book to the librarian right away.",
+          "She thanked them for being honest and helpful, and Umair checked it out.",
+          "Both friends learned that returning things on time helps everyone."
+        ],
+        tricky: [
+          {word:"library", syll:"li·brar·y", note:"a place full of books to borrow"},
+          {word:"favorite", syll:"fa·vor·ite", note:"the one you like the best"},
+          {word:"borrowed", syll:"bor·rowed", note:"took something and promised to bring it back"},
+          {word:"detectives", syll:"de·tec·tives", note:"people who look for clues"},
+          {word:"librarian", syll:"li·brar·i·an", note:"the person who takes care of the library"},
+          {word:"honest", syll:"hon·est", note:"telling the truth"}
+        ],
+        questions: [
+          {q:"When do Umair and Aaqil visit the library?", opts:["Every Monday","Every Friday","Every Sunday","Once a year"], a:1},
+          {q:"What kind of book was missing?", opts:["A book about space","A cookbook","A joke book","A map book"], a:0},
+          {q:"Where did Aaqil find the book?", opts:["On the front desk","Under a beanbag chair","In the return cart","In a backpack"], a:1},
+          {q:"What was inside the book?", opts:["A bookmark","A note","A photo","A coin"], a:1},
+          {q:"What did the friends learn?", opts:["Libraries close on Friday","Returning things on time helps everyone","Space is very far away","Never read at night"], a:1}
+        ]
+      },
+      {
+        id: 9, level: 4, title: "Rayhan and Aahid's Science Fair", icon: "science",
+        cast: "Rayhan, Aahid", blurb: "A model volcano teaches two friends about patience.",
+        sticker: {emoji:'🔬', name:'Science Whiz'},
+        lines: [
+          "Rayhan and Aahid worked together on a project for the school science fair.",
+          "They decided to build a model volcano that could erupt.",
+          "First, they shaped the volcano out of clay and painted it brown.",
+          "Next, Aahid measured the baking soda while Rayhan got the vinegar ready.",
+          "At first, only a tiny fizz came out, and the friends felt a little worried.",
+          "Rayhan realized they needed more baking soda and a squirt of dish soap.",
+          "They tried again, and this time foamy red lava bubbled over the top!",
+          "The judges gasped and clapped as the volcano erupted.",
+          "Then the principal asked how the reaction worked.",
+          "“Baking soda and vinegar make a gas called carbon dioxide,” explained Aahid.",
+          "“The gas pushes the foam up and out,” added Rayhan.",
+          "The friends won a blue ribbon because of their teamwork and patience."
+        ],
+        tricky: [
+          {word:"volcano", syll:"vol·ca·no", note:"a mountain that can shoot out hot lava"},
+          {word:"measured", syll:"meas·ured", note:"found out how much of something"},
+          {word:"worried", syll:"wor·ried", note:"feeling nervous about what might happen"},
+          {word:"reaction", syll:"re·ac·tion", note:"what happens when things mix and change"},
+          {word:"principal", syll:"prin·ci·pal", note:"the leader of a school"},
+          {word:"patience", syll:"pa·tience", note:"staying calm while you wait or try again"}
+        ],
+        questions: [
+          {q:"What did Rayhan and Aahid build?", opts:["A rocket","A model volcano","A robot","A solar system"], a:1},
+          {q:"What did Aahid measure?", opts:["The vinegar","The clay","The baking soda","The paint"], a:2},
+          {q:"Why were the friends worried at first?", opts:["They lost their project","Only a tiny fizz came out","The judges left","The clay cracked"], a:1},
+          {q:"What did they do to fix the problem?", opts:["Added more baking soda and dish soap","Started over with new clay","Asked a teacher to do it","Used only water"], a:0},
+          {q:"What helped them win the blue ribbon?", opts:["Luck","Teamwork and patience","A bigger volcano","A secret trick"], a:1}
+        ]
+      },
+      {
+        id: 10, level: 4, title: "Big Nate's Spelling Bee", icon: "speller",
+        cast: "Big Nate", blurb: "Big Nate learns that practice beats bragging.",
+        sticker: {emoji:'🏆', name:'Spelling Champ'},
+        lines: [
+          "Big Nate was sure he would win the school spelling bee.",
+          "“I am the best speller in the whole grade,” he bragged.",
+          "His friend said, “Maybe you should practice a little.”",
+          "Nate laughed, tossed his notebook aside, and went to play video games.",
+          "On the day of the contest, he marched up to the microphone with a big grin.",
+          "His first word was “necessary,” and he spelled it N-E-S-S-E-S-S-A-R-Y.",
+          "Ding! The bell rang, which meant the answer was wrong.",
+          "Nate’s face turned red, and he walked slowly back to his seat.",
+          "That night, he realized that being confident is good, but practice matters too.",
+          "He started studying new words with his friend’s help.",
+          "Next year, Nate spelled every word correctly and won the trophy.",
+          "He learned that hard work beats bragging every time."
+        ],
+        tricky: [
+          {word:"spelling", syll:"spell·ing", note:"saying the letters of a word in order"},
+          {word:"necessary", syll:"nec·es·sar·y", note:"something you need"},
+          {word:"microphone", syll:"mi·cro·phone", note:"a tool that makes your voice louder"},
+          {word:"confident", syll:"con·fi·dent", note:"sure that you can do something"},
+          {word:"practice", syll:"prac·tice", note:"doing something again and again to get better"},
+          {word:"trophy", syll:"tro·phy", note:"a prize for winning"}
+        ],
+        questions: [
+          {q:"What contest did Nate join?", opts:["An art contest","A spelling bee","A math race","A talent show"], a:1},
+          {q:"What did Nate do instead of practicing?", opts:["Played video games","Read a book","Went to sleep","Washed dishes"], a:0},
+          {q:"What happened when Nate spelled “necessary” wrong?", opts:["The bell rang","He won a prize","The judges clapped","The microphone broke"], a:0},
+          {q:"What did Nate do after he lost?", opts:["Quit forever","Studied new words with a friend","Blamed his friend","Changed schools"], a:1},
+          {q:"What is the lesson of the story?", opts:["Bragging wins prizes","Hard work beats bragging","Spelling is easy","Never enter contests"], a:1}
+        ]
+      },
+      /* ---- New stories (11–15): funny new characters, each earns a 🚗 car sticker + a ✨ bonus sticker ---- */
+      {
+        id: 11, level: 2, title: "Captain Noodle's Runaway Go-Kart", icon: "noodle",
+        cast: "Captain Noodle, Sir Wigglebottom", blurb: "A silly racer learns why the rules matter.",
+        sticker: {emoji:'🏎️', name:'Noodle Nitro Kart', kind:'car'},
+        bonus: {emoji:'🦖', name:'T-Rex Roar'},
+        lines: [
+          "Captain Noodle wore a pasta pot on his head like a helmet.",
+          "His dog, Sir Wigglebottom, wagged his tail so hard his whole body shook.",
+          "Today was the big go-kart race at Meatball Hill.",
+          "“Remember the rule,” said the coach. “Always check your brakes first!”",
+          "Captain Noodle was too excited to listen. He zoomed to the starting line.",
+          "Ready, set, GO! His go-kart rolled faster and faster down the hill.",
+          "When he tried to slow down, the brakes went squeak, squeak, SPLAT!",
+          "The go-kart rolled right into a giant pile of hay.",
+          "Sir Wigglebottom barked and pulled him out by his sleeve.",
+          "Captain Noodle laughed, but then he felt a little silly.",
+          "“Next time, I will check my brakes first,” he promised.",
+          "Listening to directions keeps everyone safe and having fun."
+        ],
+        tricky: [
+          {word:"helmet", syll:"hel·met", note:"a hard hat that keeps your head safe"},
+          {word:"Wigglebottom", syll:"Wig·gle·bot·tom", note:"a very wiggly dog's funny name"},
+          {word:"excited", syll:"ex·cit·ed", note:"so happy you can't wait"},
+          {word:"promised", syll:"prom·ised", note:"said you would really do something"},
+          {word:"directions", syll:"di·rec·tions", note:"steps that tell you what to do"}
+        ],
+        questions: [
+          {q:"What did Captain Noodle wear as a helmet?", opts:["A pasta pot","A bucket","A bike helmet","A cowboy hat"], a:0},
+          {q:"What rule did the coach give?", opts:["Go as fast as you can","Always check your brakes first","Wear red shoes","No dogs allowed"], a:1},
+          {q:"Where did the go-kart crash?", opts:["Into a lake","Into a pile of hay","Into a tree","Into a fence"], a:1},
+          {q:"Who pulled Captain Noodle out?", opts:["The coach","Sir Wigglebottom","A cat","Nobody"], a:1},
+          {q:"What is the lesson of the story?", opts:["Pasta pots make great helmets","Listening to directions keeps you safe","Go-karts are boring","Dogs can drive"], a:1}
+        ]
+      },
+      {
+        id: 12, level: 3, title: "Professor Pickles and the Bubble Bus", icon: "pickles",
+        cast: "Professor Pickles, Penny Pancake", blurb: "A wacky invention makes way too many bubbles.",
+        sticker: {emoji:'🚌', name:'Bubble Bus Blaster', kind:'car'},
+        bonus: {emoji:'🚀', name:'Rocket Blast'},
+        lines: [
+          "Professor Pickles was the silliest inventor in the town of Pickleton.",
+          "He had green glasses and hair that stuck straight up like a broom.",
+          "One morning, he showed off his newest invention: the Bubble Bus!",
+          "“It drives kids to school and blows bubbles the whole way,” he said proudly.",
+          "Penny Pancake, the bus driver, pressed the big purple button.",
+          "Pop! Pop! POP! Bubbles floated out of every bus window.",
+          "At first it was wonderful, and the kids giggled and clapped.",
+          "But the bubbles kept coming until nobody could see the road!",
+          "Penny Pancake stopped the bus safely and turned off the machine.",
+          "“Hmm, maybe a few less bubbles,” said Professor Pickles.",
+          "He fixed a tiny dial so the bus blew just ten bubbles a minute.",
+          "Now the Bubble Bus is the happiest, safest ride in town."
+        ],
+        tricky: [
+          {word:"inventor", syll:"in·ven·tor", note:"someone who makes new things"},
+          {word:"invention", syll:"in·ven·tion", note:"a new thing someone made"},
+          {word:"wonderful", syll:"won·der·ful", note:"very, very good"},
+          {word:"safely", syll:"safe·ly", note:"without anyone getting hurt"},
+          {word:"machine", syll:"ma·chine", note:"a tool with moving parts"}
+        ],
+        questions: [
+          {q:"What did Professor Pickles invent?", opts:["A flying car","The Bubble Bus","A robot dog","A pickle cannon"], a:1},
+          {q:"Who drove the bus?", opts:["Professor Pickles","Penny Pancake","Mayor Muffin","A robot"], a:1},
+          {q:"What problem happened?", opts:["The bus ran out of gas","Too many bubbles hid the road","The tires popped","The kids got lost"], a:1},
+          {q:"How did Professor Pickles fix the problem?", opts:["He sold the bus","He set a dial for fewer bubbles","He added more bubbles","He painted the bus"], a:1},
+          {q:"Which words best describe Professor Pickles?", opts:["Grumpy and mean","Silly and creative","Scared and shy","Lazy and sleepy"], a:1}
+        ]
+      },
+      {
+        id: 13, level: 3, title: "Grandma Zoom-Zoom's Fire Truck Parade", icon: "zoomzoom",
+        cast: "Grandma Zoom-Zoom, Bonkers the Bulldog", blurb: "A speedy grandma must choose: the parade or a kitten?",
+        sticker: {emoji:'🚒', name:'Big Red Rescue', kind:'car'},
+        bonus: {emoji:'⚡', name:'Lightning Bolt'},
+        lines: [
+          "Grandma Zoom-Zoom was the fastest grandma in Puddleford.",
+          "She drove an old red fire truck that she named Big Red.",
+          "Her bulldog, Bonkers, rode in the front seat wearing tiny goggles.",
+          "Every year, Puddleford had a parade, and Big Red led the way.",
+          "This year, right before the parade, a little kitten got stuck on a roof.",
+          "Grandma Zoom-Zoom had to choose: drive in the parade or help the kitten.",
+          "“A parade can wait, but a scared kitten can’t!” she said.",
+          "She raised Big Red's long ladder, and Bonkers barked to cheer her on.",
+          "Carefully, Grandma climbed up and carried the kitten down.",
+          "When she got back, the whole town was clapping for her.",
+          "The mayor said, “You are the real hero of our parade!”",
+          "Grandma Zoom-Zoom smiled. Helping others always comes first."
+        ],
+        tricky: [
+          {word:"goggles", syll:"gog·gles", note:"glasses that protect your eyes"},
+          {word:"parade", syll:"pa·rade", note:"a fun march down the street"},
+          {word:"ladder", syll:"lad·der", note:"steps you climb up"},
+          {word:"Carefully", syll:"Care·ful·ly", note:"slowly and safely"},
+          {word:"hero", syll:"he·ro", note:"someone brave who helps"}
+        ],
+        questions: [
+          {q:"What did Grandma Zoom-Zoom drive?", opts:["A bicycle","An old red fire truck","A taco truck","A school bus"], a:1},
+          {q:"Who wore tiny goggles?", opts:["Grandma","The kitten","Bonkers the bulldog","The mayor"], a:2},
+          {q:"What problem happened before the parade?", opts:["It rained","A kitten got stuck on a roof","Big Red broke down","Bonkers ran away"], a:1},
+          {q:"Why did Grandma miss the start of the parade?", opts:["She was tired","She chose to help the kitten","She got lost","She forgot"], a:1},
+          {q:"What is the lesson of the story?", opts:["Parades are boring","Helping others comes first","Fire trucks are slow","Kittens love roofs"], a:1}
+        ]
+      },
+      {
+        id: 14, level: 4, title: "Mayor Muffin and the Great Taco Truck Race", icon: "tacotruck",
+        cast: "Turbo Taco, Chef Waffles, Mayor Muffin", blurb: "Two food trucks race for a golden trophy.",
+        sticker: {emoji:'🚚', name:'Turbo Taco Truck', kind:'car'},
+        bonus: {emoji:'🌮', name:'Golden Taco'},
+        lines: [
+          "In the town of Crumbleton, two food trucks were famous.",
+          "Turbo Taco drove a speedy yellow taco truck with flames painted on the side.",
+          "Chef Waffles drove a slow blue waffle wagon that smelled like syrup.",
+          "Mayor Muffin announced the Great Food Truck Race, with a golden trophy for the winner.",
+          "Turbo Taco zoomed ahead, honking a horn that played a silly song.",
+          "Halfway through the race, the waffle wagon got a flat tire.",
+          "Turbo Taco could have kept driving and won the trophy easily.",
+          "Instead, he stopped, grabbed his spare tire, and helped Chef Waffles.",
+          "They finished the race side by side, at the very same moment.",
+          "Mayor Muffin scratched his frosting-covered head. “Two winners? Hmm!”",
+          "So he gave each chef a shiny gold medal to share the win.",
+          "Now the town eats Taco Waffles, the most delicious snack in Crumbleton."
+        ],
+        tricky: [
+          {word:"famous", syll:"fa·mous", note:"known by lots of people"},
+          {word:"announced", syll:"an·nounced", note:"told everyone"},
+          {word:"trophy", syll:"tro·phy", note:"a prize for winning"},
+          {word:"Halfway", syll:"Half·way", note:"in the middle"},
+          {word:"delicious", syll:"de·li·cious", note:"very, very yummy"}
+        ],
+        questions: [
+          {q:"What was painted on Turbo Taco's truck?", opts:["Stars","Flames","Flowers","Waffles"], a:1},
+          {q:"What happened to the waffle wagon?", opts:["It ran out of syrup","It got a flat tire","It flew away","It won the race"], a:1},
+          {q:"What did Turbo Taco do next?", opts:["Kept driving to win","Stopped and helped","Laughed at Chef Waffles","Went home"], a:1},
+          {q:"How did the race end?", opts:["Turbo Taco won alone","They finished together","Nobody finished","Mayor Muffin won"], a:1},
+          {q:"What is the theme of the story?", opts:["Winning is everything","Kindness matters more than a trophy","Tacos beat waffles","Never enter a race"], a:1}
+        ]
+      },
+      {
+        id: 15, level: 4, title: "Dr. Fizzlepop's Robot Race Car", icon: "fizzlepop",
+        cast: "Dr. Fizzlepop, Bleep-Bloop", blurb: "A goofy robot car learns that mistakes help us grow.",
+        sticker: {emoji:'🚙', name:'Zippy Robo Racer', kind:'car'},
+        bonus: {emoji:'👾', name:'Pixel Pal'},
+        lines: [
+          "Dr. Fizzlepop had wild purple hair and a lab full of fizzing potions.",
+          "Her robot helper, Bleep-Bloop, beeped whenever he was happy.",
+          "Together they built a race car that could talk, sing, and drive itself.",
+          "They named it Zippy and entered the Robot Race Rally.",
+          "On the first try, Zippy drove backward and sang the wrong song.",
+          "On the second try, Zippy spun in circles until everyone got dizzy.",
+          "Bleep-Bloop drooped his antenna. “Bloop. We will never win,” he said.",
+          "“Mistakes help us learn,” said Dr. Fizzlepop. “Let's find the problem.”",
+          "They opened Zippy's hood and found a loose wire and one crunchy cookie.",
+          "They fixed the wire, removed the cookie, and tried a third time.",
+          "Zippy zoomed forward, sang the perfect song, and crossed the finish line!",
+          "Bleep-Bloop beeped so loudly that the whole crowd beeped back."
+        ],
+        tricky: [
+          {word:"potions", syll:"po·tions", note:"bubbly mixtures in a lab"},
+          {word:"robot", syll:"ro·bot", note:"a machine that can do jobs"},
+          {word:"antenna", syll:"an·ten·na", note:"a thin rod on top that picks up signals"},
+          {word:"Mistakes", syll:"Mis·takes", note:"things that go wrong"},
+          {word:"perfect", syll:"per·fect", note:"with nothing wrong at all"}
+        ],
+        questions: [
+          {q:"Who is Bleep-Bloop?", opts:["Dr. Fizzlepop's robot helper","The race car","A cookie","A judge"], a:0},
+          {q:"What happened on the second try?", opts:["Zippy won","Zippy spun in circles","Zippy flew away","Zippy fell asleep"], a:1},
+          {q:"What was under Zippy's hood?", opts:["A cat","A loose wire and a cookie","Water","Nothing"], a:1},
+          {q:"What did Dr. Fizzlepop say about mistakes?", opts:["They are bad","They help us learn","Hide them","They never happen"], a:1},
+          {q:"What is the lesson of the story?", opts:["Robots can't race","Keep trying and learn from mistakes","Cookies make cars faster","Give up when it's hard"], a:1}
+        ]
+      }
+    ]
+  },
+  kinder: {
+    id: 'kinder',
+    label: 'Kindergarten',
+    subtitle: 'Big words, short & sweet stories',
+    desc: 'Extra-big text, 6-line stories, and easy 3-question quizzes.',
+    icon: 'kindericon',
+    bigText: true,
+    stories: [
+      {
+        id: 1, level: 'K', title: "Catboy and Owlet Say Hi!", icon: "catowl",
+        cast: "Catboy, Owlet", blurb: "A tiny story about saying hello to a friend.",
+        sticker: {emoji:'🐱', name:'Happy Hi'},
+        lines: [
+          "Catboy is a cat. He is blue.",
+          "Owlet is an owl. She can fly.",
+          "“Hi, Owlet!” says Catboy.",
+          "“Hi, Catboy!” says Owlet.",
+          "They wave and smile.",
+          "Catboy and Owlet are best friends."
+        ],
+        tricky: [
+          {word:"Catboy", syll:"Cat·boy", note:"a hero who is part cat"},
+          {word:"Owlet", syll:"Ow·let", note:"a hero who is part owl"}
+        ],
+        questions: [
+          {q:"What color is Catboy?", opts:["Blue","Red","Green","Yellow"], a:0},
+          {q:"What can Owlet do?", opts:["Swim","Fly","Dig","Sing"], a:1},
+          {q:"How do Catboy and Owlet feel about each other?", opts:["Friends","Strangers","Angry","Sad"], a:0}
+        ]
+      },
+      {
+        id: 2, level: 'K', title: "Gekko Says Hop!", icon: "gecko",
+        cast: "Gekko", blurb: "Gekko hops up to get his red ball.",
+        sticker: {emoji:'🟢', name:'Hop Star'},
+        lines: [
+          "Gekko is a gecko. He is green.",
+          "Gekko can hop. He can climb too.",
+          "Gekko sees a red ball.",
+          "“I can get it!” says Gekko.",
+          "Gekko hops up and grabs the ball.",
+          "Gekko is happy with his ball."
+        ],
+        tricky: [
+          {word:"Gekko", syll:"Gek·ko", note:"a hero who is part gecko"},
+          {word:"happy", syll:"hap·py", note:"feeling good"}
+        ],
+        questions: [
+          {q:"What color is Gekko?", opts:["Blue","Green","Red","Black"], a:1},
+          {q:"What does Gekko see?", opts:["A ball","A kite","A cat","A box"], a:0},
+          {q:"How does Gekko get the ball?", opts:["He hops up","He asks for help","He uses a stick","He waits"], a:0}
+        ]
+      },
+      {
+        id: 3, level: 'K', title: "Sheriff Labrador's Hat", icon: "sheriffdog",
+        cast: "Sheriff Labrador", blurb: "The wind blows the sheriff's hat away!",
+        sticker: {emoji:'🤠', name:'Hat Catcher'},
+        lines: [
+          "Sheriff Labrador is a dog. He is brown.",
+          "He wears a big hat.",
+          "The wind blows his hat away!",
+          "“Oh no, my hat!” says Sheriff Labrador.",
+          "He runs and catches his hat.",
+          "Sheriff Labrador puts his hat back on."
+        ],
+        tricky: [
+          {word:"Sheriff", syll:"Sher·iff", note:"a town's top helper"},
+          {word:"Labrador", syll:"Lab·ra·dor", note:"a kind of dog"}
+        ],
+        questions: [
+          {q:"What color is Sheriff Labrador?", opts:["Brown","Black","White","Pink"], a:0},
+          {q:"What does the wind do?", opts:["Blows his hat away","Makes him cold","Knocks him down","Nothing"], a:0},
+          {q:"How does he get his hat back?", opts:["He runs and catches it","He buys a new one","A friend brings it","He forgets it"], a:0}
+        ]
+      },
+      {
+        id: 4, level: 'K', title: "Tayo Goes Beep Beep", icon: "bus",
+        cast: "Tayo", blurb: "Tayo the bus picks up kids for school.",
+        sticker: {emoji:'🚍', name:'Beep Beep'},
+        lines: [
+          "Tayo is a little bus. He is blue.",
+          "Tayo goes “Beep, beep!” down the road.",
+          "Tayo picks up kids for school.",
+          "“Hop on!” says Tayo with a smile.",
+          "The kids wave and say thank you.",
+          "Tayo is happy to help every day."
+        ],
+        tricky: [
+          {word:"happy", syll:"hap·py", note:"feeling good"},
+          {word:"every", syll:"ev·ery", note:"each one"}
+        ],
+        questions: [
+          {q:"What color is Tayo?", opts:["Blue","Red","Yellow","Purple"], a:0},
+          {q:"What sound does Tayo make?", opts:["Beep beep","Woof woof","Meow meow","Honk honk"], a:0},
+          {q:"Who does Tayo pick up?", opts:["Kids for school","Farm animals","Firefighters","Police"], a:0}
+        ]
+      },
+      {
+        id: 5, level: 'K', title: "Sonic Runs and Runs", icon: "speedster",
+        cast: "Sonic, Tails", blurb: "Sonic and Tails race and have fun together.",
+        sticker: {emoji:'💨', name:'Fast Runner'},
+        lines: [
+          "Sonic is fast. He can run, run, run!",
+          "Sonic sees his friend Tails.",
+          "“Let's race!” says Sonic.",
+          "Sonic runs so fast, whoosh!",
+          "Tails laughs and claps for Sonic.",
+          "Sonic and Tails have fun together."
+        ],
+        tricky: [
+          {word:"Sonic", syll:"Son·ic", note:"a hero who runs super fast"},
+          {word:"together", syll:"to·geth·er", note:"doing something as a team"}
+        ],
+        questions: [
+          {q:"What can Sonic do very well?", opts:["Run fast","Swim","Fly","Sing"], a:0},
+          {q:"Who is Sonic's friend?", opts:["Tails","Owlet","Gekko","Biscuit"], a:0},
+          {q:"How do Sonic and Tails feel?", opts:["Happy and having fun","Angry","Sad","Scared"], a:0}
+        ]
+      },
+      {
+        id: 6, level: 'K', title: "Eesa and Maahi Fly Kites", icon: "kites",
+        cast: "Eesa, Maahi", blurb: "Two friends fly red and blue kites at the park.",
+        sticker: {emoji:'🪁', name:'Kite Flyer'},
+        lines: [
+          "Eesa has a red kite.",
+          "Maahi has a blue kite.",
+          "The wind blows, whoosh!",
+          "Up, up, up go the kites!",
+          "Eesa and Maahi run and laugh.",
+          "What a fun day at the park!"
+        ],
+        tricky: [
+          {word:"Eesa", syll:"Ee·sa", note:"one of the kite friends"},
+          {word:"Maahi", syll:"Maa·hi", note:"the other kite friend"}
+        ],
+        questions: [
+          {q:"What color is Eesa's kite?", opts:["Blue","Red","Green","Yellow"], a:1},
+          {q:"What color is Maahi's kite?", opts:["Pink","Black","Blue","Red"], a:2},
+          {q:"Where are Eesa and Maahi?", opts:["At school","At the zoo","At the park","At home"], a:2}
+        ]
+      },
+      {
+        id: 7, level: 'K', title: "Aahid and Rayhan Share a Snack", icon: "share",
+        cast: "Aahid, Rayhan", blurb: "Aahid shares an apple with a friend.",
+        sticker: {emoji:'🍎', name:'Share Star'},
+        lines: [
+          "Aahid has an apple.",
+          "Rayhan has no snack.",
+          "“You can have some!” says Aahid.",
+          "Aahid cuts the apple in two.",
+          "Now they both have a snack.",
+          "Sharing makes friends happy."
+        ],
+        tricky: [
+          {word:"Aahid", syll:"Aa·hid", note:"a kind friend"},
+          {word:"Rayhan", syll:"Ray·han", note:"a hungry friend"}
+        ],
+        questions: [
+          {q:"What does Aahid have?", opts:["A banana","An apple","A cookie","A pear"], a:1},
+          {q:"What does Aahid do with the apple?", opts:["Eats it all","Hides it","Throws it","Cuts it in two"], a:3},
+          {q:"How do the friends feel at the end?", opts:["Sad","Happy","Angry","Sleepy"], a:1}
+        ]
+      },
+      {
+        id: 8, level: 'K', title: "Romeo Says Sorry", icon: "inventor",
+        cast: "Romeo", blurb: "Romeo's robot bumps a vase, and Romeo says sorry.",
+        sticker: {emoji:'💜', name:'Sorry Hero'},
+        lines: [
+          "Romeo is a little inventor.",
+          "He builds a big, shiny robot.",
+          "Oops! The robot bumps a vase.",
+          "The vase falls and breaks.",
+          "“I am sorry,” says Romeo.",
+          "Romeo helps clean up, and everyone smiles."
+        ],
+        tricky: [
+          {word:"Romeo", syll:"Ro·me·o", note:"a kid who builds things"},
+          {word:"inventor", syll:"in·ven·tor", note:"someone who makes new things"}
+        ],
+        questions: [
+          {q:"What does Romeo build?", opts:["A boat","A kite","A robot","A house"], a:2},
+          {q:"What breaks?", opts:["A cup","A plate","A vase","A window"], a:2},
+          {q:"What does Romeo say?", opts:["Go away","I am sorry","Not me","Hooray"], a:1}
+        ]
+      },
+      {
+        id: 9, level: 'K', title: "Dobby Helps in the Kitchen", icon: "elf",
+        cast: "Dobby", blurb: "A little elf cleans a messy kitchen.",
+        sticker: {emoji:'🧹', name:'Kind Helper'},
+        lines: [
+          "Dobby is a little elf.",
+          "He has big ears and big eyes.",
+          "Dobby sees a messy kitchen.",
+          "He sweeps the floor and washes the dishes.",
+          "Soon the kitchen is clean and bright.",
+          "Dobby feels proud to help."
+        ],
+        tricky: [
+          {word:"Dobby", syll:"Dob·by", note:"a kind little elf"},
+          {word:"kitchen", syll:"kitch·en", note:"the room where we cook"}
+        ],
+        questions: [
+          {q:"What is Dobby?", opts:["A big bear","A bird","A fish","A little elf"], a:3},
+          {q:"What does Dobby see?", opts:["A red car","A messy kitchen","A big cake","A tall tree"], a:1},
+          {q:"How does Dobby feel at the end?", opts:["Scared","Grumpy","Proud","Lost"], a:2}
+        ]
+      },
+      {
+        id: 10, level: 'K', title: "Greg Draws a Funny Cat", icon: "artist",
+        cast: "Greg (Wimpy Kid)", blurb: "Greg draws a silly orange cat in his notebook.",
+        sticker: {emoji:'✏️', name:'Little Artist'},
+        lines: [
+          "Greg has a notebook and a pencil.",
+          "He likes to draw funny pictures.",
+          "Today Greg draws a fat orange cat.",
+          "The cat has a big smile.",
+          "Greg shows the drawing to his friend.",
+          "His friend laughs and says, “I love it!”"
+        ],
+        tricky: [
+          {word:"notebook", syll:"note·book", note:"a book with blank pages"},
+          {word:"pencil", syll:"pen·cil", note:"a tool for drawing and writing"}
+        ],
+        questions: [
+          {q:"What does Greg use to draw?", opts:["A crayon","A pencil","A paintbrush","A marker"], a:1},
+          {q:"What does Greg draw?", opts:["A dog","A bird","A tree","An orange cat"], a:3},
+          {q:"What does his friend say?", opts:["That is bad","Go away","I love it!","I am hungry"], a:2}
+        ]
+      },
+      /* ---- New stories (11–15): funny new characters, each earns a 🚗 car sticker + a ✨ bonus sticker ---- */
+      {
+        id: 11, level: 'K', title: "Wobbles the Walrus Gets a Car", icon: "walrus",
+        cast: "Wobbles the Walrus", blurb: "A big walrus tries to fit in a little car.",
+        sticker: {emoji:'🚗', name:'Wobble Wagon', kind:'car'},
+        bonus: {emoji:'🌈', name:'Rainbow Splash'},
+        lines: [
+          "Wobbles is a big walrus.",
+          "Wobbles has a new red car.",
+          "Beep, beep! goes the car.",
+          "Wobbles is too big! He gets stuck.",
+          "His friends push and push.",
+          "Pop! Wobbles is in. He waves hi!"
+        ],
+        tricky: [
+          {word:"walrus", syll:"wal·rus", note:"a big sea animal with long teeth"},
+          {word:"Wobbles", syll:"Wob·bles", note:"a funny walrus name"}
+        ],
+        questions: [
+          {q:"What color is the car?", opts:["Red","Blue","Green","Pink"], a:0},
+          {q:"What does the car say?", opts:["Moo, moo","Beep, beep","Quack","Woof"], a:1},
+          {q:"Who helps Wobbles get in?", opts:["His friends","A fish","Nobody","A cat"], a:0}
+        ]
+      },
+      {
+        id: 12, level: 'K', title: "Lulu Lollipop's Ice Cream Van", icon: "lulu",
+        cast: "Lulu Lollipop", blurb: "Lulu shares ice cream — and gets a silly surprise.",
+        sticker: {emoji:'🚐', name:'Sprinkle Van', kind:'car'},
+        bonus: {emoji:'🍦', name:'Sprinkle Cone'},
+        lines: [
+          "Lulu Lollipop has pink hair.",
+          "She drives a van with ice cream.",
+          "Ding, ding! Kids run to the van.",
+          "Lulu gives a cone to each kid.",
+          "Oops! A cone lands on her nose.",
+          "Lulu laughs. Ice cream is fun!"
+        ],
+        tricky: [
+          {word:"Lollipop", syll:"Lol·li·pop", note:"a candy on a stick — and Lulu's funny name"},
+          {word:"laughs", syll:"laughs", note:"makes a happy ha-ha sound"}
+        ],
+        questions: [
+          {q:"What color is Lulu's hair?", opts:["Pink","Brown","Blue","Green"], a:0},
+          {q:"What does Lulu give the kids?", opts:["Pizza","Ice cream","Toys","Books"], a:1},
+          {q:"Where does the cone land?", opts:["On her nose","On the van","On a dog","In a box"], a:0}
+        ]
+      },
+      {
+        id: 13, level: 'K', title: "Sneezy the Dragon Says Achoo!", icon: "sneezy",
+        cast: "Sneezy the Dragon", blurb: "A little dragon sneezes something funny.",
+        sticker: {emoji:'🚓', name:'Zoom Patrol', kind:'car'},
+        bonus: {emoji:'🐉', name:'Achoo Dragon'},
+        lines: [
+          "Sneezy is a little green dragon.",
+          "Sneezy likes the police car.",
+          "The police car goes wee-oo, wee-oo!",
+          "Sneezy has to sneeze. Ah... ah...",
+          "ACHOO! Out come bubbles, not fire!",
+          "Everyone claps for Sneezy."
+        ],
+        tricky: [
+          {word:"dragon", syll:"drag·on", note:"a pretend animal with wings"},
+          {word:"police", syll:"po·lice", note:"helpers who keep us safe"}
+        ],
+        questions: [
+          {q:"What color is Sneezy?", opts:["Green","Red","Purple","Yellow"], a:0},
+          {q:"Which car does Sneezy like?", opts:["The police car","The bus","The taxi","The tractor"], a:0},
+          {q:"What comes out when Sneezy sneezes?", opts:["Fire","Bubbles","Water","Leaves"], a:1}
+        ]
+      },
+      {
+        id: 14, level: 'K', title: "Count Cucumber Counts Cars", icon: "cucumber",
+        cast: "Count Cucumber", blurb: "A silly cucumber counts cars going zoom.",
+        sticker: {emoji:'🚕', name:'Lucky Taxi', kind:'car'},
+        bonus: {emoji:'🦄', name:'Unicorn Sparkle'},
+        lines: [
+          "Count Cucumber is a funny green cucumber.",
+          "He wears a tall black hat.",
+          "He likes to count cars.",
+          "One yellow taxi. Two blue cars.",
+          "Three red trucks go zoom!",
+          "Count Cucumber says, “I love to count!”"
+        ],
+        tricky: [
+          {word:"Cucumber", syll:"Cu·cum·ber", note:"a long green vegetable"},
+          {word:"taxi", syll:"tax·i", note:"a car you pay to ride in"}
+        ],
+        questions: [
+          {q:"What color is Count Cucumber?", opts:["Green","Orange","Blue","Pink"], a:0},
+          {q:"What does he like to count?", opts:["Cars","Fish","Stars","Shoes"], a:0},
+          {q:"How many red trucks go zoom?", opts:["One","Two","Three","Four"], a:2}
+        ]
+      },
+      {
+        id: 15, level: 'K', title: "Bubbles the Robot Drives a Tractor", icon: "robotractor",
+        cast: "Bubbles the Robot", blurb: "A friendly robot helps on the farm.",
+        sticker: {emoji:'🚜', name:'Tractor Champ', kind:'car'},
+        bonus: {emoji:'🤖', name:'Robo Pal'},
+        lines: [
+          "Bubbles is a silver robot.",
+          "Bubbles drives a green tractor.",
+          "The tractor goes chug, chug, chug.",
+          "Bubbles helps the farmer pick corn.",
+          "The cows say moo. Bubbles says beep!",
+          "Bubbles and the farmer are a great team."
+        ],
+        tricky: [
+          {word:"robot", syll:"ro·bot", note:"a machine that can do jobs"},
+          {word:"tractor", syll:"trac·tor", note:"a big farm truck"}
+        ],
+        questions: [
+          {q:"What color is Bubbles?", opts:["Silver","Red","Blue","Pink"], a:0},
+          {q:"What does Bubbles drive?", opts:["A bus","A tractor","A boat","A plane"], a:1},
+          {q:"What do the cows say?", opts:["Beep","Moo","Quack","Oink"], a:1}
+        ]
+      }
+    ]
+  }
+};
+
+/* ========================= COMPLIMENTS ========================= */
+const COMPLIMENTS_GREAT = ["🌟 Amazing job!", "🎉 You're a reading star!", "🏆 Fantastic work!", "✨ Super reader!", "🦄 Incredible reading!", "🎈 You rock!"];
+const COMPLIMENTS_GOOD = ["👍 Great try!", "📖 Nice reading!", "🙂 Good job, keep going!", "💪 You're getting stronger!"];
+const COMPLIMENTS_RETRY = ["📚 Let's read it again!", "🔁 Try once more, you can do it!", "🤗 Almost there, keep trying!"];
+const CONFETTI_EMOJI = ["🎉","✨","⭐","🎈","🌟","🎊"];
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ========================= STATE ========================= */
+let syllablesOn = true;
+let currentGrade = null;
+let currentStory = null;
+let currentAnswers = {};
+let viewStack = ['home'];
+
+/* ========================= PROGRESS (localStorage) ========================= */
+const PROGRESS_KEY = 'readingAdventuresProgress_v2';
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    return raw ? JSON.parse(raw) : {grade3:{}, kinder:{}};
+  }catch(e){ return {grade3:{}, kinder:{}}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); }catch(e){}
+}
+function getStoryProgress(gradeId, storyId){
+  const p = loadProgress();
+  return (p[gradeId] && p[gradeId][storyId]) || null;
+}
+function markCompleted(gradeId, storyId, score, total, sticker){
+  const p = loadProgress();
+  if(!p[gradeId]) p[gradeId] = {};
+  const prev = p[gradeId][storyId] || {};
+  p[gradeId][storyId] = {
+    ...prev,
+    completed: true,
+    bestScore: Math.max(prev.bestScore || 0, score),
+    total: total,
+    sticker: sticker
+  };
+  saveProgress(p);
+}
+function recordFirstAttemptIfNeeded(gradeId, storyId, score, total){
+  const p = loadProgress();
+  if(!p[gradeId]) p[gradeId] = {};
+  const prev = p[gradeId][storyId] || {};
+  if(prev.firstAttempt) return false; // already recorded, not a first try
+  p[gradeId][storyId] = {
+    ...prev,
+    firstAttempt: { score, total, perfect: score === total, date: new Date().toISOString() }
+  };
+  saveProgress(p);
+  return true;
+}
+function gradeCompletedCount(gradeId){
+  const p = loadProgress();
+  const g = p[gradeId] || {};
+  return Object.values(g).filter(s => s.completed).length;
+}
+function allEarnedStickers(){
+  const p = loadProgress();
+  const out = [];
+  Object.keys(GRADES).forEach(gid => {
+    const g = p[gid] || {};
+    Object.keys(g).forEach(sid => { if(g[sid].completed) out.push({gradeId:gid, storyId:sid}); });
+  });
+  return out;
+}
+function countPerfectFirstTry(gradeId){
+  const p = loadProgress();
+  const g = p[gradeId] || {};
+  return Object.values(g).filter(s => s.firstAttempt && s.firstAttempt.perfect).length;
+}
+function resetAllProgress(){
+  saveProgress({grade3:{}, kinder:{}});
+  saveRewards({
+    grade3: { milestonesAwarded:0, totalEarned:0, events:[] },
+    kinder: { milestonesAwarded:0, totalEarned:0, events:[] }
+  });
+}
+function resetGradeProgress(gradeId){
+  const p = loadProgress();
+  p[gradeId] = {};
+  saveProgress(p);
+  const r = loadRewards();
+  r[gradeId] = { milestonesAwarded:0, totalEarned:0, events:[] };
+  saveRewards(r);
+}
+
+/* ========================= ADMIN CONFIG & REWARDS (localStorage) =========================
+   Kindergarten and 3rd Grade are treated as two separate students: each gets its own
+   student name, reward rules, progress toward the goal, and reward ledger. */
+const ADMIN_CONFIG_KEY = 'readingAdventuresAdminConfig_v2';
+const REWARDS_KEY = 'readingAdventuresRewards_v2';
+const DEFAULT_GRADE_CONFIG = { studentName:'', storiesRequired:5, rewardAmount:1, repeatable:true };
+const DEFAULT_REWARDS_STATE = { milestonesAwarded:0, totalEarned:0, events:[] };
+
+function loadAdminConfig(){
+  try{
+    const raw = localStorage.getItem(ADMIN_CONFIG_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      pin: parsed.pin || '1234',
+      grade3: { ...DEFAULT_GRADE_CONFIG, ...(parsed.grade3 || {}) },
+      kinder: { ...DEFAULT_GRADE_CONFIG, ...(parsed.kinder || {}) }
+    };
+  }catch(e){ return { pin:'1234', grade3:{ ...DEFAULT_GRADE_CONFIG }, kinder:{ ...DEFAULT_GRADE_CONFIG } }; }
+}
+function saveAdminConfig(cfg){
+  try{ localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(cfg)); }catch(e){}
+}
+function loadRewards(){
+  try{
+    const raw = localStorage.getItem(REWARDS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      grade3: { ...DEFAULT_REWARDS_STATE, ...(parsed.grade3 || {}), events: (parsed.grade3 && parsed.grade3.events) || [] },
+      kinder: { ...DEFAULT_REWARDS_STATE, ...(parsed.kinder || {}), events: (parsed.kinder && parsed.kinder.events) || [] }
+    };
+  }catch(e){ return { grade3:{ ...DEFAULT_REWARDS_STATE, events:[] }, kinder:{ ...DEFAULT_REWARDS_STATE, events:[] } }; }
+}
+function saveRewards(r){
+  try{ localStorage.setItem(REWARDS_KEY, JSON.stringify(r)); }catch(e){}
+}
+function studentLabel(gradeId){
+  const cfg = loadAdminConfig();
+  const name = cfg[gradeId] && cfg[gradeId].studentName;
+  return name ? name : GRADES[gradeId].label + ' student';
+}
+
+/* Call after every quiz check for a specific student (grade track): awards any newly-reached
+   $ milestones for THAT student based on their own perfect, first-try story completions,
+   and queues a celebration if so. 3rd Grade and Kindergarten are tracked completely separately. */
+function evaluateRewards(gradeId){
+  const cfg = loadAdminConfig();
+  const gcfg = cfg[gradeId];
+  const count = countPerfectFirstTry(gradeId);
+  const rewards = loadRewards();
+  const rstate = rewards[gradeId];
+  const milestonesNow = gcfg.repeatable
+    ? Math.floor(count / gcfg.storiesRequired)
+    : (count >= gcfg.storiesRequired ? 1 : 0);
+
+  if(milestonesNow > rstate.milestonesAwarded){
+    const newMilestones = milestonesNow - rstate.milestonesAwarded;
+    const amountEarned = newMilestones * gcfg.rewardAmount;
+    for(let i=0;i<newMilestones;i++){
+      rstate.events.push({
+        date: new Date().toISOString(),
+        milestoneNumber: rstate.milestonesAwarded + i + 1,
+        amount: gcfg.rewardAmount,
+        storiesRequired: gcfg.storiesRequired
+      });
+    }
+    rstate.milestonesAwarded = milestonesNow;
+    rstate.totalEarned += amountEarned;
+    saveRewards(rewards);
+    queueCelebration('reward', {
+      amountEarned,
+      gradeId,
+      gradeLabel: GRADES[gradeId].label,
+      studentName: gcfg.studentName,
+      storiesRequired: gcfg.storiesRequired
+    });
+  }
+}
+
+/* ========================= VOICE SETTINGS ========================= */
+const VOICE_KEY = 'readingAdventuresVoiceSettings_v1';
+function loadVoiceSettings(){
+  try{
+    const raw = localStorage.getItem(VOICE_KEY);
+    return raw ? JSON.parse(raw) : { voiceName:'', pitch:1.2, rate:0.9 };
+  }catch(e){ return { voiceName:'', pitch:1.2, rate:0.9 }; }
+}
+function saveVoiceSettings(s){
+  try{ localStorage.setItem(VOICE_KEY, JSON.stringify(s)); }catch(e){}
+}
+let voiceSettings = loadVoiceSettings();
+
+function populateVoiceList(){
+  const sel = document.getElementById('voiceSelect');
+  if(!sel || !('speechSynthesis' in window)) return;
+  const voices = speechSynthesis.getVoices();
+  if(!voices.length) return;
+  sel.innerHTML = '<option value="">🌟 Auto (kid-friendly pick)</option>' +
+    voices.map(v => `<option value="${escapeHtml(v.name)}" ${voiceSettings.voiceName===v.name?'selected':''}>${escapeHtml(v.name)} (${v.lang})</option>`).join('');
+  document.getElementById('pitchRange').value = voiceSettings.pitch;
+  document.getElementById('pitchVal').textContent = voiceSettings.pitch;
+  document.getElementById('rateRange').value = voiceSettings.rate;
+  document.getElementById('rateVal').textContent = voiceSettings.rate;
+}
+function onVoiceChange(){
+  voiceSettings.voiceName = document.getElementById('voiceSelect').value;
+  saveVoiceSettings(voiceSettings);
+}
+function onPitchChange(){
+  voiceSettings.pitch = parseFloat(document.getElementById('pitchRange').value);
+  document.getElementById('pitchVal').textContent = voiceSettings.pitch.toFixed(1);
+  saveVoiceSettings(voiceSettings);
+}
+function onRateChange(){
+  voiceSettings.rate = parseFloat(document.getElementById('rateRange').value);
+  document.getElementById('rateVal').textContent = voiceSettings.rate.toFixed(1);
+  saveVoiceSettings(voiceSettings);
+}
+function testVoice(){
+  speakText("Hi! I can read your stories to you. Let's have fun reading together!");
+}
+function toggleSettings(){
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')) populateVoiceList();
+}
+if('speechSynthesis' in window){
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+function pickAutoVoice(){
+  const voices = speechSynthesis.getVoices();
+  if(!voices.length) return null;
+  const femaleHints = /female|woman|zira|samantha|susan|karen|moira|tessa|victoria|fiona|salli|joanna|kendra|kimberly|amy|google us english|google uk english female/i;
+  return voices.find(v => femaleHints.test(v.name)) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+}
+
+/* ========================= NAVIGATION ========================= */
+let adminUnlocked = false;
+
+function setView(name){
+  document.getElementById('homeView').style.display = name==='home' ? 'grid' : 'none';
+  document.getElementById('library').style.display = name==='library' ? 'grid' : 'none';
+  document.getElementById('storyView').style.display = name==='story' ? 'block' : 'none';
+  document.getElementById('stickersView').style.display = name==='stickers' ? 'block' : 'none';
+  document.getElementById('adminView').style.display = name==='admin' ? 'block' : 'none';
+  document.getElementById('scienceView').style.display = name==='science' ? 'block' : 'none';
+  document.getElementById('toolbar').style.display = name==='story' ? 'flex' : 'none';
+  document.getElementById('backBtn').style.display = name==='home' ? 'none' : 'inline-flex';
+  const sub = document.getElementById('headerSub');
+  if(name==='home') sub.textContent = 'Fun stories with your favorite characters!';
+  else if(name==='library') sub.textContent = currentGrade.label + ' — ' + currentGrade.subtitle;
+  else if(name==='story') sub.textContent = currentGrade.label + ' story';
+  else if(name==='stickers') sub.textContent = 'Your sticker collection';
+  else if(name==='admin') sub.textContent = 'Parent / admin settings';
+  else if(name==='science') sub.textContent = 'Science Test Prep — Motion, Forces, Magnets';
+}
+
+function showHome(){
+  viewStack = ['home'];
+  currentGrade = null; currentStory = null;
+  renderHome();
+  setView('home');
+}
+function showLibrary(gradeId){
+  currentGrade = GRADES[gradeId];
+  currentStory = null;
+  viewStack = ['home','library'];
+  renderLibrary();
+  setView('library');
+}
+function openStory(storyId){
+  currentStory = currentGrade.stories.find(s => s.id === storyId);
+  currentAnswers = {};
+  viewStack = ['home','library','story'];
+  renderStory();
+  setView('story');
+}
+function showStickers(){
+  if(viewStack[viewStack.length-1] !== 'stickers') viewStack.push('stickers');
+  renderStickers();
+  setView('stickers');
+}
+function showAdmin(){
+  if(viewStack[viewStack.length-1] !== 'admin') viewStack.push('admin');
+  if(adminUnlocked){
+    renderAdmin();
+    setView('admin');
+  } else {
+    openPinOverlay();
+  }
+}
+function goBack(){
+  if(typeof sciBack === 'function' && sciBack()) return;   // inside Science Test Prep: step back within the section
+  viewStack.pop();
+  const prev = viewStack[viewStack.length-1] || 'home';
+  if(prev==='home') showHome();
+  else if(prev==='library') { renderLibrary(); setView('library'); }
+  else if(prev==='story') { renderStory(); setView('story'); }
+  else if(prev==='admin' && adminUnlocked) { renderAdmin(); setView('admin'); }
+  else if(prev==='science') { sciRender(); setView('science'); }
+  else showHome();
+}
+
+/* ========================= ADMIN PIN GATE ========================= */
+function openPinOverlay(){
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').textContent = '';
+  document.getElementById('pinOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('pinInput').focus(), 50);
+}
+function closePinOverlay(){
+  document.getElementById('pinOverlay').classList.remove('show');
+  if(viewStack[viewStack.length-1] === 'admin') viewStack.pop();
+}
+function submitPin(){
+  const cfg = loadAdminConfig();
+  const entered = document.getElementById('pinInput').value.trim();
+  if(entered === cfg.pin){
+    adminUnlocked = true;
+    document.getElementById('pinOverlay').classList.remove('show');
+    renderAdmin();
+    setView('admin');
+  } else {
+    document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+/* Hub login: show only the logged-in learner's own class (null = nobody logged in → all) */
+function hubGradeId(){
+  try{
+    const id = localStorage.getItem('hub_activeKid');
+    const kid = id && JSON.parse(localStorage.getItem('hub_kids') || '[]').find(k => k.id === id);
+    return kid ? ({ kg:'kinder', g3:'grade3' })[kid.grade] || null : null;
+  }catch(e){ return null; }
+}
+
+/* ========================= RENDER HOME ========================= */
+function renderHome(){
+  const home = document.getElementById('homeView');
+  const only = hubGradeId();
+  home.innerHTML = Object.values(GRADES).filter(g => !only || g.id === only).map(g => {
+    const total = g.stories.length;
+    const done = gradeCompletedCount(g.id);
+    const pct = Math.round((done/total)*100);
+    const stickerCount = done + g.stories.filter(s => s.bonus && (getStoryProgress(g.id, s.id) || {}).completed).length;
+    const cardClass = g.id === 'grade3' ? 'g3' : 'kinder';
+    const studentName = (loadAdminConfig()[g.id] || {}).studentName;
+    return `
+      <div class="grade-card ${cardClass}"${only ? ' style="grid-column:1/-1"' : ''} onclick="showLibrary('${g.id}')">
+        <div class="icon-wrap">${ICONS[g.icon]}</div>
+        <h2>${studentName ? escapeHtml(studentName) + ' — ' : ''}${g.label}</h2>
+        <p class="desc">${g.desc}</p>
+        <div class="home-progress"><div class="fill" style="width:${pct}%;"></div></div>
+        <div class="home-progress-label">${done} of ${total} stories completed</div>
+        ${stickerCount > 0 ? `<div class="sticker-count">🎟️ ${stickerCount} sticker${stickerCount===1?'':'s'} earned</div>` : ''}
+      </div>
+    `;
+  }).join('') + (only === 'kinder' ? '' : `
+    <div class="grade-card science" onclick="showScience()">
+      <div class="sci-emoji">🔬</div>
+      <div class="sci-copy">
+        <span class="sci-tag">3rd GRADE · TEST PREP</span>
+        <h2>Science Test Prep</h2>
+        <p class="desc" style="margin:.2rem 0 .5rem">Motion, forces, magnets &amp; electromagnets: lessons, stories, labs, games, and a practice test.</p>
+        <div class="home-progress"><div class="fill" style="width:${sciProgressPct()}%;background:#8b5cf6"></div></div>
+        <div class="home-progress-label">${sciProgressPct()}% of the study path done</div>
+      </div>
+    </div>`);
+}
+
+/* ========================= SYLLABLE HELPERS ========================= */
+function buildTrickyMap(story){
+  const map = {};
+  story.tricky.forEach(t => { map[t.word.toLowerCase()] = t; });
+  return map;
+}
+function wordDisplay(rawWord, trickyMap){
+  const match = rawWord.match(/^([“‘"'(]*)([A-Za-z']+)([.,!?”’"')]*)$/);
+  if(!match){
+    return {clean: rawWord.replace(/[^A-Za-z']/g,'').toLowerCase(), html: escapeHtml(rawWord), isTricky:false};
+  }
+  const [, pre, core, post] = match;
+  const key = core.toLowerCase();
+  const tricky = trickyMap[key];
+  let coreHtml = escapeHtml(core);
+  let isTricky = false;
+  if(tricky){
+    isTricky = true;
+    if(syllablesOn){
+      coreHtml = tricky.syll.split('·').map(p => escapeHtml(p)).join('<span class="syll-dot">·</span>');
+    }
+  }
+  return { clean:key, html: escapeHtml(pre) + coreHtml + escapeHtml(post), isTricky };
+}
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ========================= RENDER LIBRARY ========================= */
+function renderLibrary(){
+  const g = currentGrade;
+  const total = g.stories.length;
+  const done = gradeCompletedCount(g.id);
+  const pct = Math.round((done/total)*100);
+  const stripColor = g.id==='grade3' ? 'var(--accent)' : 'var(--kinder)';
+
+  const studentName = (loadAdminConfig()[g.id] || {}).studentName;
+  const lib = document.getElementById('library');
+  const stripHtml = `
+    <div class="progress-strip" style="grid-column:1/-1;">
+      <strong>${studentName ? escapeHtml(studentName) + '’s ' : ''}${g.label} Progress</strong>
+      <div class="home-progress"><div class="fill" style="width:${pct}%; background:${stripColor};"></div></div>
+      <span>${done}/${total} ✓</span>
+    </div>
+  `;
+
+  const cardsHtml = g.stories.map(s => {
+    const prog = getStoryProgress(g.id, s.id);
+    const completed = prog && prog.completed;
+    return `
+      <div class="story-card ${completed?'completed':''}" onclick="openStory(${s.id})">
+        ${completed ? `<span class="completed-badge">✓ Done</span>` : ''}
+        ${completed ? `<span class="story-sticker">${s.sticker.emoji}</span>` : ''}
+        <div class="icon-wrap">${ICONS[s.icon]}</div>
+        <span class="level">Level ${s.level}</span>
+        <h3>${s.title}</h3>
+        <p>${s.blurb}</p>
+        <div class="cast">Characters: ${s.cast}</div>
+        ${completed ? `<div class="cast">⭐ Best score: ${prog.bestScore}/${prog.total}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  const sciBanner = g.id==='grade3' ? `<div class="sci-banner" onclick="showScience()"><span style="font-size:2rem">🔬</span><span><b>Science Test Prep</b>: motion, forces, magnets &amp; electromagnets. Tap to start studying!</span></div>` : '';
+  lib.innerHTML = stripHtml + sciBanner + cardsHtml;
+}
+
+/* ========================= RENDER STORY ========================= */
+function renderStory(){
+  const s = currentStory;
+  const g = currentGrade;
+  const trickyMap = buildTrickyMap(s);
+  const view = document.getElementById('storyView');
+
+  let wordIndex = 0;
+  const utteranceWords = [];
+  const linesHtml = s.lines.map(line => {
+    const words = line.split(/\s+/);
+    const spansHtml = words.map(w => {
+      const info = wordDisplay(w, trickyMap);
+      utteranceWords.push(w.replace(/[“‘”’]/g,''));
+      const idx = wordIndex++;
+      const cls = 'word' + (info.isTricky ? ' tricky' : '');
+      return `<span class="${cls}" data-widx="${idx}">${info.html}</span>`;
+    }).join(' ');
+    return `<p>${spansHtml}</p>`;
+  }).join('');
+
+  const trickyHtml = s.tricky.map(t => `
+    <span class="tricky-chip">
+      <span class="syll">${syllablesOn ? t.syll : t.word}</span>
+      <span class="meaning">${t.note}</span>
+    </span>
+  `).join('');
+
+  const questionsHtml = s.questions.map((q, qi) => `
+    <div class="q-block">
+      <div class="q-head">
+        <h4>${qi+1}. ${escapeHtml(q.q)}</h4>
+        <button class="q-voice-btn" onclick="readQuestion(${qi})" title="Listen to this question and the answer choices">🔊</button>
+      </div>
+      ${q.opts.map((opt, oi) => `
+        <div class="opt" id="opt-${qi}-${oi}" onclick="selectOption(${qi},${oi})">
+          <input type="radio" name="q${qi}" ${currentAnswers[qi]===oi?'checked':''} readonly />
+          <span>${escapeHtml(opt)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const prog = getStoryProgress(g.id, s.id);
+  const textClass = g.bigText ? 'story-text big-text' : 'story-text';
+
+  view.innerHTML = `
+    <div class="card">
+      <div class="story-head">
+        <div class="icon-wrap">${ICONS[s.icon]}</div>
+        <div class="story-title-block">
+          <h2>${s.title}${prog && prog.completed ? ' ' + s.sticker.emoji : ''}</h2>
+          <span class="level">Level ${s.level}</span>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn orange" id="readAloudBtn" onclick="readAloud()">🔊 Read Aloud</button>
+        <button class="btn ghost" style="background:#eef2ff;color:var(--accent);" onclick="stopReading()">⏹ Stop</button>
+      </div>
+      <div class="tricky-panel">
+        <h4>📚 Tricky Words in This Story</h4>
+        ${trickyHtml}
+      </div>
+      <div class="${textClass}" id="storyText">${linesHtml}</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0; font-size:1.25rem;">❓ Quick Check</h2>
+      <div id="questionsWrap">${questionsHtml}</div>
+      <div class="action-row">
+        <button class="btn green" onclick="checkAnswers()">✅ Check My Answers</button>
+      </div>
+      <div class="score-box" id="scoreBox"></div>
+    </div>
+  `;
+
+  view.dataset.utteranceWords = JSON.stringify(utteranceWords);
+}
+
+/* ========================= SYLLABLE TOGGLE ========================= */
+function toggleSyllables(){
+  syllablesOn = !syllablesOn;
+  const btn = document.getElementById('syllToggleBtn');
+  btn.textContent = '🔤 Syllable Helper: ' + (syllablesOn ? 'ON' : 'OFF');
+  btn.classList.toggle('active', syllablesOn);
+  if(currentStory) renderStory();
+}
+
+/* ========================= QUESTIONS ========================= */
+function selectOption(qi, oi){
+  currentAnswers[qi] = oi;
+  const s = currentStory;
+  s.questions[qi].opts.forEach((_, j) => {
+    document.getElementById(`opt-${qi}-${j}`).classList.remove('selected','correct','wrong');
+  });
+  document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');
+  document.getElementById(`opt-${qi}-${oi}`).querySelector('input').checked = true;
+}
+
+function checkAnswers(){
+  const s = currentStory;
+  const g = currentGrade;
+  let correctCount = 0;
+  s.questions.forEach((q, qi) => {
+    const chosen = currentAnswers[qi];
+    q.opts.forEach((_, oi) => {
+      const el = document.getElementById(`opt-${qi}-${oi}`);
+      el.classList.remove('selected','correct','wrong');
+      if(oi === q.a) el.classList.add('correct');
+      else if(oi === chosen && chosen !== q.a) el.classList.add('wrong');
+    });
+    if(chosen === q.a) correctCount++;
+  });
+  const total = s.questions.length;
+  if(window.Tracker){
+    s.questions.forEach((q, qi) => Tracker.answer(currentAnswers[qi] === q.a, g.label + ' story: ' + s.title));
+    Tracker.complete('story', correctCount, total, { item: g.label + ' #' + s.id + ' ' + s.title, passed: correctCount >= Math.ceil(total/2) });
+  }
+  const box = document.getElementById('scoreBox');
+  box.classList.add('show');
+
+  // Reward tracking: record this story's first-ever attempt (pass or fail) before marking completion.
+  recordFirstAttemptIfNeeded(g.id, s.id, correctCount, total);
+
+  const passThreshold = Math.ceil(total/2);
+  const alreadyDone = getStoryProgress(g.id, s.id);
+
+  if(correctCount >= passThreshold){
+    let msg = correctCount === total ? pickRandom(COMPLIMENTS_GREAT) : pickRandom(COMPLIMENTS_GOOD);
+    box.textContent = `You got ${correctCount} out of ${total} correct! ${msg}`;
+    const isNew = !(alreadyDone && alreadyDone.completed);
+    markCompleted(g.id, s.id, correctCount, total, s.sticker);
+    if(isNew) queueCelebration('sticker', { story: s, score: correctCount, total });
+  } else {
+    box.textContent = `You got ${correctCount} out of ${total} correct. ${pickRandom(COMPLIMENTS_RETRY)}`;
+  }
+
+  // Check whether this attempt crosses a $ reward milestone for THIS student (queues its own celebration if so).
+  evaluateRewards(g.id);
+
+  showNextCelebration();
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* ========================= CELEBRATION (queued: sticker then reward) ========================= */
+let celebrationQueue = [];
+function queueCelebration(type, payload){
+  celebrationQueue.push({ type, payload });
+}
+function showNextCelebration(){
+  if(document.getElementById('celebrateOverlay').classList.contains('show')) return; // one at a time
+  const next = celebrationQueue.shift();
+  if(!next) return;
+  if(next.type === 'sticker') celebrateSticker(next.payload.story, next.payload.score, next.payload.total);
+  else if(next.type === 'reward') celebrateReward(next.payload);
+  else if(next.type === 'sci') sciCelebrate(next.payload);
+}
+function buildConfetti(emojiList, count){
+  let html = '';
+  for(let i=0;i<count;i++){
+    const left = Math.random()*100;
+    const delay = Math.random()*0.4;
+    const dur = 1.6 + Math.random()*1.2;
+    html += `<span class="confetti-piece" style="left:${left}%; animation-delay:${delay}s; animation-duration:${dur}s;">${pickRandom(emojiList)}</span>`;
+  }
+  return html;
+}
+function celebrateSticker(story, score, total){
+  const overlay = document.getElementById('celebrateOverlay');
+  const card = document.getElementById('celebrateCard');
+  card.className = 'celebrate-card';
+  card.innerHTML = `
+    ${buildConfetti(CONFETTI_EMOJI, 22)}
+    <div class="big-emoji">${story.sticker.emoji}${story.bonus ? ' ' + story.bonus.emoji : ''}</div>
+    <h3>${story.bonus
+      ? `You earned the "${story.sticker.name}" ${story.sticker.kind === 'car' ? 'car ' : ''}sticker AND the "${story.bonus.name}" bonus sticker!`
+      : `You earned the "${story.sticker.name}" sticker!`}</h3>
+    <p>Great reading on <b>${story.title}</b> — ${score}/${total} correct. Added to My Stickers!</p>
+    <button class="btn pink" onclick="closeCelebrate()">Keep Reading 🎉</button>
+  `;
+  overlay.classList.add('show');
+}
+function celebrateReward(payload){
+  const { amountEarned, gradeLabel, studentName, storiesRequired } = payload;
+  const who = studentName ? studentName : (gradeLabel + ' reader');
+  const overlay = document.getElementById('celebrateOverlay');
+  const card = document.getElementById('celebrateCard');
+  card.className = 'celebrate-card reward';
+  card.innerHTML = `
+    ${buildConfetti(['💵','💰','🤑','✨','⭐','🎉'], 24)}
+    <div class="big-emoji">💰</div>
+    <h3>$${amountEarned.toFixed(2)} Reward Unlocked!</h3>
+    <p><b>${escapeHtml(who)}</b> (${gradeLabel}) completed ${storiesRequired} stories perfectly on the first try! Show this screen to a grown-up. 🎉</p>
+    <button class="btn pink" onclick="closeCelebrate()">Awesome! 🎊</button>
+  `;
+  overlay.classList.add('show');
+}
+function closeCelebrate(){
+  document.getElementById('celebrateOverlay').classList.remove('show');
+  setTimeout(showNextCelebration, 300);
+}
+
+/* ========================= STICKERS PAGE ========================= */
+function renderStickers(){
+  const view = document.getElementById('stickersView');
+  const cars = [], bonus = [], story = [];
+  const only = hubGradeId();
+  Object.values(GRADES).filter(g => !only || g.id === only).forEach(g => g.stories.forEach(s => {
+    const prog = getStoryProgress(g.id, s.id);
+    const earned = !!(prog && prog.completed);
+    (s.sticker.kind === 'car' ? cars : story).push({gradeLabel:g.label, st:s.sticker, earned});
+    if(s.bonus) bonus.push({gradeLabel:g.label, st:s.bonus, earned});
+  }));
+  const slot = (x, cls) => `
+      <div class="sticker-slot ${cls} ${x.earned?'earned':''}">
+        <div class="emoji">${x.st.emoji}</div>
+        <div class="sname">${x.earned ? x.st.name : '???'}</div>
+        <div class="sgrade">${x.gradeLabel}</div>
+      </div>`;
+  const shelf = (title, note, list, cls) => list.length ? `
+      <h3 class="sticker-shelf">${title} <span>${list.filter(x=>x.earned).length} / ${list.length}</span></h3>
+      <p class="sticker-note">${note}</p>
+      <div class="sticker-grid">${list.map(x => slot(x, cls)).join('')}</div>` : '';
+  const all = cars.concat(bonus, story);
+  const earnedCount = all.filter(x => x.earned).length;
+
+  view.innerHTML = `
+    <div class="card">
+      <h2 style="margin-top:0;">🎒 My Stickers</h2>
+      <p style="color:#5a6475;">You've earned <b>${earnedCount}</b> of <b>${all.length}</b> stickers. Finish a story's quiz to earn its sticker!</p>
+      ${shelf('🚗 My Car Garage', 'Finish a new story to park a cool car here!', cars, 'car')}
+      ${shelf('✨ Cool Bonus Stickers', 'Every new story gives a bonus sticker too!', bonus, 'bonus')}
+      ${shelf('🎟️ Story Stickers', 'One for every classic story.', story, '')}
+    </div>
+  `;
+}
+
+/* ========================= ADMIN PAGE ========================= */
+function renderStudentAdminSection(gradeId){
+  const g = GRADES[gradeId];
+  const cfg = loadAdminConfig()[gradeId];
+  const rewards = loadRewards()[gradeId];
+  const count = countPerfectFirstTry(gradeId);
+  const accentVar = gradeId === 'grade3' ? '--accent' : '--kinder';
+
+  const ledgerHtml = rewards.events.length
+    ? rewards.events.slice().reverse().map(ev => `
+        <div class="ledger-row">
+          <span>#${ev.milestoneNumber} — ${new Date(ev.date).toLocaleDateString()} (${ev.storiesRequired} stories)</span>
+          <strong>$${ev.amount.toFixed(2)}</strong>
+        </div>
+      `).join('')
+    : `<div class="ledger-empty">No rewards earned yet.</div>`;
+
+  return `
+    <div class="card">
+      <h2 style="margin:0 0 0.2rem; color:var(${accentVar});">${g.id==='grade3'?'📘':'🖍️'} ${g.label} Student</h2>
+      <div class="admin-field" style="max-width:320px; margin:0.6rem 0 1rem;">
+        <label for="name-${gradeId}">Student's name (optional)</label>
+        <input type="text" id="name-${gradeId}" placeholder="e.g. Aria" value="${escapeHtml(cfg.studentName || '')}" maxlength="30" />
+      </div>
+
+      <div class="admin-section">
+        <h3>💵 Reward Progress</h3>
+        <div class="stat-tiles">
+          <div class="stat-tile"><div class="num">${count}</div><div class="lbl">Perfect first-try stories</div></div>
+          <div class="stat-tile"><div class="num">$${rewards.totalEarned.toFixed(2)}</div><div class="lbl">Total earned so far</div></div>
+          <div class="stat-tile"><div class="num">${rewards.milestonesAwarded}</div><div class="lbl">Rewards unlocked</div></div>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h3>⚙️ Reward Rules for this Student</h3>
+        <div class="admin-grid">
+          <div class="admin-field">
+            <label for="required-${gradeId}">Stories required (perfect, first try)</label>
+            <input type="number" id="required-${gradeId}" min="1" max="50" value="${cfg.storiesRequired}" />
+          </div>
+          <div class="admin-field">
+            <label for="amount-${gradeId}">Reward amount ($)</label>
+            <input type="number" id="amount-${gradeId}" min="0" step="0.25" value="${cfg.rewardAmount}" />
+          </div>
+          <div class="admin-field">
+            <label for="repeat-${gradeId}">Repeat reward?</label>
+            <select id="repeat-${gradeId}">
+              <option value="yes" ${cfg.repeatable?'selected':''}>Yes — every N perfect stories</option>
+              <option value="no" ${!cfg.repeatable?'selected':''}>No — one-time only</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn green small" style="margin-top:0.8rem;" onclick="saveAdminSettings('${gradeId}')">💾 Save Settings</button>
+        <span id="saveMsg-${gradeId}" style="font-size:0.8rem; color:#2ecc71; margin-left:0.6rem;"></span>
+      </div>
+
+      <div class="admin-section">
+        <h3>🧾 Reward Ledger</h3>
+        <div class="ledger">${ledgerHtml}</div>
+      </div>
+
+      <div class="admin-section" style="margin-bottom:0;">
+        <h3>⚠️ Reset This Student's Progress</h3>
+        <p style="font-size:0.8rem; color:#7a8296; margin:0 0 0.6rem;">Clears this student's completed stories, stickers, and reward history only — the other student is untouched.</p>
+        <button class="btn pink small" onclick="confirmResetGrade('${gradeId}')">Reset ${g.label} Progress</button>
+      </div>
+    </div>
+  `;
+}
+function renderAdmin(){
+  const view = document.getElementById('adminView');
+  view.innerHTML = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+        <h2 style="margin:0;">🛠️ Admin: Rewards &amp; Settings</h2>
+        <button class="btn ghost" style="background:#eef2ff;color:var(--accent);" onclick="lockAdmin()">🔒 Lock</button>
+      </div>
+      <p style="font-size:0.85rem; color:#5a6475; margin:0.6rem 0 0;">
+        Kindergarten and 3rd Grade are two different students, so each has its own name, reward rules, progress, and ledger below. "Perfect, first try" means every quiz question answered correctly the very first time "Check My Answers" was clicked for that story — later retries don't count.
+      </p>
+    </div>
+
+    ${renderStudentAdminSection('grade3')}
+    ${renderStudentAdminSection('kinder')}
+
+    <div class="card">
+      <div class="admin-section" style="margin-bottom:1.3rem;">
+        <h3>🔑 Change Admin PIN</h3>
+        <div class="admin-grid">
+          <div class="admin-field">
+            <label for="cfgNewPin">New PIN (4-8 digits)</label>
+            <input type="password" id="cfgNewPin" inputmode="numeric" maxlength="8" placeholder="••••" />
+          </div>
+        </div>
+        <button class="btn orange small" style="margin-top:0.6rem;" onclick="changeAdminPin()">Update PIN</button>
+        <span id="pinSaveMsg" style="font-size:0.8rem; color:#2ecc71; margin-left:0.6rem;"></span>
+      </div>
+
+      <div class="admin-section" style="margin-bottom:0;">
+        <h3>⚠️ Reset Everything</h3>
+        <p style="font-size:0.8rem; color:#7a8296; margin:0 0 0.6rem;">This clears BOTH students' completed stories, stickers, and reward history for this device. This cannot be undone.</p>
+        <button class="btn pink small" onclick="confirmResetProgress()">Reset All Progress (Both Students)</button>
+      </div>
+    </div>
+  `;
+}
+function saveAdminSettings(gradeId){
+  const cfg = loadAdminConfig();
+  const studentName = document.getElementById(`name-${gradeId}`).value.trim();
+  const storiesRequired = Math.max(1, parseInt(document.getElementById(`required-${gradeId}`).value, 10) || 1);
+  const rewardAmount = Math.max(0, parseFloat(document.getElementById(`amount-${gradeId}`).value) || 0);
+  const repeatable = document.getElementById(`repeat-${gradeId}`).value === 'yes';
+  cfg[gradeId] = { studentName, storiesRequired, rewardAmount, repeatable };
+  saveAdminConfig(cfg);
+  const msg = document.getElementById(`saveMsg-${gradeId}`);
+  msg.textContent = '✓ Saved!';
+  setTimeout(() => { msg.textContent = ''; }, 2000);
+  renderAdmin();
+}
+function changeAdminPin(){
+  const input = document.getElementById('cfgNewPin');
+  const newPin = input.value.trim();
+  const msg = document.getElementById('pinSaveMsg');
+  if(newPin.length < 4){
+    msg.style.color = '#ff5c5c';
+    msg.textContent = 'PIN must be at least 4 digits.';
+    return;
+  }
+  const cfg = loadAdminConfig();
+  cfg.pin = newPin;
+  saveAdminConfig(cfg);
+  input.value = '';
+  msg.style.color = '#2ecc71';
+  msg.textContent = '✓ PIN updated!';
+  setTimeout(() => { msg.textContent = ''; }, 2000);
+}
+function confirmResetGrade(gradeId){
+  const label = GRADES[gradeId].label;
+  if(confirm(`Reset ${label}'s stories, stickers, and reward history? This cannot be undone.`)){
+    resetGradeProgress(gradeId);
+    renderAdmin();
+  }
+}
+function confirmResetProgress(){
+  if(confirm('Reset BOTH students\' stories, stickers, and reward history? This cannot be undone.')){
+    resetAllProgress();
+    renderAdmin();
+  }
+}
+function lockAdmin(){
+  adminUnlocked = false;
+  showHome();
+}
+
+/* ========================= READ ALOUD with word highlight ========================= */
+function speakText(text, onBoundary, onEnd){
+  if(!('speechSynthesis' in window)){
+    alert('Sorry, read-aloud is not supported in this browser.');
+    return;
+  }
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = voiceSettings.rate || 0.9;
+  utter.pitch = voiceSettings.pitch || 1.2;
+  let voice = null;
+  if(voiceSettings.voiceName){
+    voice = speechSynthesis.getVoices().find(v => v.name === voiceSettings.voiceName);
+  }
+  if(!voice) voice = pickAutoVoice();
+  if(voice) utter.voice = voice;
+  if(onBoundary) utter.onboundary = onBoundary;
+  if(onEnd) utter.onend = onEnd;
+  speechSynthesis.speak(utter);
+  return utter;
+}
+
+function readAloud(){
+  stopReading();
+  const view = document.getElementById('storyView');
+  const words = JSON.parse(view.dataset.utteranceWords || '[]');
+  const text = words.join(' ');
+
+  const offsets = [];
+  let pos = 0;
+  words.forEach(w => { offsets.push(pos); pos += w.length + 1; });
+
+  const wordSpans = Array.from(document.querySelectorAll('#storyText .word'));
+
+  speakText(text, (e) => {
+    if(e.name && e.name !== 'word') return;
+    let idx = 0;
+    for(let i=0;i<offsets.length;i++){
+      if(offsets[i] <= e.charIndex) idx = i; else break;
+    }
+    wordSpans.forEach(sp => sp.classList.remove('speaking'));
+    const el = wordSpans[idx];
+    if(el){
+      el.classList.add('speaking');
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }, () => {
+    wordSpans.forEach(sp => sp.classList.remove('speaking'));
+  });
+}
+
+function stopReading(){
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  document.querySelectorAll('#storyText .word.speaking').forEach(sp => sp.classList.remove('speaking'));
+}
+
+/* ========================= READ QUESTION ALOUD (optional, per question) ========================= */
+function readQuestion(qi){
+  const s = currentStory;
+  const q = s.questions[qi];
+  const letters = ['A','B','C','D','E','F'];
+  let text = q.q + '. ';
+  q.opts.forEach((opt, i) => { text += letters[i] + '. ' + opt + '. '; });
+  speakText(text);
+}
+
+/*SCIENCE_JS*/
+
+/* ========================= INIT ========================= */
+showHome();
+if(location.hash === '#science' && hubGradeId() !== 'kinder') showScience();   // Hub's Science Test Prep tile deep-links here
+if('speechSynthesis' in window){
+  // Prime voices list (some browsers populate async)
+  speechSynthesis.getVoices();
+}
+</script>
+<a href="../../index.html" title="Back to the Learning Hub" style="position:fixed;left:10px;bottom:10px;z-index:9999;background:rgba(36,48,74,.85);color:#fff;font:700 13px/1 Trebuchet MS,sans-serif;padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)">&#127890; Hub</a>
+</body>
+</html>

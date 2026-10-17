@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kids Learning Hub 🎒</title>
+  <meta name="description" content="A fun collection of interactive learning apps for elementary students." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+  <div class="bg-shapes" aria-hidden="true">
+    <span class="shape s1">🚀</span>
+    <span class="shape s2">📚</span>
+    <span class="shape s3">🦕</span>
+    <span class="shape s4">🪐</span>
+    <span class="shape s5">🌈</span>
+    <span class="shape s6">✨</span>
+    <span class="shape s7">🔤</span>
+    <span class="shape s8">🐙</span>
+  </div>
+
+  <a class="admin-link" href="admin/index.html" title="Admin — progress, charts &amp; students (grown-ups)">⚙️ Admin</a>
+
+  <header class="hub-header">
+    <div class="hub-logo">🎒</div>
+    <h1 class="hub-title">Kids Learning Hub</h1>
+    <p class="hub-subtitle">Pick an app and start your learning adventure! 🌟</p>
+  </header>
+
+  <!-- Greeting bar (shown once a learner is logged in) -->
+  <div class="kid-bar" id="kidBar" hidden></div>
+
+  <main class="hub-main">
+    <!-- Category filter -->
+    <nav class="filter-bar" id="filterBar" aria-label="Choose an age group">
+      <button class="filter-chip active" data-filter="all">✨ All Apps</button>
+      <button class="filter-chip" data-filter="kinder">🐣 Kindergarten</button>
+      <button class="filter-chip" data-filter="elementary">🎒 Elementary</button>
+    </nav>
+
+    <section class="icon-section funzone">
+      <h2 class="zone-title"><span class="zone-emoji">🎉</span> Fun Zone</h2>
+      <div class="icon-grid">
+        <a class="tile" href="arcade/index.html" data-app="arcade" data-app-name="Free Games Arcade" style="--c1:#6a3fd0;--c2:#33c9dc" title="Quick brain games — Quick Math, Word Scramble, Memory Match &amp; Odd One Out. Win 🎟️ tickets!">
+          <span class="tile-icon"><span>🎮</span></span>
+          <span class="tile-name">Games Arcade</span>
+          <span class="tile-tip">Quick brain games — Quick Math, Word Scramble, Memory Match &amp; Odd One Out. Win 🎟️ tickets!</span>
+        </a>
+        <a class="tile" href="rewards/index.html" data-app="rewards" data-app-name="Rewards Center" style="--c1:#8a5cf6;--c2:#ff6f91" title="Every sticker &amp; trophy from all your apps, the Prize Wheel and critters!">
+          <span class="tile-icon"><span>🎁</span></span>
+          <span class="tile-name">Rewards</span>
+          <span class="tile-tip">Every sticker &amp; trophy from all your apps, the Prize Wheel and critters!</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="icon-section cat-section" data-cat="kinder">
+      <h2 class="zone-title"><span class="zone-emoji">🐣</span> Kindergarten <span class="zone-age">Ages 4–6</span></h2>
+      <div class="icon-grid">
+        <a class="tile" href="kinder/index.html" data-app="kinder" data-app-name="Little Learners" style="--c1:#ff9a5a;--c2:#ff6f91" title="Letters, numbers, colors, shapes &amp; matching games — plus Summer School.">
+          <span class="tile-grade">KG</span><span class="tile-icon"><span>🐣</span></span>
+          <span class="tile-name">Little Learners</span>
+          <span class="tile-tip">Letters, numbers, colors, shapes &amp; matching games — plus Summer School.</span>
+        </a>
+        <a class="tile" href="speedway/index.html" data-app="speedway" data-app-name="Learning Speedway" style="--c1:#ff7a2f;--c2:#ffb020" title="Drive Rev the race car into the right gate — letters, sounds, numbers &amp; more. Collect cars!">
+          <span class="tile-grade">KG</span><span class="tile-icon"><span>🏎️</span></span>
+          <span class="tile-name">Speedway</span>
+          <span class="tile-tip">Drive Rev the race car into the right gate — letters, sounds, numbers &amp; more. Collect cars!</span>
+        </a>
+        <a class="tile" href="phonics/index.html" data-app="phonics" data-app-name="Phonics Pals" style="--c1:#ff5a5f;--c2:#ffb020" title="5 phonics storybooks — read aloud to Echo the parrot, who listens and helps with tricky words. Win stickers!">
+          <span class="tile-grade">KG</span><span class="tile-icon"><span>🦜</span></span>
+          <span class="tile-name">Phonics Pals</span>
+          <span class="tile-tip">5 phonics storybooks — read aloud to Echo the parrot, who listens and helps with tricky words. Win stickers!</span>
+        </a>
+        <a class="tile" href="homeschool/index.html" data-app="homeschool" data-app-name="Homeschool Academy (KG)" style="--c1:#4b3fb5;--c2:#f2b134" title="Numbered Math &amp; English lessons with Ziggy the robot.">
+          <span class="tile-grade">KG</span><span class="tile-icon"><span>🎓</span></span>
+          <span class="tile-name">Homeschool</span>
+          <span class="tile-tip">Numbered Math &amp; English lessons with Ziggy the robot.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="icon-section cat-section" data-cat="elementary">
+      <h2 class="zone-title"><span class="zone-emoji">🎒</span> Elementary <span class="zone-age">Grades 1–4</span></h2>
+      <div class="icon-grid">
+        <a class="tile" href="funfacts/index.html" data-app="funfacts" data-app-name="Fun Facts Explorer" style="--c1:#1fa2c4;--c2:#7ed957" title="Amazing facts about animals, space, the body, oceans &amp; dinosaurs.">
+          <span class="tile-grade">G1–4</span><span class="tile-icon"><span>🔍</span></span>
+          <span class="tile-name">Fun Facts</span>
+          <span class="tile-tip">Amazing facts about animals, space, the body, oceans &amp; dinosaurs.</span>
+        </a>
+        <a class="tile" href="grammar/index.html" data-app="grammar" data-app-name="Grammar Galaxy" style="--c1:#3a2a8a;--c2:#8a7dff" title="Nouns, verbs, punctuation &amp; more — plus Superhero Story Rescue.">
+          <span class="tile-grade">G1–4</span><span class="tile-icon"><span>🪐</span></span>
+          <span class="tile-name">Grammar Galaxy</span>
+          <span class="tile-tip">Nouns, verbs, punctuation &amp; more — plus Superhero Story Rescue.</span>
+        </a>
+        <a class="tile" href="treasure/index.html" data-app="treasure" data-app-name="Grammar Treasure Hunt" style="--c1:#0f5e6e;--c2:#e9b44c" title="Sail an island map solving grammar clues to dig up treasure.">
+          <span class="tile-grade">G1–4</span><span class="tile-icon"><span>🗺️</span></span>
+          <span class="tile-name">Treasure Hunt</span>
+          <span class="tile-tip">Sail an island map solving grammar clues to dig up treasure.</span>
+        </a>
+        <a class="tile" href="reading/index.html" data-app="reading" data-app-name="Reading Trail" style="--c1:#2f9e55;--c2:#9ad94b" title="Learn to read step by step with Ollie the Owl.">
+          <span class="tile-grade">G1–3</span><span class="tile-icon"><span>🦉</span></span>
+          <span class="tile-name">Reading Trail</span>
+          <span class="tile-tip">Learn to read step by step with Ollie the Owl.</span>
+        </a>
+        <a class="tile" href="multiply/index.html" data-app="multiply" data-app-name="Times Table Takeoff" style="--c1:#2f80ed;--c2:#ff8a3d" title="Master multiplication to 12×12 — skip counting, practice &amp; a fluency blast-off.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>✖️</span></span>
+          <span class="tile-name">Times Tables</span>
+          <span class="tile-tip">Master multiplication to 12×12 — skip counting, practice &amp; a fluency blast-off.</span>
+        </a>
+        <a class="tile" href="homeschool/index.html" data-app="homeschool" data-app-name="Homeschool Academy (G3)" style="--c1:#4b3fb5;--c2:#f2b134" title="Grade 3 Math &amp; English lessons with Ziggy the robot.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🎓</span></span>
+          <span class="tile-name">Homeschool</span>
+          <span class="tile-tip">Grade 3 Math &amp; English lessons with Ziggy the robot.</span>
+        </a>
+        <a class="tile" href="clueisland/index.html" data-app="clueisland" data-app-name="Clue Island" style="--c1:#0e4a58;--c2:#2aa97f" title="Drag Mira across treasure maps — read each passage to open the trail.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🧭</span></span>
+          <span class="tile-name">Clue Island</span>
+          <span class="tile-tip">Drag Mira across treasure maps — read each passage to open the trail.</span>
+        </a>
+        <a class="tile" href="grandprix/index.html" data-app="grandprix" data-app-name="Turbo Grand Prix" style="--c1:#14213d;--c2:#e0a800" title="Race rivals through an 8-race season answering math &amp; English fast.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🏁</span></span>
+          <span class="tile-name">Grand Prix</span>
+          <span class="tile-tip">Race rivals through an 8-race season answering math &amp; English fast.</span>
+        </a>
+        <a class="tile" href="detectives/index.html" data-app="detectives" data-app-name="Reading Detectives" style="--c1:#5b3a29;--c2:#c78d4f" title="Solve 15 reading-comprehension cases with Roco the Raccoon.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🦝</span></span>
+          <span class="tile-name">Detectives</span>
+          <span class="tile-tip">Solve 15 reading-comprehension cases with Roco the Raccoon.</span>
+        </a>
+        <a class="tile" href="readrocket/index.html" data-app="readrocket" data-app-name="Read-Aloud Rocket" style="--c1:#364fc7;--c2:#4dabf7" title="Read stories out loud to Nova the robot, phase by phase from 3rd up to 4th-grade level, with a reading-speed meter.">
+          <span class="tile-grade">G3→4</span><span class="tile-icon"><span>🚀</span></span>
+          <span class="tile-name">Read-Aloud Rocket</span>
+          <span class="tile-tip">Read stories out loud to Nova the robot, phase by phase from 3rd up to 4th-grade level, with a reading-speed meter.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="icon-section pack-section" id="adventurePack">
+      <h2 class="zone-title"><span class="zone-emoji">🧳</span> Adventure Pack <span class="zone-age">Stories, history &amp; math</span></h2>
+      <div class="icon-grid">
+        <a class="tile" href="adventurepack/readingadventures/index.html" data-app="readingadventures" data-app-name="Reading Adventures" data-grades="kg g3" style="--c1:#4d7cfe;--c2:#ff6b9d" title="30 funny character stories with quizzes, stickers &amp; a car-sticker garage.">
+          <span class="tile-grade">KG·G3</span><span class="tile-icon"><span>📖</span></span>
+          <span class="tile-name">Reading Adventures</span>
+          <span class="tile-tip">30 funny character stories with quizzes, stickers &amp; a car-sticker garage.</span>
+        </a>
+        <a class="tile" href="adventurepack/readingadventures/index.html#science" data-app="readingadventures" data-app-name="Science Test Prep" data-grades="g3" style="--c1:#8b5cf6;--c2:#4d7cfe" title="Motion, forces, magnets &amp; electromagnets: lessons, stories, labs, games &amp; a practice test.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🔬</span></span>
+          <span class="tile-name">Science Prep</span>
+          <span class="tile-tip">Motion, forces, magnets &amp; electromagnets: lessons, stories, labs, games &amp; a practice test.</span>
+        </a>
+        <a class="tile" href="adventurepack/piratemath/index.html" data-app="piratemath" data-app-name="Pirate Math Quest" data-grades="g3" style="--c1:#1e3a5f;--c2:#f59e0b" title="Rounding, addition, science &amp; communities islands + a Chapter 2 exam.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>🏴‍☠️</span></span>
+          <span class="tile-name">Pirate Math</span>
+          <span class="tile-tip">Rounding, addition, science &amp; communities islands + a Chapter 2 exam.</span>
+        </a>
+        <a class="tile" href="adventurepack/subtraction/index.html" data-app="subtraction" data-app-name="Subtraction Notebook Quest" data-grades="g3" style="--c1:#6c63ff;--c2:#4f8cff" title="Multi-digit subtraction, tricky wording &amp; word problems.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>📓</span></span>
+          <span class="tile-name">Subtraction Quest</span>
+          <span class="tile-tip">Multi-digit subtraction, tricky wording &amp; word problems.</span>
+        </a>
+        <a class="tile" href="adventurepack/billofrights/index.html" data-app="billofrights" data-app-name="Bill of Rights Reading Adventure" data-grades="g3" style="--c1:#136f72;--c2:#39c0c4" title="A guided history reading: author&#x27;s purpose, compare &amp; contrast, cause &amp; effect.">
+          <span class="tile-grade">G3</span><span class="tile-icon"><span>📜</span></span>
+          <span class="tile-name">Bill of Rights</span>
+          <span class="tile-tip">A guided history reading: author&#x27;s purpose, compare &amp; contrast, cause &amp; effect.</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="hub-footer">
+    <p>Made with ❤️ for young learners</p>
+  </footer>
+
+  <!-- Kid login overlay (filled in by hub.js) -->
+  <div class="login-overlay" id="loginOverlay" hidden>
+    <div class="login-card" id="loginCard"></div>
+  </div>
+
+  <script src="js/activitydb.js"></script>
+  <script src="js/kidsdb.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/hub.js"></script>
+</body>
+</html>

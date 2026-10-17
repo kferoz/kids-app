@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hub chapter switcher */
+.hub-switch{position:fixed;left:10px;bottom:10px;z-index:9999;display:flex;gap:6px;
+  background:rgba(20,40,60,.82);padding:6px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.3);
+  font:700 13px/1 'Nunito','Trebuchet MS',sans-serif}
+.hub-switch a{color:#fde68a;text-decoration:none;padding:8px 12px;border-radius:999px;white-space:nowrap}
+.hub-switch a.on{background:#f59e0b;color:#1f2937}
+.hub-switch a:hover{background:rgba(255,255,255,.15)}
+@media (max-width:420px){.hub-switch{font-size:11px}.hub-switch a{padding:7px 9px}}

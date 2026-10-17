@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Games Arcade 🎮</title>
+  <meta name="description" content="Quick, free educational mini-games — Quick Math, Word Scramble, Memory Match and Odd One Out. Earn tickets for the Prize Wheel!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="arc-deco" aria-hidden="true">
+    <span class="deco a1">🕹️</span><span class="deco a2">🎮</span><span class="deco a3">⭐</span><span class="deco a4">🎲</span><span class="deco a5">🏆</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Back to the arcade" hidden>← Arcade</button>
+    <h1 class="app-title">🎮 Free Games Arcade</h1>
+    <div class="ticket-badge" id="ticketBadge" title="Prize tickets — spend them in the Rewards Center!">
+      <span class="tk-icon">🎟️</span><span id="ticketCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- HOME -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Pick a game and play for free — every game wins you 🎟️ tickets!</p>
+      <div class="game-grid" id="gameGrid"></div>
+      <p class="arcade-note">🎟️ Spend your tickets on the <b>Prize Wheel</b> in the Rewards Center!</p>
+    </section>
+
+    <!-- QUIZ (math / oddone) -->
+    <section id="quizScreen" class="screen">
+      <div class="head-row"><h2 id="quizTitle">Quick Math</h2>
+        <p class="progress-text">Q <span id="quizNow">1</span>/<span id="quizTotal">8</span> · <span id="quizScore">0</span> 🎟️</p></div>
+      <div class="progress-bar"><div class="progress-fill" id="quizProgress"></div></div>
+      <div class="quiz-card">
+        <p class="quiz-question" id="quizQuestion">2 + 3 = ?</p>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p class="quiz-feedback" id="quizFeedback"></p>
+      </div>
+    </section>
+
+    <!-- SCRAMBLE -->
+    <section id="scrambleScreen" class="screen">
+      <div class="head-row"><h2>🔤 Word Scramble</h2>
+        <p class="progress-text">Word <span id="scrNow">1</span>/<span id="scrTotal">6</span> · <span id="scrScore">0</span> 🎟️</p></div>
+      <div class="progress-bar"><div class="progress-fill" id="scrProgress"></div></div>
+      <div class="scramble-card">
+        <div class="scr-hint" id="scrHint">🐱</div>
+        <div class="scr-slots" id="scrSlots"></div>
+        <div class="scr-letters" id="scrLetters"></div>
+        <button class="mini-btn" id="scrClear">↺ Clear</button>
+        <p class="quiz-feedback" id="scrFeedback"></p>
+      </div>
+    </section>
+
+    <!-- MEMORY -->
+    <section id="memoryScreen" class="screen">
+      <div class="head-row"><h2>🧠 Memory Match</h2>
+        <p class="progress-text"><span id="memFound">0</span>/<span id="memPairs">0</span> pairs</p></div>
+      <div class="mem-board" id="memBoard"></div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resEmoji">🎉</div>
+        <h2 id="resHeadline">Nice game!</h2>
+        <p class="result-tickets" id="resTickets">You earned 6 🎟️</p>
+        <p class="result-total" id="resTotal"></p>
+        <div class="result-actions">
+          <button class="go-btn" id="againBtn">🔁 Play Again</button>
+          <button class="ghost-btn" id="moreBtn">🎮 More Games</button>
+          <a class="ghost-btn" id="rewardsLink" href="../rewards/index.html">🎡 Prize Wheel</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="arcade"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grammar Treasure Hunt 🗺️</title>
+  <meta name="description" content="A pirate treasure-map grammar game for elementary students: solve grammar clues to sail the seas and dig up the treasure!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="sea-deco" aria-hidden="true">
+    <span class="deco d1">⛵</span>
+    <span class="deco d2">🐚</span>
+    <span class="deco d3">🧭</span>
+    <span class="deco d4">🗺️</span>
+    <span class="deco d5">🐙</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Go back to the map list" hidden>← Back</button>
+    <h1 class="app-title">🗺️ Grammar Treasure Hunt</h1>
+    <div class="coin-badge" id="coinBadge" title="Gold coins you have collected">
+      <span class="coin-icon">🪙</span>
+      <span id="coinCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME / ADVENTURE PICKER ============ -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Choose a map, solve the grammar clues, and dig up the treasure! ⛏️</p>
+      <div class="adventure-grid" id="adventureGrid"><!-- filled by JS --></div>
+      <div class="home-actions">
+        <button class="trophy-btn" id="trophyBtn">🏆 Treasure Trophies</button>
+      </div>
+    </section>
+
+    <!-- ============ MAP / PLAY SCREEN ============ -->
+    <section id="mapScreen" class="screen">
+      <div class="map-head">
+        <h2 id="adventureName">Noun Bay</h2>
+        <p class="stop-text">Clue <span id="stopNow">1</span> of <span id="stopTotal">6</span></p>
+      </div>
+
+      <div class="treasure-map">
+        <span class="compass" aria-hidden="true">✵</span>
+        <div class="map-route" id="mapRoute"><!-- nodes + trail built by JS --></div>
+      </div>
+
+      <div class="clue-card">
+        <p class="clue-label">Grammar Clue</p>
+        <div class="clue-q-row">
+          <p class="clue-q" id="clueQ">Which word is a noun?</p>
+          <button class="read-btn" id="readBtn" aria-label="Read the clue aloud" title="Read the clue aloud">🔊</button>
+        </div>
+        <div class="clue-options" id="clueOptions"><!-- option buttons --></div>
+        <p class="clue-feedback" id="clueFeedback"></p>
+      </div>
+    </section>
+
+    <!-- ============ TREASURE / RESULT SCREEN ============ -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="chest" id="chest">
+          <div class="chest-lid">🧰</div>
+          <div class="chest-burst" id="chestBurst"></div>
+        </div>
+        <h2 id="resultHeadline">Treasure Found!</h2>
+        <p class="result-coins" id="resultCoins">You collected 11 🪙</p>
+        <div class="result-stars" id="resultStars"></div>
+        <p class="result-message" id="resultMessage"></p>
+        <p class="reward-unlock" id="rewardUnlock" hidden></p>
+        <div class="result-actions">
+          <button class="sail-btn" id="nextHuntBtn">🗺️ New Map</button>
+          <button class="again-btn" id="againBtn">🔁 Sail Again</button>
+          <button class="ghost-btn" id="resultHomeBtn">🏠 Harbor</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TROPHY SHELF ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="map-head">
+        <h2>🏆 Treasure Trophies</h2>
+        <p class="stop-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="trophy-tagline">Finish every map to fill your treasure chest of trophies! 💰</p>
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="treasure"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

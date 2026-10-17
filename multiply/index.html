@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Times Table Takeoff 🚀</title>
+  <meta name="description" content="A summer multiplication-fluency app for incoming 3rd graders: skip counting, learning the times tables, fact practice and a fluency blast-off — to 12 × 12." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="sky-deco" aria-hidden="true">
+    <span class="deco d1">☁️</span>
+    <span class="deco d2">🚀</span>
+    <span class="deco d3">⭐</span>
+    <span class="deco d4">☁️</span>
+    <span class="deco d5">🪐</span>
+  </div>
+
+  <header class="app-header">
+    <a class="home-link" href="../index.html" title="Back to the Learning Hub">🏠</a>
+    <button class="back-btn" id="backBtn" aria-label="Go back" hidden>← Back</button>
+    <h1 class="app-title">🚀 Times Table Takeoff</h1>
+    <div class="points-badge" id="pointsBadge" title="Points you have earned">
+      <span class="pt-icon">⭐</span>
+      <span id="pointCount">0</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME ============ -->
+    <section id="homeScreen" class="screen active">
+      <p class="tagline">Get ready for 3rd grade — become a multiplication star! Pick a mission: 🚀</p>
+      <div class="phase-grid" id="phaseGrid"><!-- phase cards by JS --></div>
+
+      <h2 class="board-title">🏅 My Table Mastery</h2>
+      <p class="board-sub">Master a table to earn its gold star. Tap a table to learn it!</p>
+      <div class="mastery-board" id="masteryBoard"><!-- table tiles by JS --></div>
+
+      <div class="home-actions">
+        <button class="trophy-btn" id="trophyBtn">🏆 My Trophies</button>
+      </div>
+    </section>
+
+    <!-- ============ NUMBER PICKER (skip / learn / practice) ============ -->
+    <section id="pickScreen" class="screen">
+      <div class="head-row">
+        <h2 id="pickTitle">Pick a table</h2>
+      </div>
+      <div class="number-grid" id="numberGrid"><!-- number tiles by JS --></div>
+    </section>
+
+    <!-- ============ LEARN A TABLE ============ -->
+    <section id="learnScreen" class="screen">
+      <div class="head-row">
+        <h2 id="learnTitle">The 2 Times Table</h2>
+      </div>
+      <div class="skip-strip" id="skipStrip"><!-- skip-count strip --></div>
+      <div class="table-list" id="tableList"><!-- facts list --></div>
+      <div class="learn-actions">
+        <button class="say-btn" id="readTableBtn">🔊 Read the table to me</button>
+        <button class="go-btn" id="learnPracticeBtn">✍️ Practice this table →</button>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ (skip / practice / fluency) ============ -->
+    <section id="quizScreen" class="screen">
+      <div class="head-row">
+        <h2 id="quizTitle">Practice</h2>
+        <p class="progress-text">Question <span id="quizNow">1</span> of <span id="quizTotal">10</span></p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quizProgress"></div></div>
+      <div class="quiz-card">
+        <div class="quiz-q-row">
+          <p class="quiz-question" id="quizQuestion">2 × 3 = ?</p>
+          <button class="say-btn small" id="quizReadBtn" aria-label="Hear the question" title="Hear the question">🔊</button>
+        </div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p class="quiz-feedback" id="quizFeedback"></p>
+      </div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div class="result-emoji" id="resEmoji">🚀</div>
+        <h2 id="resHeadline">Great work!</h2>
+        <p class="result-score" id="resScore">You got 9 out of 10!</p>
+        <div class="result-stars" id="resStars"></div>
+        <p class="result-msg" id="resMsg"></p>
+        <p class="reward-unlock" id="resUnlock" hidden></p>
+        <div class="result-actions">
+          <button class="go-btn" id="againBtn">🔁 Try Again</button>
+          <button class="ghost-btn" id="resHomeBtn">🏠 Mission Control</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TROPHIES ============ -->
+    <section id="trophyScreen" class="screen">
+      <div class="head-row">
+        <h2>🏆 My Trophies</h2>
+        <p class="progress-text"><span id="trophyEarned">0</span> / <span id="trophyTotalCount">0</span></p>
+      </div>
+      <p class="board-sub">Big rewards for reaching multiplication milestones! 🌟</p>
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </section>
+  </main>
+
+  <script src="../js/profile-store.js"></script>
+  <script src="../js/voice.js"></script>
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/tracker.js" data-app="multiply"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

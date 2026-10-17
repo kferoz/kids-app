@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Why We Have the Bill of Rights — A Reading Adventure</title>
+<style>
+  :root{
+    --teal:#1e9fa3; --teal-dark:#136f72; --ink:#1f2a3a; --paper:#fffef8;
+    --accent:#ff9f43; --good:#2ecc71; --bad:#ff6b6b; --purple:#8a6bff;
+  }
+  *{box-sizing:border-box;}
+  html{
+    /* base font scales gently with viewport width so every rem-based
+       size below grows on big monitors and shrinks on small phones */
+    font-size:clamp(15px, 0.85vw + 11px, 22px);
+  }
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Trebuchet MS','Segoe UI',Verdana,sans-serif;
+    background:linear-gradient(170deg,#e8fbfb 0%,#eef5ff 55%,#fff3e9 100%);
+    min-height:100vh;color:var(--ink);
+  }
+  #app{
+    max-width:clamp(360px, 62vw, 1500px);
+    margin:0 auto;
+    padding:clamp(10px,1.5vw,22px) clamp(10px,1.5vw,22px) 50px;
+  }
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    padding:0.9rem 1.3rem;background:linear-gradient(120deg,var(--teal),#39c0c4);
+    border-radius:20px;color:white;box-shadow:0 8px 20px rgba(20,120,120,.25);margin-bottom:1rem;
+  }
+  header.top h1{font-size:1.25rem;margin:0;}
+  .top-controls{display:flex;gap:10px;align-items:center;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .btn{background:var(--accent);color:white;padding:0.65rem 1.3rem;border-radius:14px;font-weight:bold;font-size:1rem;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .1s;}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .btn.secondary{background:white;color:var(--teal-dark);box-shadow:0 4px 0 #cdeeee;}
+  .btn.ghost{background:rgba(255,255,255,.22);color:white;box-shadow:none;padding:0.5rem 0.9rem;font-size:0.85rem;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:4px 0 1rem;flex-wrap:wrap;}
+  .dot{width:10px;height:10px;border-radius:50%;background:#d7e8e8;transition:all .2s;}
+  .dot.active{background:var(--teal);width:26px;border-radius:6px;}
+  .dot.done{background:#8fd4d6;}
+
+  .card{
+    background:var(--paper);border-radius:22px;box-shadow:0 12px 30px rgba(30,90,100,.15);
+    padding:1.5rem 1.6rem;border:1px solid #eef0e3;
+  }
+  .slide-head{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;flex-wrap:wrap;}
+  .illus{flex:0 0 auto;width:clamp(64px,6vw,110px);height:clamp(64px,6vw,110px);}
+  .slide-title{font-size:1.55rem;font-weight:800;color:var(--teal-dark);margin:0;}
+
+  .media-row{display:flex;gap:1.1rem;align-items:flex-start;margin:0.9rem 0 1.1rem;flex-wrap:wrap;}
+  .media-row .photo-col{flex:0 0 clamp(170px,30%,300px);max-width:300px;}
+  .media-row .photo-col img{
+    width:100%;height:auto;display:block;border-radius:14px;
+    box-shadow:0 6px 16px rgba(0,0,0,.18);border:3px solid white;
+  }
+  .media-row .photo-col .credit{font-size:0.65rem;color:#9aa0a6;margin-top:4px;text-align:center;}
+  .media-row .photo-col .svg-fallback{display:none;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.12);border:3px solid white;background:white;padding:14px;}
+  .media-row .photo-col .svg-fallback svg{width:100%;height:auto;display:block;}
+  .media-row .text-col{flex:1 1 280px;min-width:240px;}
+  @media (max-width:620px){
+    .media-row{flex-direction:column;}
+    .media-row .photo-col{flex:0 0 auto;max-width:220px;margin:0 auto;}
+  }
+
+  .speech-bubble{
+    position:relative;background:#f3fbfb;border:2px solid #cdeeee;border-radius:16px;
+    padding:0.9rem 1.1rem;margin:0.65rem 0 1rem;font-size:1.08rem;line-height:1.55;
+  }
+  .speech-bubble::before{
+    content:"";position:absolute;left:36px;top:-10px;border-width:0 10px 10px 10px;
+    border-style:solid;border-color:transparent transparent #cdeeee transparent;
+  }
+  .read-row{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;}
+  .read-row button.btn.secondary{font-size:0.85rem;padding:0.45rem 0.9rem;}
+  .speaking-indicator{font-size:0.85rem;color:var(--teal-dark);font-weight:bold;display:none;}
+  .speaking-indicator.show{display:inline-flex;align-items:center;gap:6px;}
+  .pulse{width:9px;height:9px;border-radius:50%;background:var(--teal);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+
+  .body-content{font-size:1.02rem;line-height:1.65;}
+  .body-content p{margin:0 0 0.65rem;}
+  .highlight-box{background:#fff8e8;border:2px dashed #ffd27d;border-radius:12px;padding:0.8rem 1.05rem;margin:0.8rem 0;font-style:italic;}
+
+  .cmp-row{display:flex;gap:1rem;flex-wrap:wrap;margin:0.9rem 0;}
+  .cmp-card{flex:1;min-width:200px;background:#f6f3ff;border-radius:14px;padding:0.9rem;text-align:center;border:2px solid #e3dbff;}
+  .cmp-card h4{margin:0.4rem 0;color:var(--purple);}
+
+  .ce-flow{display:flex;align-items:center;gap:10px;margin:1rem 0;flex-wrap:wrap;justify-content:center;}
+  .ce-box{background:white;border-radius:14px;padding:0.9rem 1.05rem;min-width:200px;max-width:280px;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.08);}
+  .ce-box.cause{border:3px solid #ff9f43;}
+  .ce-box.effect{border:3px solid var(--good);}
+  .ce-label{font-size:0.72rem;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+  .ce-box.cause .ce-label{color:#d97a1a;}
+  .ce-box.effect .ce-label{color:#1f9d55;}
+  .ce-arrow{font-size:1.8rem;color:#aaa;}
+
+  .choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:0.8rem 0;}
+  .choice{background:white;border:3px solid #dde4f7;border-radius:12px;padding:0.8rem;font-weight:bold;text-align:center;transition:.15s;font-size:1rem;}
+  .choice.selected{border-color:var(--teal);background:#eafdfd;}
+  .choice.correct{border-color:var(--good);background:#eafff1;}
+  .choice.wrong{border-color:var(--bad);background:#fff0f0;}
+  .choice.locked{pointer-events:none;}
+
+  .fb{margin:0.65rem 0;padding:0.65rem 0.9rem;border-radius:12px;font-weight:bold;font-size:0.95rem;display:none;}
+  .fb.show{display:block;}
+  .fb.good{background:#eafff1;color:#1f9d55;}
+  .fb.bad{background:#fff0f0;color:#d9534f;}
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.1rem;gap:10px;flex-wrap:wrap;}
+
+  .builder-step{margin-bottom:1.1rem;}
+  .builder-step .step-q{font-weight:bold;margin-bottom:0.5rem;color:var(--teal-dark);font-size:1.02rem;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{background:white;border:3px solid #dde4f7;border-radius:999px;padding:0.6rem 1rem;font-size:0.95rem;font-weight:600;transition:.15s;}
+  .chip.selected{border-color:var(--accent);background:#fff6e8;}
+  .chip.correct-flash{border-color:var(--good);background:#eafff1;}
+  .chip.wrong-flash{border-color:var(--bad);background:#fff0f0;}
+
+  .final-answer-box{
+    background:linear-gradient(135deg,#fff8e8,#fff);border:3px solid var(--accent);border-radius:16px;
+    padding:1.1rem;margin-top:1rem;font-size:1.05rem;line-height:1.6;font-weight:600;color:#5b3d00;display:none;
+  }
+  .final-answer-box.show{display:block;}
+  .final-answer-box .tag{display:inline-block;background:var(--accent);color:white;font-size:0.72rem;font-weight:bold;padding:3px 10px;border-radius:999px;margin-bottom:8px;}
+
+  .effect-ok-box{
+    background:#eafff1;border:2px solid #b7f0cb;border-radius:14px;padding:0.8rem 1.05rem;margin-top:0.9rem;font-size:0.95rem;
+  }
+
+  /* ---- Responsive breakpoints: phone / tablet / big monitor ---- */
+  @media (max-width:560px){
+    .illus{width:56px;height:56px;}
+    .slide-head{flex-direction:column;align-items:flex-start;}
+    .card{padding:1.1rem 1rem;}
+    #app{padding-left:0;padding-right:0;}
+    header.top{border-radius:14px;}
+  }
+  @media (min-width:1700px){
+    #app{max-width:1500px;}
+    .card{padding:2.2rem 2.6rem;border-radius:28px;}
+    .illus{width:130px;height:130px;}
+  }
+</style>
+<script src="../../js/profile-store.js"></script>
+  <script src="../../js/voice.js"></script>
+<script src="../../js/activitydb.js"></script>
+<script src="../../js/tracker.js" data-app="billofrights"></script>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1>📖 Why We Have the Bill of Rights</h1>
+    <div class="top-controls">
+      <button class="btn ghost" id="voiceToggle">🔊 Tutor Voice: ON</button>
+    </div>
+  </header>
+  <div class="dots" id="dots"></div>
+  <div id="stage"></div>
+</div>
+
+<script>
+/* ============================= VOICE ============================= */
+let voiceOn = true;
+let femaleVoice = null;
+function pickFemaleVoice(){
+  const voices = speechSynthesis.getVoices();
+  if(!voices.length) return;
+  const preferred = voices.find(v=>/female|samantha|victoria|zira|susan|karen|moira|tessa|fiona|allison/i.test(v.name));
+  femaleVoice = preferred || voices.find(v=>v.lang && v.lang.startsWith('en')) || voices[0];
+}
+if('speechSynthesis' in window){
+  pickFemaleVoice();
+  speechSynthesis.onvoiceschanged = pickFemaleVoice;
+}
+function speak(text){
+  if(!voiceOn || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if(femaleVoice) u.voice = femaleVoice;
+  u.rate = 0.95; u.pitch = 1.05;
+  const ind = document.getElementById('speakInd');
+  u.onstart = ()=>{ if(ind) ind.classList.add('show'); };
+  u.onend = ()=>{ if(ind) ind.classList.remove('show'); };
+  speechSynthesis.speak(u);
+}
+document.getElementById('voiceToggle').addEventListener('click', ()=>{
+  voiceOn = !voiceOn;
+  document.getElementById('voiceToggle').textContent = voiceOn ? '🔊 Tutor Voice: ON' : '🔇 Tutor Voice: OFF';
+  if(!voiceOn) speechSynthesis.cancel();
+});
+
+/* ============================= ICONS (inline SVG) ============================= */
+const ICONS = {
+  mascot: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffe3b0" stroke="#d97a1a" stroke-width="3"/><circle cx="50" cy="50" r="30" fill="#fff6e3"/><path d="M50 20 L58 46 L50 54 L42 46 Z" fill="#ff6b6b"/><path d="M50 80 L42 54 L50 46 L58 54 Z" fill="#4f8cff"/><circle cx="50" cy="50" r="7" fill="#1e9fa3"/><circle cx="30" cy="30" r="6" fill="#fff" stroke="#d97a1a" stroke-width="2"/><circle cx="70" cy="30" r="6" fill="#fff" stroke="#d97a1a" stroke-width="2"/></svg>`,
+  purpose: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e8fbfb"/><circle cx="30" cy="40" r="12" fill="#ffe28a" stroke="#d9a62a" stroke-width="2"/><rect x="26" y="52" width="8" height="8" fill="#d9a62a" rx="2"/><path d="M58 30 Q68 30 68 40 Q68 48 62 50 L62 56 L54 56 L54 50 Q48 48 48 40 Q48 30 58 30Z" fill="#8a6bff"/><path d="M40 68 L72 68 L66 78 L46 78 Z" fill="#ff9f43"/></svg>`,
+  structure: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f3fbfb"/><circle cx="34" cy="50" r="18" fill="none" stroke="#4f8cff" stroke-width="4"/><circle cx="60" cy="50" r="18" fill="none" stroke="#ff9f43" stroke-width="4"/><circle cx="47" cy="50" r="4" fill="#1e9fa3"/></svg>`,
+  scroll: `<svg viewBox="0 0 100 100"><rect x="22" y="18" width="56" height="64" rx="6" fill="#fff8e3" stroke="#d9a62a" stroke-width="3"/><circle cx="22" cy="24" r="6" fill="#d9a62a"/><circle cx="78" cy="24" r="6" fill="#d9a62a"/><circle cx="22" cy="76" r="6" fill="#d9a62a"/><circle cx="78" cy="76" r="6" fill="#d9a62a"/><line x1="32" y1="36" x2="68" y2="36" stroke="#b8902a" stroke-width="3"/><line x1="32" y1="46" x2="68" y2="46" stroke="#b8902a" stroke-width="3"/><line x1="32" y1="56" x2="60" y2="56" stroke="#b8902a" stroke-width="3"/><line x1="32" y1="66" x2="64" y2="66" stroke="#b8902a" stroke-width="3"/></svg>`,
+  vote: `<svg viewBox="0 0 100 100"><rect x="26" y="40" width="48" height="40" rx="6" fill="#4f8cff"/><rect x="34" y="20" width="32" height="24" rx="3" fill="#fff" stroke="#4f8cff" stroke-width="3" transform="rotate(-8 50 32)"/><path d="M42 55 L48 61 L60 47" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  debate: `<svg viewBox="0 0 100 100"><circle cx="30" cy="46" r="14" fill="#ffd9a0"/><rect x="18" y="60" width="24" height="26" rx="8" fill="#4f8cff"/><circle cx="70" cy="46" r="14" fill="#ffd9a0"/><rect x="58" y="60" width="24" height="26" rx="8" fill="#ff9f43"/><path d="M20 30 Q30 18 40 28" fill="none" stroke="#8a6bff" stroke-width="3"/><path d="M60 28 Q70 18 80 30" fill="none" stroke="#8a6bff" stroke-width="3"/></svg>`,
+  causeEffect: `<svg viewBox="0 0 100 100"><rect x="10" y="38" width="32" height="24" rx="6" fill="#ffe3b0" stroke="#d97a1a" stroke-width="2"/><rect x="58" y="38" width="32" height="24" rx="6" fill="#c8f5d8" stroke="#2ecc71" stroke-width="2"/><path d="M44 50 L56 50" stroke="#888" stroke-width="3" marker-end="url(#arrow)"/><polygon points="52,45 60,50 52,55" fill="#888"/></svg>`,
+  speech: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff3e9"/><path d="M28 34 h44 a6 6 0 0 1 6 6 v18 a6 6 0 0 1 -6 6 h-28 l-12 12 v-12 h-4 a6 6 0 0 1 -6 -6 v-18 a6 6 0 0 1 6 -6 Z" fill="#ff9f43"/><circle cx="40" cy="49" r="3" fill="#fff"/><circle cx="50" cy="49" r="3" fill="#fff"/><circle cx="60" cy="49" r="3" fill="#fff"/></svg>`,
+  trophy: `<svg viewBox="0 0 100 100"><path d="M34 22 h32 v18 a16 16 0 0 1 -32 0 Z" fill="#ffd166"/><path d="M34 26 h-12 a10 10 0 0 0 10 16" fill="none" stroke="#d9a62a" stroke-width="4"/><path d="M66 26 h12 a10 10 0 0 1 -10 16" fill="none" stroke="#d9a62a" stroke-width="4"/><rect x="44" y="56" width="12" height="14" fill="#d9a62a"/><rect x="34" y="70" width="32" height="10" rx="3" fill="#d9a62a"/></svg>`,
+  check: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#eafff1"/><path d="M30 52 L44 66 L72 34" stroke="#2ecc71" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+/* ============================= PHOTOS (with safe illustrated fallback) =============
+   Real public-domain photos from Wikimedia Commons. If a photo can't load for any
+   reason (offline, blocked network, etc.) the onerror handler swaps in the matching
+   hand-drawn illustration instead, so the page never shows a broken-image icon. */
+let photoFallbackCounter = 0;
+function photoBlock(url, alt, credit, fallbackIconKey){
+  const id = 'fallback-' + (photoFallbackCounter++);
+  return `<div class="photo-col">
+    <img src="${url}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; var fb=document.getElementById('${id}'); if(fb) fb.style.display='block';" />
+    <div class="credit">${credit}</div>
+    <div class="svg-fallback" id="${id}">${ICONS[fallbackIconKey]}</div>
+  </div>`;
+}
+
+/* ============================= SLIDE DATA ============================= */
+let state = { idx: 0 };
+const builder = { s1:null, s2:null, s3:null };
+
+const SLIDES = [
+  // 0 - welcome
+  {
+    icon:'mascot', title:'Meet Ms. Compass!',
+    speak:"Hi there, reading explorer! I'm Ms. Compass. Today we're going to figure out one big question: why do we have the Bill of Rights? Let's read like detectives and find out!",
+    body:`<div class="media-row">
+      ${photoBlock(
+        'https://commons.wikimedia.org/wiki/Special:FilePath/Independence_Hall.jpg?width=700',
+        'Independence Hall in Philadelphia, where the Constitution was written',
+        'Independence Hall, Philadelphia — Wikimedia Commons',
+        'scroll'
+      )}
+      <div class="text-col">
+        <p>We're going to read about how America got its very first set of rules — the <b>Constitution</b> — and why some extra rules called the <b>Bill of Rights</b> got added.</p>
+        <p>Along the way, you'll learn a reading trick that authors use called <b>text structure</b>. By the end, you'll be able to write a great answer for your "Your Turn" question — all by yourself!</p>
+      </div>
+    </div>`
+  },
+  // 1 - author's purpose
+  {
+    icon:'purpose', title:"Why Do Authors Write?",
+    speak:"Every author writes for a reason. That's called the author's purpose. Authors write to inform, which means to teach you true facts. They write to entertain, which means to tell a fun story. Or they write to persuade, which means to convince you to think a certain way.",
+    body:`<p>An author always has a <b>purpose</b> — a reason for writing. There are three big ones:</p>
+    <div class="choice-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="cmp-card"><div style="font-size:30px;">💡</div><h4>Inform</h4><div style="font-size:13px;">teach true facts</div></div>
+      <div class="cmp-card"><div style="font-size:30px;">🎭</div><h4>Entertain</h4><div style="font-size:13px;">tell a fun story</div></div>
+      <div class="cmp-card"><div style="font-size:30px;">📣</div><h4>Persuade</h4><div style="font-size:13px;">convince you</div></div>
+    </div>
+    <p>Our article is teaching us real history — so its purpose is to <b>inform</b>.</p>`
+  },
+  // 2 - text structure
+  {
+    icon:'structure', title:'What Is "Text Structure"?',
+    speak:"Text structure is just the way an author organizes, or arranges, the information. Think of it like choosing the right shape of box to pack your toys in. Here are three common text structures: chronology, which tells things in time order. Compare and contrast, which shows how two things are alike and different. And cause and effect, which explains why something happened, and what happened because of it.",
+    body:`<p><b>Text structure</b> means how an author organizes the information. Picking the right structure helps readers understand better.</p>
+    <div class="choice-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="cmp-card"><div style="font-size:28px;">⏰</div><h4>Chronology</h4><div style="font-size:13px;">tells events in time order</div></div>
+      <div class="cmp-card"><div style="font-size:28px;">⚖️</div><h4>Compare &amp; Contrast</h4><div style="font-size:13px;">shows how 2 things are alike/different</div></div>
+      <div class="cmp-card"><div style="font-size:28px;">🔗</div><h4>Cause &amp; Effect</h4><div style="font-size:13px;">why something happened, and what happened next</div></div>
+    </div>
+    <p>Keep these three in your pocket — we'll use them in a minute!</p>`
+  },
+  // 3 - making a plan (paragraph 3)
+  {
+    icon:'scroll', title:'Making a Plan',
+    speak:"A long time ago, some leaders called delegates wrote a plan for how America's new government would work. They called their plan the Constitution. It wasn't very long, but it was full of big ideas. The biggest idea was this: the people are in charge. People vote to choose their leaders, and those leaders run the government for the people.",
+    body:`<div class="media-row">
+      ${photoBlock(
+        'https://commons.wikimedia.org/wiki/Special:FilePath/Scene_at_the_Signing_of_the_Constitution_of_the_United_States.jpg?width=700',
+        'Painting of delegates signing the United States Constitution',
+        '"Scene at the Signing of the Constitution," Howard Chandler Christy — Wikimedia Commons (public domain)',
+        'scroll'
+      )}
+      <div class="text-col">
+        <p>Some leaders, called <b>delegates</b>, wrote a plan for the new government. They named it the <b>Constitution</b>.</p>
+        <div class="highlight-box">It wasn't very long — just a few pages — but it had BIG ideas! The biggest idea: <b>the people are in charge</b>. People vote for their leaders, and those leaders run the government for the people.</div>
+      </div>
+    </div>`
+  },
+  // 4 - compare contrast debate
+  {
+    icon:'debate', title:'A Big Debate (Compare & Contrast)',
+    speak:"Not everyone agreed on everything! The author uses compare and contrast here. Some delegates wanted just one person to run the government. Others thought a group of people should be in charge instead. They did agree on one thing: a group should make the laws. But they disagreed about how to pick these leaders.",
+    body:`<div class="media-row">
+      ${photoBlock(
+        'https://commons.wikimedia.org/wiki/Special:FilePath/Assembly_Room%2C_Independence_Hall%2C_Philadelphia.jpg?width=700',
+        'The Assembly Room in Independence Hall where delegates debated',
+        'Assembly Room, Independence Hall — Wikimedia Commons',
+        'debate'
+      )}
+      <div class="text-col">
+        <p>Here the author uses <b>compare-and-contrast</b> text structure to show two different ideas delegates had:</p>
+        <div class="cmp-row">
+          <div class="cmp-card"><h4>👤 One Leader</h4><div style="font-size:0.78rem;">Some delegates wanted just ONE person to run the government.</div></div>
+          <div class="cmp-card"><h4>👥 A Group</h4><div style="font-size:0.78rem;">Others thought a GROUP of people should be in charge.</div></div>
+        </div>
+        <p>They agreed a group should make the laws — but they disagreed about how to <i>pick</i> the leaders.</p>
+      </div>
+    </div>`
+  },
+  // 5 - cause and effect / bill of rights
+  {
+    icon:'causeEffect', title:'Why We Got the Bill of Rights (Cause & Effect)',
+    speak:"Now here's the big one. The delegates met for four months to plan the Constitution. Most of them thought it was a great plan. But some delegates refused to sign it! Why? Because they wanted to make sure the government would also protect people's rights. A right is something you are allowed to have or do, like the right to speak freely. So, because of that, in 1791 Congress changed the Constitution and added new rules to protect people's rights. Those new rules are called the Bill of Rights!",
+    body:`<div class="media-row">
+      ${photoBlock(
+        'https://commons.wikimedia.org/wiki/Special:FilePath/Bill_of_Rights_Pg1of1_AC.jpg?width=700',
+        'The original Bill of Rights document',
+        'Bill of Rights, page 1 — U.S. National Archives / Wikimedia Commons (public domain)',
+        'scroll'
+      )}
+      <div class="text-col">
+        <p>The delegates met for <b>four months</b>. Most thought the Constitution was a great plan — but <b>not everyone signed it</b> right away!</p>
+        <div class="ce-flow">
+          <div class="ce-box cause"><div class="ce-label">Cause (why)</div>Some delegates wouldn't sign unless the government also protected <b>people's rights</b>.</div>
+          <div class="ce-arrow">➜</div>
+          <div class="ce-box effect"><div class="ce-label">Effect (what happened)</div>In <b>1791</b>, Congress changed the Constitution and added the <b>Bill of Rights</b> to protect citizens — like the right to speak freely.</div>
+        </div>
+        <p>This is <b>cause-and-effect</b> text structure: it shows us <i>why</i> the Bill of Rights was created!</p>
+      </div>
+    </div>`
+  },
+  // 6 - quick check
+  {
+    icon:'check', title:'Quick Check!',
+    speak:"Let's check your understanding. Which text structure does the author use in paragraph 4 to explain why we have the Bill of Rights?",
+    body:`<p>Tap the text structure the author used in <b>paragraph 4</b> to explain why we have the Bill of Rights:</p>
+    <div class="choice-grid" id="checkChoices">
+      <div class="choice" data-correct="false">⏰ Chronology</div>
+      <div class="choice" data-correct="false">⚖️ Compare &amp; Contrast</div>
+      <div class="choice" data-correct="true">🔗 Cause &amp; Effect</div>
+    </div>
+    <div class="fb" id="checkFb"></div>`
+  },
+  // 7 - sentence builder (Your Turn)
+  {
+    icon:'trophy', title:'Your Turn: Build Your Answer!',
+    speak:"Now let's build your answer for the Your Turn question together: How does the author use text structure to help you understand why we have a Bill of Rights? Pick the best piece for each part of the sentence.",
+    body:`<p style="font-weight:bold;">Your Turn question: "How does the author use text structure to help you understand why we have a Bill of Rights?"</p>
+    <p>Let's build a simple, correct answer together. Tap one choice in each row:</p>
+
+    <div class="builder-step">
+      <div class="step-q">1️⃣ What text structure does the author use?</div>
+      <div class="chip-row" id="chipRow1">
+        <div class="chip" data-group="1" data-val="cause-and-effect text structure" data-correct="true">cause-and-effect</div>
+        <div class="chip" data-group="1" data-val="chronology" data-correct="false">chronology</div>
+        <div class="chip" data-group="1" data-val="compare-and-contrast" data-correct="false">compare-and-contrast</div>
+      </div>
+    </div>
+
+    <div class="builder-step">
+      <div class="step-q">2️⃣ What was the CAUSE (why)?</div>
+      <div class="chip-row" id="chipRow2">
+        <div class="chip" data-group="2" data-val="some delegates wanted the government to protect people's rights" data-correct="true">some delegates wanted the government to protect people's rights</div>
+        <div class="chip" data-group="2" data-val="people wanted to vote for leaders" data-correct="false">people wanted to vote for leaders</div>
+      </div>
+    </div>
+
+    <div class="builder-step">
+      <div class="step-q">3️⃣ What was the EFFECT (what happened)?</div>
+      <div class="chip-row" id="chipRow3">
+        <div class="chip" data-group="3" data-val="Congress added the Bill of Rights in 1791 to protect citizens' rights" data-correct="true">Congress added the Bill of Rights in 1791 to protect citizens' rights</div>
+        <div class="chip" data-group="3" data-val="the delegates wrote the Constitution" data-correct="false">the delegates wrote the Constitution</div>
+      </div>
+    </div>
+
+    <div class="fb" id="builderFb"></div>
+    <div class="final-answer-box" id="finalAnswerBox">
+      <span class="tag">✏️ Write this on your worksheet</span>
+      <div id="finalAnswerText"></div>
+      <div class="read-row" style="margin-top:10px;">
+        <button class="btn secondary" id="readFinalBtn">🔊 Read my answer</button>
+      </div>
+    </div>
+
+    <div class="effect-ok-box">
+      <b>✅ Nice work on page 141, too!</b> You already wrote a correct "effect" box there: <i>"In 1791, Congress changed the Constitution to protect the rights of American citizens."</i> That's exactly right — keep it!
+    </div>`
+  },
+];
+
+/* ============================= RENDER ============================= */
+const stage = document.getElementById('stage');
+const dotsEl = document.getElementById('dots');
+
+function renderDots(){
+  dotsEl.innerHTML = SLIDES.map((_,i)=>{
+    const cls = i===state.idx ? 'dot active' : i<state.idx ? 'dot done' : 'dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+}
+
+function renderSlide(){
+  renderDots();
+  const s = SLIDES[state.idx];
+  const isFirst = state.idx===0;
+  const isLast = state.idx===SLIDES.length-1;
+  stage.innerHTML = `
+    <div class="card">
+      <div class="slide-head">
+        <div class="illus">${ICONS[s.icon]}</div>
+        <h2 class="slide-title">${s.title}</h2>
+      </div>
+      <div class="speech-bubble">${s.speak}</div>
+      <div class="read-row">
+        <button class="btn secondary" id="readBtn">🔊 Read Aloud</button>
+        <span class="speaking-indicator" id="speakInd"><span class="pulse"></span> Ms. Compass is talking…</span>
+      </div>
+      <div class="body-content">${s.body}</div>
+      <div class="nav-row">
+        <button class="btn secondary" id="backBtn" ${isFirst?'disabled':''}>◀ Back</button>
+        <span style="font-size:13px;color:#888;">Step ${state.idx+1} of ${SLIDES.length}</span>
+        <button class="btn" id="nextBtn" ${isLast?'disabled':''}>${isLast?'🎉 The End':'Next ▶'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('readBtn').addEventListener('click', ()=>speak(s.speak));
+  document.getElementById('backBtn').addEventListener('click', ()=>{ state.idx--; renderSlide(); });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{ if(state.idx<SLIDES.length-1){ state.idx++; renderSlide(); } });
+
+  // auto-read on arrival (user already gestured via Next/Back click, or first-load button)
+  speak(s.speak);
+
+  wireSlideInteractivity(state.idx);
+}
+
+function wireSlideInteractivity(idx){
+  if(idx===6){
+    const choices = document.querySelectorAll('#checkChoices .choice');
+    choices.forEach(c=>{
+      c.addEventListener('click', ()=>{
+        if(document.querySelector('#checkChoices .choice.locked')) return;
+        const correct = c.dataset.correct==='true';
+        if(window.Tracker) Tracker.answer(correct, 'Text structure quick check');
+        choices.forEach(x=>x.classList.add('locked'));
+        if(correct){
+          c.classList.add('correct');
+          document.getElementById('checkFb').className='fb show good';
+          document.getElementById('checkFb').textContent = '🎉 Yes! The author uses cause-and-effect to explain WHY the Bill of Rights was created.';
+        } else {
+          c.classList.add('wrong');
+          choices.forEach(x=>{ if(x.dataset.correct==='true') x.classList.add('correct'); });
+          document.getElementById('checkFb').className='fb show bad';
+          document.getElementById('checkFb').textContent = '🤔 Close! The right answer is Cause & Effect — look at the green one.';
+        }
+      });
+    });
+  }
+  if(idx===7){
+    builder.s1=null; builder.s2=null; builder.s3=null;
+    [1,2,3].forEach(group=>{
+      document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(chip=>{
+        chip.addEventListener('click', ()=>{
+          document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c=>c.classList.remove('selected','correct-flash','wrong-flash'));
+          chip.classList.add('selected');
+          chip.classList.add(chip.dataset.correct==='true' ? 'correct-flash' : 'wrong-flash');
+          builder['s'+group] = chip;
+          checkBuilderComplete();
+        });
+      });
+    });
+  }
+}
+
+function checkBuilderComplete(){
+  const fb = document.getElementById('builderFb');
+  if(builder.s1 && builder.s2 && builder.s3){
+    const allCorrect = [builder.s1,builder.s2,builder.s3].every(c=>c.dataset.correct==='true');
+    if(window.Tracker) Tracker.answer(allCorrect, 'Build your answer');
+    if(window.Tracker && allCorrect) Tracker.complete('reading', 3, 3, { item: 'Bill of Rights answer built' });
+    if(allCorrect){
+      fb.className='fb show good';
+      fb.textContent = '🌟 Great choices! Here is your finished answer:';
+      const sentence = `The author uses ${builder.s1.dataset.val}. This shows that because ${builder.s2.dataset.val}, ${builder.s3.dataset.val}.`;
+      const box = document.getElementById('finalAnswerBox');
+      document.getElementById('finalAnswerText').textContent = sentence;
+      box.classList.add('show');
+      document.getElementById('readFinalBtn').onclick = ()=>speak(sentence);
+      speak("Wonderful! Here is your answer: " + sentence);
+    } else {
+      fb.className='fb show bad';
+      fb.textContent = "🤔 One of those isn't quite right yet — try picking the other option in that row (hint: look for the green glow!).";
+      document.getElementById('finalAnswerBox').classList.remove('show');
+    }
+  }
+}
+
+renderSlide();
+</script>
+<a href="../../index.html" title="Back to the Learning Hub" style="position:fixed;left:10px;bottom:10px;z-index:9999;background:rgba(36,48,74,.85);color:#fff;font:700 13px/1 Trebuchet MS,sans-serif;padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)">&#127890; Hub</a>
+</body>
+</html>

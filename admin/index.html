@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Hub Admin</title>
+  <meta name="description" content="Grown-ups' admin for every Learning Hub app: progress, charts, students, suggestions, forecasts and the activity log." />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <!-- Grown-up gate (math question or PIN) -->
+  <div class="gate" id="gate" hidden>
+    <form class="gate-card" id="gateForm">
+      <div class="gate-icon">⚙️</div>
+      <h1>Learning Hub Admin</h1>
+      <p id="gateQ"></p>
+      <input id="gateIn" type="password" autocomplete="off" aria-label="Answer" />
+      <button class="btn primary" type="submit">Open Admin</button>
+      <p class="gate-msg" id="gateMsg" role="alert"></p>
+      <a class="back" href="../index.html">← Back to the Hub</a>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+    <header class="top">
+      <div class="brand">
+        <a class="back" href="../index.html" title="Back to the Hub">🎒</a>
+        <div>
+          <h1>Admin</h1>
+          <p class="sub">Progress, students and insights for every app</p>
+        </div>
+      </div>
+      <button class="btn" id="refresh" title="Reload the latest activity">↻ Refresh</button>
+    </header>
+
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+
+    <div class="filters" id="filters">
+      <label class="sel">Student
+        <select id="kidSel"></select>
+      </label>
+      <div class="range" role="group" aria-label="Date range">
+        <button class="range-btn" data-days="7">7 days</button>
+        <button class="range-btn" data-days="30">30 days</button>
+        <button class="range-btn" data-days="90">90 days</button>
+        <button class="range-btn" data-days="365">1 year</button>
+      </div>
+    </div>
+
+    <main id="panel" class="panel"></main>
+    <footer class="foot">Stored only on this device · IndexedDB database “KidsLearningHub”</footer>
+  </div>
+
+  <dialog id="dialog"></dialog>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="../js/activitydb.js"></script>
+  <script src="../js/kidsdb.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
