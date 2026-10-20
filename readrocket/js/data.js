@@ -258,7 +258,125 @@ const PHASES = [
       ]
     }
   },
-  { id: "p3", n: 3, title: "Word-Part Station", sub: "Prefixes & suffixes (un-, re-, -ful, -less)", goal: 90, color: "#20c997", accent: "#0ca678", badge: { emoji: "🛸", name: "Station Badge" } },
+  {
+    id: "p3", n: 3, title: "Word-Part Station", sub: "Prefixes & suffixes (un-, re-, -ful, -less)", goal: 90,
+    color: "#20c997", accent: "#0ca678", badge: { emoji: "🛸", name: "Station Badge" },
+    lessons: [
+      {
+        id: "p3l1", title: "The Unlucky Unicorn Costume", skill: "Prefix un-",
+        tip: "A prefix is a word part stuck on the front of a word. U n means not. Unhappy means not happy. Unlock means the opposite of lock. Find the base word, then add not!",
+        focus: ["unhappy", "unpack", "unlock", "unsure", "untie", "unkind", "unusual", "unfair"],
+        chunks: { unhappy: "un·hap·py", unpack: "un·pack", unlock: "un·lock", unsure: "un·sure", untie: "un·tie", unkind: "un·kind", unusual: "un·u·su·al", unfair: "un·fair" },
+        passage: [
+          "Mia was unhappy. The school costume parade was the next day, and her costume box was still taped shut. She tried to unpack it, but the tape would not come off. Then she saw a tiny lock on the side. Who locks a costume box?",
+          "Her brother Leo found the key in a sock drawer. Mia used it to unlock the box. Inside was a unicorn costume, but the horn was floppy, the tail was tangled, and one shoe was missing. Mia felt unsure. Could she still wear it?",
+          "Leo did not laugh, because that would be unkind. Instead, he helped her untie the knots in the tail. Mom stuffed the floppy horn with socks until it stood up tall. For the missing shoe, Mia wore one rain boot. It looked very unusual.",
+          "At the parade, a boy said, “That is unfair! Your unicorn has a rain boot!” Mia grinned. “It is a puddle unicorn,” she said. The judges laughed and gave her a ribbon for the most creative costume. Mia was not unhappy anymore. She was unstoppable!"
+        ],
+        vocab: [{ w: "unusual", def: "not usual; different and surprising" }, { w: "creative", def: "full of new and clever ideas" }],
+        quiz: [
+          { q: "Why was Mia unhappy at the start?", choices: ["Her costume box was taped and locked", "She was sick", "The parade was cancelled"], answer: 0, why: "The tape would not come off, and there was a tiny lock on the side of the box." },
+          { q: "What does unkind mean?", choices: ["not kind", "very kind", "kind again"], answer: 0, why: "The prefix un- means not, so unkind means not kind." },
+          { q: "How did Mom fix the floppy horn?", choices: ["She stuffed it with socks", "She glued it to a hat", "She bought a new one"], answer: 0, why: "Mom stuffed the floppy horn with socks until it stood up tall." },
+          { q: "Which word means the opposite of lock?", choices: ["unlock", "relock", "locker"], answer: 0, why: "Un- turns lock around. Unlock means open it, the opposite of lock." }
+        ],
+        write: [
+          { emoji: "🦄", p: "How did Mia turn her costume problem into a win? Answer in a complete sentence.", model: "Mia wore a rain boot and called herself a puddle unicorn, and she won a ribbon.", need: { min: 8 } },
+          { emoji: "🙃", p: "Write about a time something was unfair, unusual or unexpected. Use an un- word!", ideas: ["It was unusual when", "unfair", "unhappy", "unexpected", "unlucky"], model: "It was unusual when my cat climbed into the fridge.", need: { min: 7, starts: ["un"], teamHint: "Use a word that starts with un-, like unhappy, unusual or unfair." } }
+        ],
+        sticker: { emoji: "🦄", name: "Puddle Unicorn" }
+      },
+      {
+        id: "p3l2", title: "Robo Redo", skill: "Prefix re-",
+        tip: "R e is a prefix that means again. Redo means do again. Reread means read again. Return means come back again. When you see r e at the front, think: again!",
+        focus: ["rebuild", "redo", "reread", "refill", "repaint", "replay", "return", "restart"],
+        chunks: { rebuild: "re·build", redo: "re·do", reread: "re·read", refill: "re·fill", repaint: "re·paint", replay: "re·play", return: "re·turn", restart: "re·start" },
+        passage: [
+          "Omar built a robot for the science club. He named it Robo. Robo could roll, beep, and wave one arm. But on the first try, Robo rolled straight into the wall, beeped sadly, and fell over. One wheel popped off and rolled under the couch.",
+          "“I will just rebuild it,” Omar said. He reread the plan from the beginning. He saw that he had put the wheels on backwards. So he took them off to redo that part. Then he had to refill the battery box with fresh batteries.",
+          "Robo's paint was scratched, so Omar decided to repaint it bright blue. He gave it two silly eyes and a bow tie. When he pressed restart, Robo blinked, rolled across the room, and waved. Then it bumped into the cat. The cat was not amused.",
+          "At the science club, Omar showed a video of the first crash. Everyone laughed, and they asked him to replay it three times. “Mistakes are part of building,” said the teacher. Omar smiled. He could not wait to return next week with Robo Two."
+        ],
+        vocab: [{ w: "amused", def: "thinking something is funny" }, { w: "battery", def: "a small thing that stores power for toys and robots" }],
+        quiz: [
+          { q: "What happened the first time Robo moved?", choices: ["It rolled into the wall and fell over", "It flew across the room", "It sang a song"], answer: 0, why: "On the first try, Robo rolled straight into the wall and fell over." },
+          { q: "What mistake had Omar made?", choices: ["He put the wheels on backwards", "He forgot the eyes", "He used the wrong color"], answer: 0, why: "When he reread the plan, he saw he had put the wheels on backwards." },
+          { q: "What does reread mean?", choices: ["read again", "not read", "read fast"], answer: 0, why: "The prefix re- means again. Reread means read again." },
+          { q: "What did the teacher say about mistakes?", choices: ["They are part of building", "They are not allowed", "They mean you should quit"], answer: 0, why: "The teacher said, mistakes are part of building." }
+        ],
+        write: [
+          { emoji: "🤖", p: "What did Omar do after Robo crashed? Answer in a complete sentence.", model: "Omar reread the plan and rebuilt Robo with the wheels on the right way.", need: { min: 8 } },
+          { emoji: "🔁", p: "If you could replay one day of your life, which day would it be? Use a re- word like replay, redo or return.", ideas: ["I would replay", "because", "return", "redo"], model: "I would replay my birthday because we went to the water park.", need: { min: 8, starts: ["re"], teamHint: "Use a word that starts with re-, like replay, redo, return or rebuild." } }
+        ],
+        sticker: { emoji: "🤖", name: "Robo Two" }
+      },
+      {
+        id: "p3l3", title: "The Helpful Hamster", skill: "Suffix -ful",
+        tip: "A suffix is a word part stuck on the end of a word. F u l means full of. Helpful means full of help. Careful means full of care. Notice: the suffix has only one l!",
+        focus: ["helpful", "careful", "cheerful", "thankful", "colorful", "playful", "hopeful", "wonderful"],
+        chunks: { helpful: "help·ful", careful: "care·ful", cheerful: "cheer·ful", thankful: "thank·ful", colorful: "col·or·ful", playful: "play·ful", hopeful: "hope·ful", wonderful: "won·der·ful" },
+        passage: [
+          "Our class hamster is named Peanut. He is small, fluffy, and very playful. Every morning he runs on his wheel so fast that it squeaks. Our teacher says Peanut is the most cheerful member of Room Twelve, and he does not even do homework.",
+          "One Friday, Ms. Diaz dropped her ring. It rolled across the floor and vanished under the bookshelf. Nobody could reach it. Ms. Diaz looked sad. Then Zoe had a hopeful idea. “Peanut is small,” she said. “Maybe he can be helpful.”",
+          "We were very careful. We built a little tunnel out of paper tubes that led under the shelf. We put a sunflower seed at the end. Peanut sniffed the air, scurried through the tunnel, and came back out with a seed in his cheek and something shiny in his paws.",
+          "It was the ring! The whole class cheered. Ms. Diaz was so thankful that she gave Peanut a tiny colorful party hat and an extra seed. Then she wrote on the board, “Even the smallest helper can do something wonderful.”"
+        ],
+        vocab: [{ w: "vanished", def: "went out of sight all of a sudden" }, { w: "scurried", def: "ran with quick, short steps" }],
+        quiz: [
+          { q: "What was the problem in the story?", choices: ["Ms. Diaz's ring rolled under the bookshelf", "Peanut ran away", "The class lost its homework"], answer: 0, why: "The ring rolled across the floor and vanished under the bookshelf." },
+          { q: "Why did Zoe think Peanut could help?", choices: ["because he is small", "because he can talk", "because he is strong"], answer: 0, why: "Zoe said, Peanut is small. He could fit where hands could not." },
+          { q: "What does thankful mean?", choices: ["full of thanks", "without thanks", "thanks again"], answer: 0, why: "The suffix -ful means full of, so thankful means full of thanks." },
+          { q: "What did the class use to lead Peanut under the shelf?", choices: ["a tunnel of paper tubes", "a long string", "a toy car"], answer: 0, why: "They built a little tunnel out of paper tubes with a seed at the end." }
+        ],
+        write: [
+          { emoji: "🐹", p: "How did Peanut help Ms. Diaz? Answer in a complete sentence.", model: "Peanut ran through the tunnel and brought back the lost ring.", need: { min: 7 } },
+          { emoji: "🌟", p: "Tell about a time you were helpful. Use a -ful word like helpful, careful or thankful.", ideas: ["I was helpful when", "careful", "thankful", "cheerful"], model: "I was helpful when I carried the groceries, and my mom was thankful.", need: { min: 8, ends: ["ful"], teamHint: "Use a word that ends in -ful, like helpful, careful or thankful." } }
+        ],
+        sticker: { emoji: "🐹", name: "Hero Hamster" }
+      },
+      {
+        id: "p3l4", title: "The Fearless Firefly", skill: "Suffix -less",
+        tip: "L e s s is a suffix that means without. Fearless means without fear. Careless means without care. -less and -ful are opposites: careful and careless!",
+        focus: ["fearless", "sleepless", "endless", "careless", "helpless", "spotless", "harmless", "useless"],
+        chunks: { fearless: "fear·less", sleepless: "sleep·less", endless: "end·less", careless: "care·less", helpless: "help·less", spotless: "spot·less", harmless: "harm·less", useless: "use·less" },
+        passage: [
+          "Flick was the smallest firefly in Willow Woods. His light was tiny, so the other fireflies said it was useless. Flick did not argue. He kept his wings spotless and practised blinking every night. Blink, blink, blink. He was small, but he was fearless.",
+          "One summer night, a little rabbit named Pip got lost. The woods were dark and seemed endless. Pip felt helpless. He sat under a log and shivered. His mother had a sleepless night, calling his name over and over.",
+          "Flick heard the call. He zipped through the trees, blinking his tiny light. He was not careless. He checked every log and every bush. At last he found Pip. “Follow my light,” Flick said. “I am harmless, and I know the way home.”",
+          "Pip followed the little blinking light all the way home. His mother hugged him tight. The next night, the other fireflies asked Flick to lead their parade. His light was still tiny, but now everyone knew it was not useless at all."
+        ],
+        vocab: [{ w: "argue", def: "disagree with someone using words" }, { w: "shivered", def: "shook because of cold or fear" }],
+        quiz: [
+          { q: "Why did the other fireflies think Flick's light was useless?", choices: ["because it was tiny", "because it was red", "because it blinked too fast"], answer: 0, why: "Flick was the smallest firefly, and his light was tiny." },
+          { q: "What does fearless mean?", choices: ["without fear", "full of fear", "fear again"], answer: 0, why: "The suffix -less means without, so fearless means without fear." },
+          { q: "How did Flick help Pip?", choices: ["He led Pip home with his light", "He carried Pip on his back", "He called Pip's mother on the phone"], answer: 0, why: "Flick said, follow my light, and led Pip all the way home." },
+          { q: "Which word is the opposite of careful?", choices: ["careless", "cared", "caring"], answer: 0, why: "-ful means full of and -less means without. Careless is the opposite of careful." }
+        ],
+        write: [
+          { emoji: "✨", p: "How did the other fireflies change their minds about Flick? Answer in a complete sentence.", model: "The fireflies asked Flick to lead their parade because his light helped Pip.", need: { min: 8 } },
+          { emoji: "🦸", p: "Write about something that makes you feel fearless. Use a -less word like fearless, endless or spotless.", ideas: ["I feel fearless when", "endless", "careless", "harmless"], model: "I feel fearless when I jump off the diving board.", need: { min: 7, ends: ["less"], teamHint: "Use a word that ends in -less, like fearless, endless or spotless." } }
+        ],
+        sticker: { emoji: "✨", name: "Fearless Firefly" }
+      }
+    ],
+    check: {
+      title: "The Treehouse Redo",
+      passage: [
+        "Kai and his grandpa spent a whole summer building a treehouse in the old oak tree. It had a rope ladder, a tiny window, and a sign that said, “No Grown-Ups, Except Grandpa.” Kai was thankful for every hour they spent hammering together.",
+        "Then a big storm came. In the morning, Kai ran outside and felt helpless. Half the roof was gone, the sign was in the mud, and the ladder was tangled in a bush. He was unsure if the treehouse could ever be fixed.",
+        "Grandpa put a hand on his shoulder. “Treehouses are not finished,” he said. “They are just waiting to be rebuilt.” They made a careful plan. This time they used stronger nails and a roof that sloped, so the rain could slide off.",
+        "It took two weeks to rebuild and repaint it. When they were done, the treehouse looked even better than before. Kai hung the muddy sign back up, but he added one word. Now it said, “No Grown-Ups, Except Fearless Grandpa.”"
+      ],
+      quiz: [
+        { q: "Who built the treehouse with Kai?", choices: ["his grandpa", "his teacher", "his best friend"], answer: 0, why: "Kai and his grandpa spent a whole summer building it." },
+        { q: "What did the storm do to the treehouse?", choices: ["It blew away half the roof", "It knocked down the tree", "It painted it blue"], answer: 0, why: "Half the roof was gone, the sign was in the mud, and the ladder was tangled." },
+        { q: "What does rebuilt mean?", choices: ["built again", "not built", "built badly"], answer: 0, why: "The prefix re- means again, so rebuilt means built again." },
+        { q: "Why did they make the new roof slope?", choices: ["so the rain could slide off", "so it looked funny", "so birds could sit on it"], answer: 0, why: "They made a roof that sloped, so the rain could slide off." },
+        { q: "What does helpless mean?", choices: ["without help, not able to fix things", "full of help", "helping again"], answer: 0, why: "The suffix -less means without. Kai felt like he could not fix it." },
+        { q: "What is the big lesson of this story?", choices: ["When something breaks, you can rebuild it even better", "Never build a treehouse", "Storms are fun"], answer: 0, why: "Grandpa said treehouses are just waiting to be rebuilt, and the new one was even better." }
+      ]
+    }
+  },
   { id: "p4", n: 4, title: "Big Word Galaxy", sub: "Long words & reading with expression", goal: 100, color: "#ff922b", accent: "#e8590c", badge: { emoji: "🌌", name: "Galaxy Badge" } },
   { id: "p5", n: 5, title: "Root Planet", sub: "Word roots & vocabulary (4th-grade words)", goal: 110, color: "#f06595", accent: "#c2255c", badge: { emoji: "🌍", name: "Root Planet Badge" } },
   { id: "p6", n: 6, title: "4th-Grade Star", sub: "Longer passages, main idea & inference", goal: 120, color: "#fcc419", accent: "#e67700", badge: { emoji: "⭐", name: "4th-Grade Star Badge" } }

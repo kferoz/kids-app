@@ -73,7 +73,12 @@
   var synth = emitter({
     speaking: false, pending: false, paused: false, onvoiceschanged: null,
     getVoices: function () {
-      if (!voiceList || (voiceList.length === 1 && B.ttsReady())) voiceList = B.ttsReady() ? loadVoices() : [VOICE];
+      if (!voiceList || (voiceList.length === 1 && B.ttsReady())) {
+        voiceList = B.ttsReady() ? loadVoices() : [VOICE];
+        // Arabic Oasis: offer the phone's Arabic voice when its language data is installed
+        if (B.ttsReady() && B.ttsHasLang && B.ttsHasLang("ar"))
+          voiceList.push({ name: "Android Arabic", lang: "ar", voiceURI: "lang:ar", localService: true, "default": false });
+      }
       return voiceList.slice();
     },
     speak: function (u) {
@@ -84,6 +89,7 @@
       settle();
       var num = function (v, d) { v = +v; return isFinite(v) ? v : d; };
       var vname = u.voice && u.voice.voiceURI ? u.voice.voiceURI : "";
+      if (!vname && u.lang && !/^en/i.test(u.lang)) vname = "lang:" + u.lang.split(/[-_]/)[0];
       if (B.ttsVoices) B.ttsSpeak(u._id, u.text, num(u.rate, 1), num(u.pitch, 1), num(u.volume, 1), vname);
       else B.ttsSpeak(u._id, u.text, num(u.rate, 1), num(u.pitch, 1), num(u.volume, 1));
     },

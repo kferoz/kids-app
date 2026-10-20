@@ -24,11 +24,12 @@
     { id: "speedway", name: "Learning Speedway", emoji: "🏎️", grades: ["kg"], subject: "Math & English",
       progress: function (r) { var d = Object.keys(r.obj("sw_stars")).length; return { done: d, total: 16, label: d + " of 16 roads · " + r.arr("sw_cars").length + " cars" }; } },
     { id: "phonics", name: "Phonics Pals", emoji: "🦜", grades: ["kg"], subject: "Reading",
-      // Step 1 = 4 letter lessons + Step 3 = 4 sight-word lessons (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
+      // Step 1 = 4 letter lessons + Step 3 = 4 sight-word lessons + Step 4 = 4 sh/ch/th lessons (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
       progress: function (r) { var b = r.obj("ph_books"), d = Object.keys(b).filter(function (k) { return b[k] && b[k].done; }).length;
         var l = r.obj("ph_lessons"), ld = Object.keys(l).filter(function (k) { return /^ls/.test(k) && l[k] && l[k].done; }).length;
         var sd = Object.keys(l).filter(function (k) { return /^sw/.test(k) && l[k] && l[k].done; }).length;
-        return { done: d + ld + sd, total: 13, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
+        var td = Object.keys(l).filter(function (k) { return /^dg/.test(k) && l[k] && l[k].done; }).length;
+        return { done: d + ld + sd + td, total: 17, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
       progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[kid.grade + "-math"] || []).length, e = (d[kid.grade + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
@@ -54,6 +55,15 @@
     { id: "writestudio", name: "Sentence Studio", emoji: "✏️", grades: ["g3"], subject: "Grammar & Writing",
       progress: function (r) { var l = r.obj("ws_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length, j = r.arr("ws_journal").length;
         return { done: d, total: 10, label: d + " of 10 writing lessons · " + j + " pieces in the Writing Book · " + r.num("ws_selfFix") + " self-fixes" }; } },
+    { id: "tracewrite", name: "Write & Trace", emoji: "🖍️", grades: ["kg"], subject: "Grammar & Writing",
+      // Phase 1 = 4 lessons (tw_lessons); raise the total as phases are added
+      progress: function (r) { var l = r.obj("tw_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length;
+        return { done: d, total: 4, label: d + " of 4 handwriting lessons · " + r.num("tw_clean") + " perfect traces · " + r.num("tw_built") + " words spelled" }; } },
+    { id: "arabic", name: "Arabic Oasis", emoji: "🐪", grades: ["kg", "g3"], subject: "Arabic",
+      // lessons ak* = KG path, ag* = 3rd-grade path (ar_lessons); Phase 1 = 4 lessons each, raise as phases are added
+      progress: function (r, kid) { var l = r.obj("ar_lessons"), pre = kid.grade === "kg" ? /^ak/ : /^ag/;
+        var d = Object.keys(l).filter(function (k) { return pre.test(k) && l[k] && l[k].done; }).length;
+        return { done: d, total: 4, label: d + " of 4 lessons · " + r.arr("ar_met").length + " of 28 letters met · " + r.num("ar_traced") + " letters traced · " + r.num("ar_said") + " words said" }; } },
     { id: "detectives", name: "Reading Detectives", emoji: "🦝", grades: ["g3"], subject: "Reading",
       progress: function (r) { var d = r.num("rc_solved"); return { done: d, total: 15, label: d + " of 15 cases solved" }; } },
     { id: "readingadventures", name: "Reading Adventures", emoji: "📖", grades: ["kg", "g3"], subject: "Reading",
@@ -75,7 +85,7 @@
   function appById(id) { for (var i = 0; i < APPS.length; i++) if (APPS[i].id === id) return APPS[i]; return { id: id, name: id, emoji: "📦", subject: "Other", grades: [] }; }
 
   // Categorical slots, assigned in a FIXED order to subjects (colour follows the entity).
-  var SUBJECTS = ["Reading", "Math", "Grammar & Writing", "Math & English", "Early Skills", "Discovery", "Games", "History"];
+  var SUBJECTS = ["Reading", "Math", "Grammar & Writing", "Math & English", "Early Skills", "Discovery", "Games", "History", "Arabic"];
   function subjectColor(s) { var i = SUBJECTS.indexOf(s); return i < 0 ? "var(--ink-muted)" : "var(--s" + (i + 1) + ")"; }
 
   /* ---------- state ---------- */

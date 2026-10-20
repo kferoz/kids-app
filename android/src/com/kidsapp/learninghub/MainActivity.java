@@ -186,6 +186,14 @@ public class MainActivity extends Activity {
       return a.toString();
     }
 
+    /** True when the TTS engine can speak this language now (its voice data is installed), e.g. "ar". */
+    @JavascriptInterface
+    public boolean ttsHasLang(String tag) {
+      if (tts == null || !ttsReady) return false;
+      try { return tts.isLanguageAvailable(Locale.forLanguageTag(tag)) >= TextToSpeech.LANG_AVAILABLE; }
+      catch (Exception e) { return false; }
+    }
+
     /** Saves a file (e.g. an Admin backup) into Downloads/KidsLearningHub. Returns where, or "" on failure. */
     @JavascriptInterface
     public String saveFile(String name, String text, String mime) {
@@ -240,6 +248,12 @@ public class MainActivity extends Activity {
     if (name == null) name = "";
     if (name.equals(currentVoice)) return;
     try {
+      if (name.startsWith("lang:")) {             // a language, not a named voice (Arabic Oasis)
+        int r = tts.setLanguage(Locale.forLanguageTag(name.substring(5)));
+        currentVoice = r >= TextToSpeech.LANG_AVAILABLE ? name : "";
+        if (currentVoice.isEmpty()) tts.setLanguage(Locale.US);
+        return;
+      }
       Voice pick = null;
       if (!name.isEmpty() && tts.getVoices() != null)
         for (Voice v : tts.getVoices()) if (v.getName().equals(name)) { pick = v; break; }

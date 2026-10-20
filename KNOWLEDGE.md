@@ -1,3 +1,15 @@
+## FEATURE — Write & Trace (KG), Arabic Oasis (KG+G3), Phase 3 / Step 4 · 2026-10-20
+- `TracePad` (`tracewrite/js/tracepad.js` + `css/tracepad.css`, identical copies in `arabic/`) has two modes: SVG stroke paths (English handwriting) or a font glyph (Arabic, no stroke data).
+- Stroke mode: one finger stroke may finish several guide strokes ("a" without lifting), but only if it is ≥75% of their combined length. Extra strokes are checked at half the tolerance. Without both rules, the c of "a" completed its stem and the stem of "t" completed its crossbar, so the child's next correct stroke got "wandered off".
+- Glyph mode checks the font letter's pieces (connected components: body + each dot) and Zhang-Suen centre line. Area coverage and grid-cell coverage both accepted half letters: the thick ends of ت outweighed its bowl, and the head of م outweighed its tail.
+- A pad sized by width with `aspect-ratio` makes thin letters (t, i) taller than the screen, and finger points off-screen are lost. Centre single letters on a sheet ≥120 wide and cap the pad width from the window height.
+- A touch during the "watch me" demo must cancel the demo. Ignoring input while it played made the first strokes vanish.
+- Arabic speech: `js/voice.js` no longer puts the learner's English Hub voice on non-English utterances. Android: `bridge.js` adds an "Android Arabic" voice when `AndroidBridge.ttsHasLang("ar")` is true, and non-English utterances go as voice `lang:ar` (`MainActivity.useVoice` → `setLanguage`). With no Arabic voice, the app speaks English spellings (`say`, `tr`) and never sends Arabic text to an English voice.
+- WriteCheck `need.starts` (prefix goals) ignores look-alikes in `NOT_PREFIX` (under, uncle, unicorn, ready, really…). Otherwise "under" passes an un- goal.
+- Phonics `letterGroups` keeps sh/ch/th/ck together, so sounding out says "shhh" and not "sss, huh". Step 4 opens only after Step 3 is done. `finishSightLesson` now serves sight-word and sound-team lessons.
+- Admin `SUBJECTS` gained a 9th entry "Arabic" with `--s9` in admin.css (all 3 theme blocks).
+- Tests: profile-store prefixes keys with `k` + kid id, so kid id "k1" stores `kk1::ar_lessons`.
+
 ## FINDING — Tooling gotchas on this Windows box · 2026-10-19
 - Git Bash heredocs mangle backslash escapes (e.g. `\n`) in inline Python; write Python to a scratch file instead.
 - `python -m http.server` responses get cached; refresh with `fetch(url, {cache:'reload'})` before reloading.

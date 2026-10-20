@@ -466,3 +466,18 @@ button.pill:active { transform: translateY(2px); box-shadow: none; }
 }
 
 [hidden] { display: none !important; }
+
+/* ---------- Step 4: sound teams (sh, ch, th) ---------- */
+.ls-chip.dg { width: auto; padding: 0 16px; box-shadow: 0 4px 0 #1c7ed6; }
+.dg-teams { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 6px 0 16px; }
+.dg-team { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 22px; background: #e7f5ff; border: 3px solid var(--ink); border-radius: 22px; box-shadow: 0 6px 0 #1c7ed6; cursor: pointer; font: inherit; }
+.dg-team.pop { animation: pop .4s; }
+.dg-big { font-family: "Andika", sans-serif; font-weight: 700; font-size: 64px; line-height: 1; display: flex; gap: 2px; }
+.dg-big i { font-style: normal; display: inline-block; background: #fff; border: 3px solid #1c7ed6; border-radius: 14px; padding: 0 10px; }
+.dg-big i:first-child { transform: rotate(-6deg); } .dg-big i:last-child { transform: rotate(6deg); }
+.dg-e { font-size: 34px; line-height: 1.1; } .dg-team small { font-weight: 700; color: #1864ab; font-size: 18px; }
+.dg-card.heard { background: #e7f5ff; box-shadow: 0 5px 0 #1c7ed6; }
+.lt.team, .dg-hi { color: #1c7ed6; font-weight: 800; background: #d0ebff; border-radius: 8px; padding: 0 2px; }
+.dg-gap { min-width: 64px; border-color: #1c7ed6; }
+.dg-gap.filled { color: #1c7ed6; }
+.choice.dg-pick { font-family: "Andika", sans-serif; font-size: 40px; min-width: 110px; }

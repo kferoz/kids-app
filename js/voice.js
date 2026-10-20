@@ -56,7 +56,8 @@
     synth.speak = function (u) {
       var s = get();
       if (s && u) {
-        var v = findVoice(s.voice);
+        // the learner's voice is English: never swap it onto another language (Arabic Oasis)
+        var v = /^en|^$/i.test(u.lang || "") ? findVoice(s.voice) : null;
         if (v) { u.voice = v; u.lang = v.lang; }
         u.rate = clamp((u.rate || 1) * s.rate, 0.3, 2.2);
         u.pitch = clamp((u.pitch || 1) * s.pitch, 0.3, 2);

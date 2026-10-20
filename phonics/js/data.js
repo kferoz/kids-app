@@ -24,7 +24,15 @@ const VOWELS = {
 const LETTER_SOUNDS = {
   b: "buh", c: "kuh", d: "duh", f: "fff", g: "guh", h: "huh", j: "juh", k: "kuh", l: "lll",
   m: "mmm", n: "nnn", p: "puh", r: "rrr", s: "sss", t: "tuh", v: "vvv", w: "wuh", x: "ks",
-  y: "yuh", z: "zzz", q: "kwuh", a: "ah", e: "eh", i: "ih", o: "aw", u: "uh"
+  y: "yuh", z: "zzz", q: "kwuh", a: "ah", e: "eh", i: "ih", o: "aw", u: "uh",
+  sh: "shhh", ch: "chuh", th: "thhh", ck: "kuh", ee: "eee"
+};
+
+/* two letters, one sound (Step 4) — how Echo teaches each team */
+const DIGRAPHS = {
+  sh: { say: "shhh", e: "🤫", how: "Put your finger on your lips, like a baby is sleeping. Shhh!", joke: "Shhh! Even my feathers are tiptoeing!" },
+  ch: { say: "chuh", e: "🚂", how: "Like a little train! Ch, ch, ch, choo choo!", joke: "Ch, ch, choo choo! All aboard the word train!" },
+  th: { say: "thhh", e: "👅", how: "Stick your tongue out just a tiny bit and blow. Th, th. It's a silly face!", joke: "Th, th! Don't worry, sticking out your tongue is allowed today!" }
 };
 
 const BOOKS = [
@@ -291,7 +299,8 @@ const PH_TROPHIES = [
   { id: "all-books", icon: "👑", name: "Super Reader", desc: "Finish all 5 books" },
   { id: "letter-pro", icon: "🔠", name: "Letter Pro", desc: "Finish all 4 Letter Sounds lessons" },
   { id: "sight-star", icon: "👀", name: "Sight Word Star", desc: "Finish all 4 Sight Words lessons" },
-  { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" }
+  { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" },
+  { id: "team-champ", icon: "🤫", name: "Sound Team Champ", desc: "Finish all 4 Sh, Ch, Th lessons" }
 ];
 
 /* ============================================================
@@ -303,7 +312,9 @@ const PH_TROPHIES = [
    Phase 3 Sight Words    → sight-word lessons (kind "sight"): meet the
                             words, a word game, then build sentences
                             from word tiles (first writing practice)
-   Phases 4–6             → no lessons yet = "coming soon"
+   Phase 4 Sh, Ch, Th     → digraph lessons (kind "digraph"): meet the
+                            sound team, a sound game, then build sentences
+   Phases 5–6             → no lessons yet = "coming soon"
    A phase opens when the one before it is finished; phases 1–3 are
    open from the start.
    ============================================================ */
@@ -342,7 +353,25 @@ const PHASES = [
         sentences: [{ s: "Come and play.", e: "🤸" }, { s: "Here is my hat.", e: "🎩" }, { s: "Dad said hi to me.", e: "👋" }],
         sticker: { emoji: "🎈", name: "Play Day Balloon" } }
     ] },
-  { id: "k4", n: 4, title: "Sh, Ch, Th", sub: "Two letters that make one sound", emoji: "🤫", color: "#a5d8ff", accent: "#1c7ed6" },
+  { id: "k4", n: 4, title: "Sh, Ch, Th", sub: "Two letters that make one sound", emoji: "🤫", color: "#a5d8ff", accent: "#1c7ed6",
+    lessons: [
+      { id: "dg1", kind: "digraph", title: "sh", teams: ["sh"],
+        words: [{ w: "ship", e: "🚢" }, { w: "shell", e: "🐚" }, { w: "shop", e: "🏪" }, { w: "fish", e: "🐟" }, { w: "dish", e: "🍽️" }, { w: "brush", e: "🪥" }],
+        sentences: [{ s: "The fish is in the dish.", e: "🐟" }, { s: "I see a big ship.", e: "🚢" }, { s: "The cat is on the shelf.", e: "🐱" }],
+        sticker: { emoji: "🐚", name: "Shiny Shell" } },
+      { id: "dg2", kind: "digraph", title: "ch", teams: ["ch"],
+        words: [{ w: "chip", e: "🍟" }, { w: "chick", e: "🐥" }, { w: "chin", e: "🧔" }, { w: "chop", e: "🪓" }, { w: "lunch", e: "🍱" }, { w: "bench", e: "🪑" }],
+        sentences: [{ s: "The chick can chirp.", e: "🐥" }, { s: "I had chips for lunch.", e: "🍟" }, { s: "Mom sat on the bench.", e: "🪑" }],
+        sticker: { emoji: "🐥", name: "Chirpy Chick" } },
+      { id: "dg3", kind: "digraph", title: "th", teams: ["th"],
+        words: [{ w: "thumb", e: "👍" }, { w: "three", e: "3️⃣" }, { w: "thin", e: "🥢" }, { w: "bath", e: "🛁" }, { w: "moth", e: "🦋" }, { w: "teeth", e: "🦷" }],
+        sentences: [{ s: "I have three cats.", e: "🐱" }, { s: "The duck is in the bath.", e: "🛁" }, { s: "Thumbs up for me!", e: "👍" }],
+        sticker: { emoji: "👍", name: "Thumbs Up" } },
+      { id: "dg4", kind: "digraph", title: "sh · ch · th", teams: ["sh", "ch", "th"], mix: true,
+        words: [{ w: "shed", e: "🛖" }, { w: "cheese", e: "🧀" }, { w: "path", e: "🛤️" }, { w: "wash", e: "🧼" }, { w: "much", e: "💯" }, { w: "with", e: "🤝" }],
+        sentences: [{ s: "The rat ate the cheese.", e: "🧀" }, { s: "Wash the dish with me.", e: "🧼" }, { s: "The shed is on the path.", e: "🛖" }],
+        sticker: { emoji: "🧀", name: "Cheesy Champ" } }
+    ] },
   { id: "k5", n: 5, title: "Blends", sub: "Sounds that slide together: st, fl, gr", emoji: "🌊", color: "#ffc9c9", accent: "#e03131" },
   { id: "k6", n: 6, title: "Magic e", sub: "cake, bike, home: the e makes the vowel say its name", emoji: "✨", color: "#fff3bf", accent: "#f59f00" }
 ];

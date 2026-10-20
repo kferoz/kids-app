@@ -20,6 +20,7 @@
      useHint: "…",        // friendlier message for a long `use` list
      team: ["ai","ay"],   // must use a word with one of these letter teams (phonics)
      ends: ["ed","ing"],  // …or a word ending like this
+     starts: ["un","re"], // …or a word starting like this (prefixes)
      teamN: 2,            // how many different team words (default 1)
      teamHint: "…"        // message when the team words are missing
    }
@@ -200,12 +201,13 @@
       if (!used && !spelt) issues.push({ id: "use", msg: need.useHint ? need.useHint : need.use.length === 1 ? "Use the word “" + need.use[0] + "” in your writing." : "Use one of these words: " + need.use.join(", ") + "." });
       else if (used) stars.push("You used “" + used + "”, just like a pro writer!");
     }
-    if (need.team || need.ends) {
+    if (need.team || need.ends || need.starts) {
       var tw2 = lw.filter(function (w, i) {
         return lw.indexOf(w) === i && ((need.team || []).some(function (x) { return w.indexOf(x) >= 0; }) ||
-          (need.ends || []).some(function (x) { return w.length > x.length + 1 && w.slice(-x.length) === x; }));
+          (need.ends || []).some(function (x) { return w.length > x.length + 1 && w.slice(-x.length) === x; }) ||
+          (need.starts || []).some(function (x) { return w.length > x.length + 2 && w.indexOf(x) === 0 && !NOT_PREFIX[w]; }));
       }), tn = need.teamN || 1;
-      if (tw2.length < tn) issues.push({ id: "team", msg: need.teamHint || "Use a word with " + (need.team || need.ends).join(" or ") + " in it." });
+      if (tw2.length < tn) issues.push({ id: "team", msg: need.teamHint || "Use a word with " + (need.team || need.ends || need.starts).join(" or ") + " in it." });
       else stars.push("“" + tw2.slice(0, tn).join("” and “") + "”: great spelling-pattern words!");
     }
     if (need.useAll) need.useAll.forEach(function (u) { if (!has(t, u)) issues.push({ id: "use", msg: "Don't forget to use “" + u + "”." }); });
@@ -261,6 +263,12 @@
     var re = new RegExp("\\b" + f.from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "g");
     return t.replace(re, function (m) { return /^[A-Z]/.test(m) && f.to !== "I" ? capFirst(f.to) : f.to; });
   }
+
+  // words that only LOOK like they start with a prefix (un-, re-)
+  var NOT_PREFIX = {};
+  ("under understand uncle uncles until unit units universe unicorn unicorns uniform unique union unless " +
+   "read reads reading ready real really red rest reason recess record recipe report reptile region remember rescue reach").split(" ")
+    .forEach(function (w) { NOT_PREFIX[w] = 1; });
 
   window.WriteCheck = { check: check, applyFix: applyFix, words: words, sentences: splitSentences, ADJ: ADJ, TIRED: TIRED };
 })();

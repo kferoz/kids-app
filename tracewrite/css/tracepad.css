@@ -1,0 +1,12 @@
+/* ============================================================
+   TracePad — tracing canvas styles. Same file in tracewrite/css
+   and arabic/css: keep both copies identical.
+   ============================================================ */
+.tp-wrap { position: relative; width: 100%; background: #fff; border: 3px solid var(--ink, #3b2b20); border-radius: 22px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 0 rgba(59, 43, 32, .12); }
+.tp-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tp-ink { touch-action: none; cursor: crosshair; }
+.tp-hand { position: absolute; font-size: clamp(26px, 6vw, 40px); transform: translate(-12%, -88%) rotate(-10deg); pointer-events: none; filter: drop-shadow(0 3px 2px rgba(0,0,0,.2)); }
+.tp-wobble { animation: tpWobble .45s; }
+@keyframes tpWobble { 0%, 100% { transform: none; } 25% { transform: translateX(-8px) rotate(-1deg); } 75% { transform: translateX(8px) rotate(1deg); } }
+.tp-done { border-color: #2fbf71; box-shadow: 0 0 0 5px rgba(47, 191, 113, .25), 0 6px 0 rgba(47, 191, 113, .35); animation: tpGlow 1s ease-out; }
+@keyframes tpGlow { 0% { transform: scale(1); } 30% { transform: scale(1.03); } 100% { transform: scale(1); } }

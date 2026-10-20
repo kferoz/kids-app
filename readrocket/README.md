@@ -16,7 +16,7 @@ Open `index.html`, or tap the 🚀 tile in the Hub's Elementary section (3rd gra
 |---|---|---|---|---|
 | 1 | Launch Pad | short & long vowel review | 70 wpm | ✅ built |
 | 2 | Vowel Team Orbit | vowel teams (ai/ay, ee/ea, oa/ow) & bossy R | 80 | ✅ built |
-| 3 | Word-Part Station | prefixes & suffixes | 90 | coming soon |
+| 3 | Word-Part Station | prefixes un- & re-, suffixes -ful & -less (write goals use `starts`/`ends`) | 90 | ✅ built |
 | 4 | Big Word Galaxy | long words & expression | 100 | coming soon |
 | 5 | Root Planet | roots & 4th-grade vocabulary | 110 | coming soon |
 | 6 | 4th-Grade Star | longer passages, main idea, inference | 120 | coming soon |

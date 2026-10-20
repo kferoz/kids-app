@@ -18,7 +18,7 @@
   --wash: #efecfb;
   /* categorical slots (fixed order) */
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
-  --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
+  --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948; --s9: #a0703f;
   /* sequential blue (heatmap) */
   --seq-1: #cde2fb; --seq-2: #9ec5f4; --seq-3: #6da7ec; --seq-4: #3987e5; --seq-5: #256abf; --seq-6: #104281;
   /* status (icon + label always accompany) */
@@ -32,7 +32,7 @@
     --grid: #2c2c2a; --base: #383835; --border: rgba(255, 255, 255, 0.10);
     --accent: #9a85f0; --accent-ink: #0d0d0d; --wash: #2a2540;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767; --s9: #c8955f;
     --seq-1: #13294a; --seq-2: #184f95; --seq-3: #1c5cab; --seq-4: #2a78d6; --seq-5: #5598e7; --seq-6: #9ec5f4;
     --good-text: #0ca30c;
   }
@@ -43,7 +43,7 @@
   --grid: #2c2c2a; --base: #383835; --border: rgba(255, 255, 255, 0.10);
   --accent: #9a85f0; --accent-ink: #0d0d0d; --wash: #2a2540;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767; --s9: #c8955f;
   --seq-1: #13294a; --seq-2: #184f95; --seq-3: #1c5cab; --seq-4: #2a78d6; --seq-5: #5598e7; --seq-6: #9ec5f4;
   --good-text: #0ca30c;
 }

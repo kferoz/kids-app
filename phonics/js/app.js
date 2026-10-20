@@ -206,7 +206,8 @@
   function letterGroups(word) {
     var w = word.toLowerCase().replace(/[^a-z]/g, ""), out = [], i = 0;
     while (i < w.length) {
-      if (w[i + 1] === w[i]) { out.push(w[i] + w[i]); i += 2; }
+      if (/^(sh|ch|th|ck)$/.test(w.substr(i, 2))) { out.push(w.substr(i, 2)); i += 2; }
+      else if (w[i + 1] === w[i]) { out.push(w[i] + w[i]); i += 2; }
       else { out.push(w[i]); i++; }
     }
     return out;
@@ -214,7 +215,7 @@
   function letterCard(word, vowel) {
     return letterGroups(word).map(function (g, i) {
       var shown = i === 0 && /^[A-Z]/.test(word) ? g.charAt(0).toUpperCase() + g.slice(1) : g;
-      return '<span class="lt' + (g.charAt(0) === vowel ? " v" : "") + '" data-g="' + i + '">' + esc(shown) + "</span>";
+      return '<span class="lt' + (g.charAt(0) === vowel ? " v" : "") + (DIGRAPHS[g] ? " team" : "") + '" data-g="' + i + '">' + esc(shown) + "</span>";
     }).join("");
   }
   // say each sound, lighting up its letters, then the whole word
@@ -227,7 +228,7 @@
       chain = chain.then(function (ok) {
         if (!ok) return false;
         light(i);
-        return speak(LETTER_SOUNDS[g.charAt(0)] || g, { rate: 0.75 }).then(function (still) { return still ? wait(120).then(function () { return true; }) : false; });
+        return speak(LETTER_SOUNDS[g] || LETTER_SOUNDS[g.charAt(0)] || g, { rate: 0.75 }).then(function (still) { return still ? wait(120).then(function () { return true; }) : false; });
       });
     });
     return chain.then(function (ok) {
@@ -256,13 +257,13 @@
     $("backBtn").hidden = screen === "home";
     document.body.dataset.screen = screen;
     window.scrollTo(0, 0);
-    ({ home: renderPath, shelf: renderShelf, phase: renderLetterPhase, lesson: renderLetterLesson, meet: renderMeet, lgame: renderLetterGame, lquiz: renderLetterQuiz, smeet: renderSightMeet, sgame: renderSightGame, sbuild: renderSightBuild, book: renderBook, warm: renderWarm, read: renderReader, quiz: renderQuiz, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
+    ({ home: renderPath, shelf: renderShelf, phase: renderLetterPhase, lesson: renderLetterLesson, meet: renderMeet, lgame: renderLetterGame, lquiz: renderLetterQuiz, smeet: renderSightMeet, sgame: renderSightGame, sbuild: renderSightBuild, dmeet: renderTeamMeet, dgame: renderTeamGame, book: renderBook, warm: renderWarm, read: renderReader, quiz: renderQuiz, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
   }
   function back() {
     var c = current;
     if (c.screen === "warm" || c.screen === "read" || c.screen === "quiz" || c.screen === "done") go("book", c.arg && c.arg.book || c.arg);
     else if (c.screen === "book") go("shelf");
-    else if (/^(meet|lgame|lquiz|smeet|sgame|sbuild|ldone)$/.test(c.screen)) go("lesson", c.arg && c.arg.lesson);
+    else if (/^(meet|lgame|lquiz|smeet|sgame|sbuild|dmeet|dgame|ldone)$/.test(c.screen)) go("lesson", c.arg && c.arg.lesson);
     else if (c.screen === "lesson") go("phase", phaseOfLesson(c.arg).id);
     else go("home");
   }
@@ -854,10 +855,15 @@
   function renderLetterPhase(pid) {
     var p = phaseById(pid || "k1");
     $("topTitle").textContent = "Step " + p.n + ": " + p.title;
-    var sight = p.lessons[0].kind === "sight";
-    view.innerHTML = echoRow(sight ? "Sight words are words we know by heart. Pick a group of words!" : "Every letter makes a sound. Pick a group of letters to learn!") +
+    var sight = p.lessons[0].kind === "sight", team = p.lessons[0].kind === "digraph";
+    view.innerHTML = echoRow(team ? "Some letters hold hands and make a brand new sound! Pick a sound team!" : sight ? "Sight words are words we know by heart. Pick a group of words!" : "Every letter makes a sound. Pick a group of letters to learn!") +
       '<div class="steps">' + p.lessons.map(function (l, i) {
         var r = lrec(l.id);
+        if (team) return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + '</span>' +
+          '<span class="step-ic">' + (r.done ? l.sticker.emoji : l.mix ? "🎲" : DIGRAPHS[l.teams[0]].e) + '</span>' +
+          '<span class="step-txt"><b class="letters-title">' + esc(l.title) + "</b>" +
+          '<span class="steps-mini"><i class="' + (r.meet ? "ok" : "") + '">👋</i><i class="' + (r.game ? "ok" : "") + '">🎮</i><i class="' + (r.quiz ? "ok" : "") + '">🧩</i></span></span>' +
+          '<span class="step-go">' + (r.done ? "✅" : "▶") + "</span></button>";
         if (sight) return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + '</span>' +
           '<span class="step-ic">' + (r.done ? l.sticker.emoji : "👀") + '</span>' +
           '<span class="step-txt"><b class="letters-title">' + esc(l.title) + "</b>" +
@@ -874,6 +880,7 @@
   }
   function renderLetterLesson(id) {
     if (lessonById(id).kind === "sight") return renderSightLesson(id);
+    if (lessonById(id).kind === "digraph") return renderTeamLesson(id);
     var l = letterLesson(id), r = lrec(id);
     $("topTitle").textContent = "Letters: " + l.title;
     view.innerHTML = '<div class="letter-strip">' + l.letters.map(function (x) { return '<span class="ls-chip">' + x + "</span>"; }).join("") + "</div>" +
@@ -1220,7 +1227,7 @@
     var end = X.s.slice(-1), words = X.s.slice(0, -1).split(" "), tiles = shuffle(words.map(function (w, i) { return { w: w, i: i }; }));
     var placed = [], tries = 0;
     $("topTitle").textContent = "Build a Sentence · " + (si + 1) + "/" + l.sentences.length;
-    view.innerHTML = echoRow("", "happy") + '<div class="game-box" style="' + SW_THEME + '">' +
+    view.innerHTML = echoRow("", "happy") + '<div class="game-box" style="' + (l.kind === "digraph" ? DG_THEME : SW_THEME) + '">' +
       '<div class="round-dots">' + l.sentences.map(function (_, k) { return '<i class="' + (k < si ? "done" : k === si ? "now" : "") + '"></i>'; }).join("") + "</div>" +
       '<p class="game-q"><span class="pic-big">' + X.e + '</span> <button class="mini-btn" id="again">🔊 Hear it</button></p>' +
       '<div class="sw-line" id="line"></div><div class="sw-bank">' + tiles.map(function (t, k) { return '<button class="choice word sw-tile" data-k="' + k + '">' + esc(t.w) + "</button>"; }).join("") + "</div>" +
@@ -1284,14 +1291,15 @@
     echo("Listen: " + X.s + " Now build it! Tap the words in order.", "happy");
   }
   function finishSightLesson(l, score, total) {
-    var r = lrec(l.id), wasDone = r.done;
+    var r = lrec(l.id), wasDone = r.done, team = l.kind === "digraph";
     r.quiz = true;
     current = { screen: "ldone", arg: { lesson: l.id } };
     if (!r.meet || !r.game) {
       saveLessons();
-      var need = !r.meet ? "smeet" : "sgame";
-      view.innerHTML = echoRow("Great building! Now finish the " + (need === "smeet" ? "Meet the Words" : "Word Game") + " step to win your sticker!", "happy") +
-        '<div class="celebrate"><button class="big-btn go" id="dGo">' + (need === "smeet" ? "👀 Meet the Words" : "🎮 Word Game") + "</button></div>";
+      var need = !r.meet ? (team ? "dmeet" : "smeet") : (team ? "dgame" : "sgame");
+      var label = { smeet: "👀 Meet the Words", sgame: "🎮 Word Game", dmeet: "👋 Meet the Sound", dgame: "🎮 Sound Game" }[need];
+      view.innerHTML = echoRow("Great building! Now finish the " + label.slice(3) + " step to win your sticker!", "happy") +
+        '<div class="celebrate"><button class="big-btn go" id="dGo">' + label + "</button></div>";
       echo($("echoSay").textContent, "happy");
       $("dGo").onclick = function () { go(need, { lesson: l.id }); };
       return;
@@ -1299,22 +1307,195 @@
     r.done = true; saveLessons();
     var newSticker = giveSticker("l:" + l.id);
     if (!wasDone) { giveTicket(); addPoints(10); }
-    if (window.Tracker) Tracker.complete("sightwords", score, total, { item: "Sight words " + l.title, firstTime: !wasDone });
-    var ls = phaseById("k3").lessons;
-    if (ls.every(function (x) { return lrec(x.id).done; })) trophy("sight-star");
+    if (window.Tracker) Tracker.complete(team ? "soundteams" : "sightwords", score, total, { item: (team ? "Sound team " : "Sight words ") + l.title, firstTime: !wasDone });
+    var ls = phaseOfLesson(l.id).lessons;
+    if (ls.every(function (x) { return lrec(x.id).done; })) trophy(team ? "team-champ" : "sight-star");
     hud(); sfx.fanfare(); confetti(90);
     var nextL = ls.filter(function (x) { return !lrec(x.id).done; })[0];
     view.innerHTML = echoRow("", "happy") +
       '<div class="celebrate"><div class="sticker-reveal' + (newSticker ? " new" : "") + '"><span>' + l.sticker.emoji + "</span></div>" +
-      "<h2>You know " + esc(l.words.join(", ")) + "!</h2>" +
+      "<h2>" + (team ? "You know the " + esc(l.title) + " sound!" : "You know " + esc(l.words.join(", ")) + "!") + "</h2>" +
       (wasDone ? "" : '<p class="done-loot">🎟️ +1 Prize Wheel ticket · ⭐ +10 bonus</p>') +
       '<div class="done-actions">' +
-        (nextL ? '<button class="big-btn go" id="dNext">👀 Next words: ' + esc(nextL.title) + "</button>" : '<button class="big-btn go" id="dBooks">📚 Read the story books</button>') +
+        (nextL ? '<button class="big-btn go" id="dNext">' + (team ? "🤫 Next sound: " : "👀 Next words: ") + esc(nextL.title) + "</button>" : '<button class="big-btn go" id="dBooks">📚 Read the story books</button>') +
         '<button class="big-btn alt" id="dHome">🗺️ All steps</button></div></div>';
     echo(newSticker ? "You did it! Here is your " + l.sticker.name + " sticker!" : "You know these words so well!", "happy");
     if ($("dNext")) $("dNext").onclick = function () { go("lesson", nextL.id); };
     if ($("dBooks")) $("dBooks").onclick = function () { go("shelf"); };
     $("dHome").onclick = function () { go("home"); };
+  }
+
+  /* ============================================================
+     PHASE 4 — Sh, Ch, Th: meet the sound team → sound game → build a sentence
+     (the sentence step reuses the sight-word builder above)
+     ============================================================ */
+  var DG_THEME = "--bk:#a5d8ff;--bk2:#1c7ed6";
+  function teamOf(w) { var m = w.match(/sh|ch|th/); return m ? m[0] : ""; }
+  function teamWordHtml(w) { return esc(w).replace(/sh|ch|th/, function (m) { return '<b class="dg-hi">' + m + "</b>"; }); }
+  function teamSay(t) { return t + " says " + DIGRAPHS[t].say + "! " + DIGRAPHS[t].how; }
+  function teamWords() {   // every sound-team word taught, for wrong-answer pictures
+    var all = [];
+    PHASES.forEach(function (p) { (p.lessons || []).forEach(function (l) { if (l.kind === "digraph") all = all.concat(l.words); }); });
+    return all;
+  }
+  function renderTeamLesson(id) {
+    var l = lessonById(id), r = lrec(id);
+    $("topTitle").textContent = "Sound Team: " + l.title;
+    view.innerHTML = '<div class="letter-strip">' + l.teams.map(function (x) { return '<span class="ls-chip dg">' + x + "</span>"; }).join("") + "</div>" +
+      echoRow(r.done ? "You're a sound team champ! Play again any time!" : r.meet ? "Let's play the sound game!" : l.mix ? "Time to mix up all three sound teams!" : "Two letters, ONE sound! Let's meet them!") +
+      '<div class="steps">' +
+        stepCard(1, "👋", "Meet the Sound", r.meet ? "Done! ✔" : "Hear it, say it, see the words", r.meet, "dmeet") +
+        stepCard(2, "🎮", "Sound Game", r.game ? "Done! ✔" : "Find the word, pick the sound team", r.game, "dgame") +
+        stepCard(3, "🧩", "Build a Sentence", r.quiz ? "Done! ✔" : "Put the words in order, then read it", r.quiz, "sbuild") +
+      "</div>";
+    view.querySelectorAll("[data-step]").forEach(function (el) { el.onclick = function () { sfx.pop(); go(el.dataset.step, { lesson: id }); }; });
+    echo($("echoSay").textContent, "happy");
+  }
+  function renderTeamMeet(arg) {
+    var l = lessonById(arg.lesson), heard = {};
+    $("topTitle").textContent = "Meet the Sound";
+    view.innerHTML = echoRow("") +
+      '<div class="dg-teams">' + l.teams.map(function (t) {
+        return '<button class="dg-team" data-t="' + t + '"><span class="dg-big"><i>' + t.charAt(0) + "</i><i>" + t.charAt(1) + '</i></span><span class="dg-e">' + DIGRAPHS[t].e + '</span><small>' + esc(DIGRAPHS[t].say) + "</small></button>";
+      }).join("") + "</div>" +
+      '<div class="meet-grid">' + l.words.map(function (x) {
+        return '<button class="meet-card dg-card" data-w="' + esc(x.w) + '"><span class="mc-pic">' + x.e + '</span><span class="mc-word dg-word">' + letterCard(x.w, "") + "</span></button>";
+      }).join("") + "</div>" +
+      '<div class="home-actions"><button class="big-btn go" id="meetDone">▶ Play the Sound Game</button></div>';
+    view.querySelectorAll(".dg-team").forEach(function (el) {
+      el.onclick = function () { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); speak(teamSay(el.dataset.t), { rate: 0.82 }); };
+    });
+    view.querySelectorAll(".dg-card").forEach(function (el) {
+      el.onclick = function () {
+        var w = el.dataset.w; heard[w] = true; el.classList.add("heard");
+        soundOut(w, el);
+        if (Object.keys(heard).length === l.words.length) pulse($("meetDone"));
+      };
+    });
+    $("meetDone").onclick = function () {
+      var r = lrec(l.id); if (!r.meet) { r.meet = true; saveLessons(); addPoints(3); }
+      go("dgame", { lesson: l.id });
+    };
+    var t0 = l.teams[0];
+    echo(l.mix ? "Sh, ch and th! Tap each team to hear it, then tap the pictures!" : "Look! " + t0.charAt(0) + " and " + t0.charAt(1) + " hold hands and say " + DIGRAPHS[t0].say + ". " + DIGRAPHS[t0].how + " Tap the pictures to sound them out!", "happy");
+  }
+  function renderTeamGame(arg) {
+    var l = lessonById(arg.lesson), useMic = !S.helper, round = 0, score = 0;
+    var plan = shuffle(l.words).slice(0, 6).map(function (x, i) {
+      var t = ["hear", "team", "say"][i % 3];
+      if (t === "say" && !useMic) t = "team";
+      return { x: x, t: t };
+    });
+    $("topTitle").textContent = "Sound Game";
+    function frame(inner, msg, mood) {
+      view.innerHTML = echoRow(msg, mood) + '<div class="game-box" style="' + DG_THEME + '">' +
+        '<div class="round-dots">' + plan.map(function (_, i) { return '<i class="' + (i < round - 1 ? "done" : i === round - 1 ? "now" : "") + '"></i>'; }).join("") + "</div>" + inner + "</div>";
+    }
+    function next() {
+      if (round >= plan.length) return finish();
+      var r = plan[round++];
+      if (r.t === "say") sayRound(r.x); else if (r.t === "team") teamRound(r.x); else hearRound(r.x);
+    }
+    function right(msg) {
+      sfx.ding(); confetti(14);
+      echo(pick(PRAISE.right) + " " + msg, "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
+    }
+    // hear a word → tap its picture (wrong answers use a DIFFERENT sound team when possible)
+    function hearRound(x) {
+      var tries = 0, t = teamOf(x.w);
+      var pool = teamWords().filter(function (y) { return y.w !== x.w && teamOf(y.w) !== t; });
+      if (pool.length < 2) pool = l.words.filter(function (y) { return y.w !== x.w; });
+      var opts = shuffle([x].concat(shuffle(pool).slice(0, 2)));
+      frame('<p class="game-q">Tap the word you hear <button class="mini-btn" id="again">🔊</button></p><div class="choice-row">' +
+        opts.map(function (o) { return '<button class="choice pic-choice" data-w="' + esc(o.w) + '"><span class="qe">' + o.e + '</span><span class="qt">' + teamWordHtml(o.w) + "</span></button>"; }).join("") + "</div>", "Tap the word: " + x.w, "happy");
+      speak("Find the word: " + x.w);
+      $("again").onclick = function () { speak(x.w, { rate: 0.75 }); };
+      view.querySelectorAll(".pic-choice").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.w === x.w) {
+            el.classList.add("right"); view.querySelectorAll(".pic-choice").forEach(function (b) { b.disabled = true; });
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Sound teams", { word: x.w });
+            right(x.w + "! " + t + " says " + DIGRAPHS[t].say + ".");
+          } else {
+            tries++; el.classList.add("nope"); sfx.boop();
+            echo(pick(PRAISE.oops) + " That's " + el.dataset.w + ". Listen: " + x.w + ".", "happy");
+          }
+        };
+      });
+    }
+    // see a picture + the word with a gap → pick sh, ch or th
+    function teamRound(x) {
+      var tries = 0, t = teamOf(x.w), gap = esc(x.w).replace(t, '<span class="sw-blank dg-gap">?</span>');
+      frame('<p class="game-q">Which sound team is missing? <button class="mini-btn" id="again">🔊</button></p>' +
+        '<div class="say-word pic-say"><span class="pic-big">' + x.e + "</span><span>" + gap + "</span></div>" +
+        '<div class="choice-row">' + shuffle(["sh", "ch", "th"]).map(function (c) { return '<button class="choice word dg-pick" data-c="' + c + '">' + c + "</button>"; }).join("") + "</div>",
+        "What do you hear in " + x.w + "?", "happy");
+      speak("Listen: " + x.w + ". Do you hear sh, ch, or th?");
+      $("again").onclick = function () { speak(x.w, { rate: 0.7 }); };
+      view.querySelectorAll(".dg-pick").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.c === t) {
+            el.classList.add("right"); view.querySelectorAll(".dg-pick").forEach(function (b) { b.disabled = true; });
+            var g = view.querySelector(".dg-gap"); if (g) { g.textContent = t; g.classList.add("filled"); }
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Sound teams", { word: x.w, team: t });
+            right(t + "! " + x.w + "!");
+          } else {
+            tries++; el.classList.add("nope"); sfx.boop();
+            var c = el.dataset.c;
+            echo("Hmm, " + c + " says " + DIGRAPHS[c].say + ". " + (tries >= 2 ? DIGRAPHS[t].how : "Listen again: " + x.w + "."), "happy");
+          }
+        };
+      });
+    }
+    function sayRound(x) {
+      var tries = 0;
+      frame('<p class="game-q">Read this word to Echo!</p><div class="say-word pic-say" id="sayWord"><span class="pic-big">' + x.e + "</span><span>" + letterCard(x.w, "") + "</span></div>" +
+        '<div class="say-row"><button class="mic-btn" id="sayMic"><span>🎤</span></button><button class="mini-btn" id="hearIt">🔊 Help me</button></div>', "Tap the microphone and read the word!", "listen");
+      speak("Tap the microphone and read the word!");
+      $("hearIt").onclick = function () { soundOut(x.w, $("sayWord")); };
+      $("sayMic").onclick = function () {
+        var btn = $("sayMic"); if (btn.classList.contains("live")) return;
+        hush(); sfx.mic(); btn.classList.add("live");
+        setTimeout(function () {
+          listen({ target: Listener.tokens(x.w), single: true,
+            onDone: function (res) {
+              btn.classList.remove("live");
+              if (!document.body.contains(btn)) return;
+              if (res.hits[0]) {
+                $("sayWord").classList.add("right"); score++; addPoints(tries ? 2 : 3);
+                if (window.Tracker) Tracker.answer(!tries, "Sound teams", { word: x.w, said: true });
+                right(x.w + "!");
+              } else if (++tries >= 2) {
+                if (window.Tracker) Tracker.answer(false, "Sound teams", { word: x.w, said: true });
+                echo("Good try! It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+              } else {
+                echo(res.heardAny ? "So close! Let's sound it out together." : "I couldn't hear you. Say it nice and loud!", "happy")
+                  .then(onNav(function () { return res.heardAny ? soundOut(x.w, $("sayWord")) : null; }));
+              }
+            },
+            onError: function (code) { btn.classList.remove("live"); useMic = false; micTrouble(code, true); setTimeout(onNav(next), 2500); }
+          });
+        }, 200);
+      };
+    }
+    function finish() {
+      var r = lrec(l.id), first = !r.game;
+      r.game = true; saveLessons();
+      if (first) addPoints(5);
+      if (window.Tracker) Tracker.complete("teamgame", score, plan.length, { item: "Sound team " + l.title });
+      sfx.fanfare(); confetti(50);
+      current = { screen: "ldone", arg: { lesson: l.id } };
+      var t0 = l.mix ? "sh" : l.teams[0];
+      view.innerHTML = echoRow(score + " of " + plan.length + "! " + DIGRAPHS[t0].joke + " Now let's build some sentences!", "happy") +
+        '<div class="celebrate"><div class="big-emoji">' + DIGRAPHS[t0].e + '✨</div><h2>' + score + " of " + plan.length + " right!</h2>" +
+        '<button class="big-btn go" id="toBuild">🧩 Build a Sentence</button><button class="big-btn alt" id="toLesson">⬅ Back</button></div>';
+      echo($("echoSay").textContent, "happy");
+      $("toBuild").onclick = function () { go("sbuild", { lesson: l.id }); };
+      $("toLesson").onclick = function () { go("lesson", l.id); };
+    }
+    next();
   }
 
   /* ---------------- sticker book & trophies ---------------- */
@@ -1337,9 +1518,14 @@
       var got = S.stickers.indexOf("l:" + l.id) >= 0;
       return '<div class="stk' + (got ? " got" : "") + '" style="--bk:#d0bfff"><span class="se">' + (got ? l.sticker.emoji : "❔") + "</span><small>" + (got ? esc(l.sticker.name) : esc(l.title)) + "</small></div>";
     }).join("");
+    var teamS = phaseById("k4").lessons.map(function (l) {
+      var got = S.stickers.indexOf("l:" + l.id) >= 0;
+      return '<div class="stk' + (got ? " got" : "") + '" style="--bk:#a5d8ff"><span class="se">' + (got ? l.sticker.emoji : "❔") + "</span><small>" + (got ? esc(l.sticker.name) : esc(l.title)) + "</small></div>";
+    }).join("");
     view.innerHTML = echoRow("Look at all your stickers! Read pages perfectly to win more!", "happy") +
       '<section class="album"><h3>🔤 Letter Stickers</h3><div class="stk-grid">' + letterS + "</div></section>" +
       '<section class="album"><h3>👀 Sight Word Stickers</h3><div class="stk-grid">' + sightS + "</div></section>" +
+      '<section class="album"><h3>🤫 Sound Team Stickers</h3><div class="stk-grid">' + teamS + "</div></section>" +
       '<section class="album"><h3>📚 Book Stickers</h3><div class="stk-grid">' + bookS + "</div></section>" +
       '<section class="album"><h3>🌟 Perfect-Reading Stickers <small>(' + (nextFunSticker() ? toNext + " more perfect page" + (toNext > 1 ? "s" : "") + " for the next one" : "all collected!") + ")</small></h3><div class=\"stk-grid\">" + funS + "</div></section>";
     echo($("echoSay").textContent, "happy");

@@ -16,7 +16,7 @@ the start; each later step opens when the one before it is finished.
 | 1 | Letter Sounds | 4 lessons (s a t p i n · m d g o c k · e u r h b f · l j v w x y z q): 👋 Meet the Letters → 🎮 Sound Game (hear a sound → tap the letter, picture → first letter, say the word to Echo) → 🖼️ Picture Quiz | ✅ built |
 | 2 | Story Books | the five books below | ✅ built |
 | 3 | Sight Words | 4 lessons of 5 words (I a the see is · and my like go to · we can you look up · said here play come me): 👀 Meet the Words (hear it, spell it, see it in a sentence) → 🎮 Word Game (tap the word you hear, read it to Echo, find the missing word) → 🧩 Build a Sentence (tap word tiles in order, then read the sentence to Echo), the first step toward writing | ✅ built |
-| 4 | Sh, Ch, Th | | coming soon |
+| 4 | Sh, Ch, Th | 4 lessons (sh · ch · th · mixed): 👋 Meet the Sound (two letters, one sound; tap pictures to sound them out with the team as ONE sound) → 🎮 Sound Game (tap the word you hear, pick the missing sh/ch/th, read a word to Echo) → 🧩 Build a Sentence. Opens after Step 3 | ✅ built |
 | 5 | Blends | | coming soon |
 | 6 | Magic e | | coming soon |
 

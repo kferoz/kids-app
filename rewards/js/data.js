@@ -20,6 +20,8 @@ const REWARD_APPS = [
   { id: "writestudio",name: "Sentence Studio",    emoji: "✏️", url: "../writestudio/index.html", cur: "ws_points", curIcon: "⭐", troph: "ws_trophies" },
   { id: "speedway", name: "Learning Speedway",    emoji: "🏎️", url: "../speedway/index.html", cur: "sw_points", curIcon: "⭐", troph: "sw_trophies" },
   { id: "grandprix",name: "Turbo Grand Prix",     emoji: "🏁", url: "../grandprix/index.html", cur: "gp_points", curIcon: "🏅", troph: "gp_trophies" },
+  { id: "tracewrite",name: "Write & Trace",      emoji: "🖍️", url: "../tracewrite/index.html", cur: "tw_points", curIcon: "⭐", troph: "tw_trophies" },
+  { id: "arabic",   name: "Arabic Oasis",         emoji: "🐪", url: "../arabic/index.html", cur: "ar_points", curIcon: "⭐", troph: "ar_trophies" },
   { id: "phonics",  name: "Phonics Pals",         emoji: "🦜", url: "../phonics/index.html", cur: "ph_points", curIcon: "⭐", troph: "ph_trophies" },
   { id: "clueisland",name: "Clue Island",         emoji: "🧭", url: "../clueisland/index.html", cur: "ci_gems", curIcon: "💎", troph: "ci_trophies" }
 ];
