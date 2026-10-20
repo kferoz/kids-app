@@ -1,3 +1,20 @@
+## FINDING — Tooling gotchas on this Windows box · 2026-10-19
+- Git Bash heredocs mangle backslash escapes (e.g. `\n`) in inline Python; write Python to a scratch file instead.
+- `python -m http.server` responses get cached; refresh with `fetch(url, {cache:'reload'})` before reloading.
+- Driven Chrome window reports `visibilityState: hidden`: time-on-task barely accrues and screenshots time out intermittently.
+- CDP `type` into inputs may not land while hidden; set `.value` via JS and click submit instead.
+- Claude-in-Chrome cannot open `file://` URLs; IndexedDB under file:// stays untested by automation.
+- Python `open(p,"w")` on Windows writes CRLF; pass `newline=""` or LF files become whole-file git diffs.
+- Line-ending-only changes alter the APK content hash: rebuild before committing, or the Stop hook bumps the version.
+
+## FINDING — Headless verification without Claude-in-Chrome · 2026-10-19
+- Edge `--headless --dump-dom` silently outputs nothing here; use `playwright-core` with `executablePath` to msedge.exe.
+- Install playwright-core in the scratchpad, not the project; no browser download needed.
+- Lone 404 in console with no failing page response = auto `favicon.ico` request; harmless.
+- Stub `speechSynthesis.speak` to fire `onend` at once; muted app speech still waits up to 2.5 s per line.
+- Fake `SpeechRecognition` + `webkitSpeechRecognition` emitting `window.__said` as one final result drives mic flows.
+- `evaluateOnNewDocument` seeds rerun on every reload: open a new page to keep seeded localStorage.
+
 ## FEATURE — Writing: Sentence Studio (G3) + Write It + Phase 2 of both reading paths · 2026-10-19
 - `writecheck.js` + `writepad.js` + `css/writepad.css` exist as identical copies in `writestudio/` and `readrocket/`. Apps stay standalone, so edit one copy and `cp` it to the other.
 - The writing box turns off spellcheck, autocorrect and auto-capitalize. Otherwise the phone keyboard fixes capitals and spelling before the checker can teach them.
@@ -70,11 +87,6 @@
 - `#science` hash opens the section; Hub "Science Prep" tile uses `data-app="readingadventures"` so tracking aggregates there.
 - Science progress key `readingAdventuresScience_v1`; `test.best` is a percentage, not a question count.
 
-## FINDING — Headless verification without Claude-in-Chrome · 2026-10-13
-- Edge `--headless --dump-dom` silently outputs nothing here; use `playwright-core` with `executablePath` to msedge.exe.
-- Install playwright-core in the scratchpad, not the project; no browser download needed.
-- Lone 404 in console with no failing page response = auto `favicon.ico` request; harmless.
-
 ## FEATURE — Activity database + tracker in every app · 2026-10-09
 - `js/activitydb.js`: IndexedDB `KidsLearningHub` v1; stores `events` (indexes ts/kid/app/type/[kid,ts]), `students`, `meta`.
 - IndexedDB chosen over SQLite/Mongo: no server, offline, keeps "open index.html" working.
@@ -95,13 +107,6 @@
 - Each app is `a.tile` with `--c1/--c2` gradient; Adventure Pack tiles filter by `data-grades="kg g3"`.
 - Hidden `.tile-tip` bubbles widened phones' scrollWidth; now `display:none` unless `(hover: hover)`.
 - `.kid-text` is a flex column — wrap inline greeting text in one span or each node becomes a line.
-
-## FINDING — Tooling gotchas on this Windows box · 2026-10-09
-- Git Bash heredocs mangle backslash escapes (e.g. `\n`) in inline Python; write Python to a scratch file instead.
-- `python -m http.server` responses get cached; refresh with `fetch(url, {cache:'reload'})` before reloading.
-- Driven Chrome window reports `visibilityState: hidden`: time-on-task barely accrues and screenshots time out intermittently.
-- CDP `type` into inputs may not land while hidden; set `.value` via JS and click submit instead.
-- Claude-in-Chrome cannot open `file://` URLs; IndexedDB under file:// stays untested by automation.
 
 ## FEATURE — Adventure Pack (imported kids-learning-apps.zip) · 2026-10-08
 - `adventurepack/` holds readingadventures (KG+G3), piratemath, subtraction, billofrights; original looks kept.
