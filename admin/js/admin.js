@@ -24,18 +24,19 @@
     { id: "speedway", name: "Learning Speedway", emoji: "🏎️", grades: ["kg"], subject: "Math & English",
       progress: function (r) { var d = Object.keys(r.obj("sw_stars")).length; return { done: d, total: 16, label: d + " of 16 roads · " + r.arr("sw_cars").length + " cars" }; } },
     { id: "phonics", name: "Phonics Pals", emoji: "🦜", grades: ["kg"], subject: "Reading",
-      // Step 1 = 4 letter lessons (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
+      // Step 1 = 4 letter lessons + Step 3 = 4 sight-word lessons (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
       progress: function (r) { var b = r.obj("ph_books"), d = Object.keys(b).filter(function (k) { return b[k] && b[k].done; }).length;
-        var l = r.obj("ph_lessons"), ld = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length;
-        return { done: d + ld, total: 9, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
+        var l = r.obj("ph_lessons"), ld = Object.keys(l).filter(function (k) { return /^ls/.test(k) && l[k] && l[k].done; }).length;
+        var sd = Object.keys(l).filter(function (k) { return /^sw/.test(k) && l[k] && l[k].done; }).length;
+        return { done: d + ld + sd, total: 13, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
       progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[kid.grade + "-math"] || []).length, e = (d[kid.grade + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
     { id: "funfacts", name: "Fun Facts Explorer", emoji: "🔍", grades: ["kg", "g3"], subject: "Discovery",
       progress: function (r) { return { label: r.num("ff_stars") + " ⭐ · " + r.arr("ff_trophies").length + " trophies" }; } },
-    { id: "grammar", name: "Grammar Galaxy", emoji: "🪐", grades: ["g3"], subject: "Grammar",
+    { id: "grammar", name: "Grammar Galaxy", emoji: "🪐", grades: ["g3"], subject: "Grammar & Writing",
       progress: function (r) { return { label: r.num("gg_stars") + " ⭐ · " + r.arr("gg_trophies").length + " trophies" }; } },
-    { id: "treasure", name: "Grammar Treasure Hunt", emoji: "🗺️", grades: ["g3"], subject: "Grammar",
+    { id: "treasure", name: "Grammar Treasure Hunt", emoji: "🗺️", grades: ["g3"], subject: "Grammar & Writing",
       progress: function (r) { var d = r.arr("th_trophies").filter(function (x) { return /^map:/.test(x); }).length; return { done: d, total: 5, label: d + " of 5 maps · " + r.num("th_coins") + " 🪙" }; } },
     { id: "reading", name: "Reading Trail", emoji: "🦉", grades: ["g3"], subject: "Reading",
       progress: function (r) { var d = r.arr("rd_done").length; return { done: d, total: 10, label: d + " of 10 stages" }; } },
@@ -48,7 +49,11 @@
     { id: "readrocket", name: "Read-Aloud Rocket", emoji: "🚀", grades: ["g3"], subject: "Reading",
       progress: function (r) { var l = r.obj("rr_lessons"), c = r.obj("rr_checks"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length;
         var ph = Object.keys(c).filter(function (k) { return c[k] && c[k].passed; }).length, best = r.num("rr_bestWcpm");
-        return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") }; } },
+        var wr = r.arr("rr_writing").length;
+        return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") + (wr ? " · " + wr + " written answers" : "") }; } },
+    { id: "writestudio", name: "Sentence Studio", emoji: "✏️", grades: ["g3"], subject: "Grammar & Writing",
+      progress: function (r) { var l = r.obj("ws_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length, j = r.arr("ws_journal").length;
+        return { done: d, total: 10, label: d + " of 10 writing lessons · " + j + " pieces in the Writing Book · " + r.num("ws_selfFix") + " self-fixes" }; } },
     { id: "detectives", name: "Reading Detectives", emoji: "🦝", grades: ["g3"], subject: "Reading",
       progress: function (r) { var d = r.num("rc_solved"); return { done: d, total: 15, label: d + " of 15 cases solved" }; } },
     { id: "readingadventures", name: "Reading Adventures", emoji: "📖", grades: ["kg", "g3"], subject: "Reading",
@@ -70,7 +75,7 @@
   function appById(id) { for (var i = 0; i < APPS.length; i++) if (APPS[i].id === id) return APPS[i]; return { id: id, name: id, emoji: "📦", subject: "Other", grades: [] }; }
 
   // Categorical slots, assigned in a FIXED order to subjects (colour follows the entity).
-  var SUBJECTS = ["Reading", "Math", "Grammar", "Math & English", "Early Skills", "Discovery", "Games", "History"];
+  var SUBJECTS = ["Reading", "Math", "Grammar & Writing", "Math & English", "Early Skills", "Discovery", "Games", "History"];
   function subjectColor(s) { var i = SUBJECTS.indexOf(s); return i < 0 ? "var(--ink-muted)" : "var(--s" + (i + 1) + ")"; }
 
   /* ---------- state ---------- */

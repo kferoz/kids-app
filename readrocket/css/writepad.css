@@ -1,0 +1,63 @@
+/* ============================================================
+   WritePad — writing box styles (same file in readrocket/css and
+   writestudio/css; keep both copies in sync)
+   ============================================================ */
+.wp { display: grid; gap: 12px; max-width: 780px; margin: 0 auto; text-align: left; }
+.wp-prompt { display: flex; align-items: center; gap: 12px; background: #fff; border: 3px solid var(--ink); border-left: 12px solid var(--bk2, #1c7ed6); border-radius: 18px; padding: 10px 14px; box-shadow: 0 4px 0 var(--ink); }
+.wp-emo { font-size: 42px; flex: none; }
+.wp-prompt p { flex: 1; margin: 0; font-size: clamp(19px, 2.6vw, 23px); font-weight: 500; line-height: 1.3; }
+.wp-show { background: #fff5f5; border: 3px dashed #fa5252; border-radius: 16px; padding: 10px 14px; }
+.wp-show small { display: block; color: #c92a2a; font-weight: 600; font-size: 15px; }
+.wp-show b { font-family: "Andika", sans-serif; font-size: clamp(22px, 3vw, 28px); letter-spacing: .02em; }
+.wp-bank { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wp-bank small { width: 100%; color: var(--ink-soft); font-weight: 600; }
+.wp-chip { background: #fff9db; border: 2px solid #fab005; border-radius: 99px; padding: 4px 12px; font-family: "Andika", sans-serif; font-size: 18px; box-shadow: 0 2px 0 #e8a400; }
+.wp-chip:active { transform: translateY(2px); box-shadow: none; }
+.wp-text {
+  width: 100%; resize: vertical; min-height: 110px;
+  font-family: "Andika", sans-serif; font-size: clamp(22px, 3vw, 28px); line-height: 1.6; color: var(--ink);
+  border: 4px solid var(--ink); border-radius: 18px; padding: 10px 16px;
+  /* notebook paper */
+  background-color: #fffef6;
+  background-image: linear-gradient(transparent calc(1.6em - 2px), #c5d8ff calc(1.6em - 2px), #c5d8ff 1.6em);
+  background-size: 100% 1.6em; background-attachment: local; background-position: 0 10px;
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, .05);
+}
+.wp-text:focus { outline: 4px solid var(--sky, #4dabf7); outline-offset: 2px; }
+.wp-count { display: flex; justify-content: space-between; color: var(--ink-soft); font-weight: 600; font-size: 15px; margin-top: -6px; padding: 0 6px; }
+.wp-count.met .wp-goal { color: #2f9e44; }
+.wp-count.met .wp-goal::after { content: " ✔"; }
+.wp-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.wp-tools .wp-check { margin-left: auto; }
+.wp-say.live { background: #ffe3e3; border-color: #fa5252; animation: pulse 1s infinite; }
+.wp-said, .wp-model { background: #f3f0ff; border: 2px solid #9775fa; border-radius: 16px; padding: 10px 14px; font-size: 18px; }
+.wp-model { background: #fff9db; border-color: #fab005; }
+.wp-said small, .wp-model small { display: block; color: var(--ink-soft); margin-top: 4px; font-size: 15px; }
+.wp-fb { background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 12px 16px; box-shadow: 0 4px 0 var(--ink); animation: pop .35s; }
+.wp-fb.stale { opacity: .55; }
+.wp-fb p { margin: 6px 0; font-size: 18px; }
+.wp-star { color: #2b8a3e; }
+.wp-lead { font-weight: 600; }
+.wp-wish { background: #f3f0ff; border-radius: 12px; padding: 6px 10px; }
+.wp-wish small { color: var(--ink-soft); }
+.wp-issue { display: flex; align-items: center; gap: 10px; justify-content: space-between; background: #fff4e6; border: 2px solid #ff922b; border-radius: 12px; padding: 8px 12px; margin: 6px 0; font-size: 18px; }
+.wp-issue small { display: block; color: var(--ink-soft); font-size: 15px; }
+.wp-issue.fixed { background: #ebfbee; border-color: #40c057; }
+.wp-issue .mini-btn { flex: none; }
+.wp-more-note { color: var(--ink-soft); font-size: 15px !important; }
+.wp-win { display: flex; align-items: center; gap: 12px; font-size: 22px; font-family: "Baloo 2", cursive; }
+.wp-stars { color: #fab005; font-size: 34px; letter-spacing: 2px; text-shadow: 0 2px 0 rgba(0, 0, 0, .12); }
+.wp-stars i { color: #dee2e6; font-style: normal; }
+.wp-done-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
+
+/* Silly Sentence Machine */
+.wp-spin { display: grid; gap: 8px; justify-items: center; background: linear-gradient(135deg, #fff0f6, #e7f5ff); border: 3px solid var(--ink); border-radius: 18px; padding: 12px; }
+.reels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+.reel { display: grid; place-items: center; min-height: 64px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 6px; font-weight: 600; font-size: 17px; line-height: 1.15; }
+.reel.rolling { background: #fff9db; animation: jiggle .15s infinite; }
+
+@media (max-width: 520px) {
+  .wp-emo { font-size: 32px; }
+  .wp-tools .wp-check { margin-left: 0; width: 100%; }
+  .reel { font-size: 14px; min-height: 56px; }
+}

@@ -59,7 +59,31 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--sky); outline-o
   border-radius: 14px; background: rgba(255, 255, 255, .25); color: #fff;
   font-size: 24px; text-decoration: none;
 }
-.icon-btn[hidden] { display: none; }
+.icon-btn/* Step 3: Sight Words */
+.ls-chip.sw { width: auto; padding: 0 14px; font-size: 30px; box-shadow: 0 4px 0 #7048e8; }
+.sw-card { gap: 6px; padding: 14px 10px; }
+.sw-card.heard { background: #f3f0ff; box-shadow: 0 5px 0 #7048e8; }
+.sw-word { font-family: "Andika", sans-serif; font-weight: 700; font-size: 54px; line-height: 1.05; color: #5f3dc4; }
+.sw-ex { font-family: "Andika", sans-serif; font-size: 19px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+.sw-emo { font-size: 30px; }
+.sw-hi { color: #5f3dc4; background: #e5dbff; border-radius: 6px; padding: 0 4px; }
+.sw-fill { display: inline-flex; align-items: center; gap: 10px; font-family: "Andika", sans-serif; font-size: clamp(30px, 6vw, 46px); background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 6px 18px; margin-bottom: 12px; }
+.sw-fill .sw-emo { font-size: 1.3em; }
+.sw-blank { display: inline-block; min-width: 70px; border-bottom: 5px solid #7048e8; color: #ced4da; text-align: center; }
+.sw-blank.filled { color: #5f3dc4; border-color: transparent; animation: pop .35s; }
+.say-word.sw-say { font-family: "Andika", sans-serif; color: #5f3dc4; }
+.sw-line { min-height: 80px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; background: #fffdf5; border: 3px dashed #9775fa; border-radius: 18px; padding: 10px; margin: 0 auto 14px; max-width: 760px; }
+.sw-line.right { border: 3px solid #40c057; background: #ebfbee; }
+.sw-line.shake { animation: shake .4s; }
+.sw-ph { color: #adb5bd; font-size: 22px; }
+.sw-placed { font-family: "Andika", sans-serif; font-weight: 700; font-size: clamp(30px, 6vw, 44px); background: #f3f0ff; border: 3px solid var(--ink); border-radius: 14px; padding: 2px 14px; }
+.sw-placed.end { background: #ffe3e3; }
+.sw-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.choice.word.sw-tile { font-size: clamp(30px, 6vw, 44px); min-width: 90px; }
+.choice.word.sw-tile:disabled { opacity: .25; }
+.sw-bank + .say-row { margin-top: 14px; }
+
+[hidden] { display: none; }
 .pills { display: flex; gap: 6px; flex: none; }
 .pill {
   background: rgba(255, 255, 255, .92); color: var(--ink);

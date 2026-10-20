@@ -8,14 +8,14 @@ Open `index.html` (or the 🦜 tile in the Hub's Kindergarten section).
 
 ## Steps (phases)
 
-The home screen is a path of steps (`PHASES` in `js/data.js`). Steps 1 and 2 are open from
+The home screen is a path of steps (`PHASES` in `js/data.js`). Steps 1–3 are open from
 the start; each later step opens when the one before it is finished.
 
 | Step | Name | What | Status |
 |---|---|---|---|
 | 1 | Letter Sounds | 4 lessons (s a t p i n · m d g o c k · e u r h b f · l j v w x y z q): 👋 Meet the Letters → 🎮 Sound Game (hear a sound → tap the letter, picture → first letter, say the word to Echo) → 🖼️ Picture Quiz | ✅ built |
 | 2 | Story Books | the five books below | ✅ built |
-| 3 | Sight Words | | coming soon |
+| 3 | Sight Words | 4 lessons of 5 words (I a the see is · and my like go to · we can you look up · said here play come me): 👀 Meet the Words (hear it, spell it, see it in a sentence) → 🎮 Word Game (tap the word you hear, read it to Echo, find the missing word) → 🧩 Build a Sentence (tap word tiles in order, then read the sentence to Echo), the first step toward writing | ✅ built |
 | 4 | Sh, Ch, Th | | coming soon |
 | 5 | Blends | | coming soon |
 | 6 | Magic e | | coming soon |
@@ -23,7 +23,9 @@ the start; each later step opens when the one before it is finished.
 Letter lessons are saved in `ph_lessons` and win `l:<id>` stickers plus the 🔠 *Letter Pro*
 trophy. Letters that share a sound (c and k) are never offered together. *x* uses an
 end-of-word picture (box), and *q* is spoken as “kwuh”. Book ids are unchanged, so book
-progress (`ph_books`) carries over.
+progress (`ph_books`) carries over. Sight-word lessons are saved in `ph_lessons` too
+(ids `sw1`–`sw4`); `ph_built` counts built sentences (🧩 *Sentence Builder* trophy at 6),
+and 👀 *Sight Word Star* is for finishing all four.
 
 ## The five books
 

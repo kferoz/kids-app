@@ -289,7 +289,9 @@ const PH_TROPHIES = [
   { id: "perfect-10", icon: "💯", name: "Perfect Ten", desc: "Read 10 pages perfectly" },
   { id: "sound-star", icon: "🔤", name: "Sound Star", desc: "Finish 3 Sound Warm-ups" },
   { id: "all-books", icon: "👑", name: "Super Reader", desc: "Finish all 5 books" },
-  { id: "letter-pro", icon: "🔠", name: "Letter Pro", desc: "Finish all 4 Letter Sounds lessons" }
+  { id: "letter-pro", icon: "🔠", name: "Letter Pro", desc: "Finish all 4 Letter Sounds lessons" },
+  { id: "sight-star", icon: "👀", name: "Sight Word Star", desc: "Finish all 4 Sight Words lessons" },
+  { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" }
 ];
 
 /* ============================================================
@@ -298,9 +300,12 @@ const PH_TROPHIES = [
    Phase 1 Letter Sounds  → letter lessons below (kind "letters")
    Phase 2 Story Books    → the 5 BOOKS above (ids unchanged, so
                             saved progress in ph_books is kept)
-   Phases 3–6             → no lessons yet = "coming soon"
-   A phase opens when the one before it is finished; phases 1 and 2
-   are both open from the start.
+   Phase 3 Sight Words    → sight-word lessons (kind "sight"): meet the
+                            words, a word game, then build sentences
+                            from word tiles (first writing practice)
+   Phases 4–6             → no lessons yet = "coming soon"
+   A phase opens when the one before it is finished; phases 1–3 are
+   open from the start.
    ============================================================ */
 const LETTER_PICS = {
   s: { w: "sun", e: "🌞" }, a: { w: "apple", e: "🍎" }, t: { w: "turtle", e: "🐢" }, p: { w: "pig", e: "🐷" },
@@ -322,7 +327,21 @@ const PHASES = [
     ] },
   { id: "k2", n: 2, title: "Story Books", sub: "Short vowel stories to read to Echo", emoji: "📚", color: "#b2f2bb", accent: "#2f9e44",
     books: ["al", "tim", "sam", "pip", "jet"] },
-  { id: "k3", n: 3, title: "Sight Words", sub: "Words to know by heart: the, is, said, you", emoji: "👀", color: "#d0bfff", accent: "#7048e8" },
+  { id: "k3", n: 3, title: "Sight Words", sub: "Words to know by heart: the, is, said, you", emoji: "👀", color: "#d0bfff", accent: "#7048e8",
+    lessons: [
+      { id: "sw1", kind: "sight", title: "I · a · the · see · is", words: ["I", "a", "the", "see", "is"],
+        sentences: [{ s: "I see a cat.", e: "🐱" }, { s: "The sun is hot.", e: "🌞" }, { s: "I see the bus.", e: "🚌" }],
+        sticker: { emoji: "👀", name: "Super Spotter" } },
+      { id: "sw2", kind: "sight", title: "and · my · like · go · to", words: ["and", "my", "like", "go", "to"],
+        sentences: [{ s: "I like my dog.", e: "🐶" }, { s: "Mom and Dad sit.", e: "🛋️" }, { s: "I go to bed.", e: "🛏️" }],
+        sticker: { emoji: "🐶", name: "Puppy Pal" } },
+      { id: "sw3", kind: "sight", title: "we · can · you · look · up", words: ["we", "can", "you", "look", "up"],
+        sentences: [{ s: "We can run.", e: "🏃" }, { s: "Can you hop?", e: "🐸" }, { s: "Look up at the jet!", e: "✈️" }],
+        sticker: { emoji: "🐸", name: "Hoppy Frog" } },
+      { id: "sw4", kind: "sight", title: "said · here · play · come · me", words: ["said", "here", "play", "come", "me"],
+        sentences: [{ s: "Come and play.", e: "🤸" }, { s: "Here is my hat.", e: "🎩" }, { s: "Dad said hi to me.", e: "👋" }],
+        sticker: { emoji: "🎈", name: "Play Day Balloon" } }
+    ] },
   { id: "k4", n: 4, title: "Sh, Ch, Th", sub: "Two letters that make one sound", emoji: "🤫", color: "#a5d8ff", accent: "#1c7ed6" },
   { id: "k5", n: 5, title: "Blends", sub: "Sounds that slide together: st, fl, gr", emoji: "🌊", color: "#ffc9c9", accent: "#e03131" },
   { id: "k6", n: 6, title: "Magic e", sub: "cake, bike, home: the e makes the vowel say its name", emoji: "✨", color: "#fff3bf", accent: "#f59f00" }

@@ -15,7 +15,7 @@ Open `index.html`, or tap the 🚀 tile in the Hub's Elementary section (3rd gra
 | Phase | Name | Skill | Speed goal | Status |
 |---|---|---|---|---|
 | 1 | Launch Pad | short & long vowel review | 70 wpm | ✅ built |
-| 2 | Vowel Team Orbit | vowel teams & bossy R | 80 | coming soon |
+| 2 | Vowel Team Orbit | vowel teams (ai/ay, ee/ea, oa/ow) & bossy R | 80 | ✅ built |
 | 3 | Word-Part Station | prefixes & suffixes | 90 | coming soon |
 | 4 | Big Word Galaxy | long words & expression | 100 | coming soon |
 | 5 | Root Planet | roots & 4th-grade vocabulary | 110 | coming soon |
@@ -27,7 +27,7 @@ targets, never a fail: every new personal best is celebrated.
 Each phase has **4 lessons + a Phase Check**. The Phase Check is a brand-new story read
 aloud, plus 6 questions; 4 right passes and unlocks the next phase.
 
-## Each lesson has three steps
+## Each lesson has four steps
 
 1. **🔤 Word Lab**: the skill tip (read aloud), 8 story words. Tap a word to hear it in
    chunks (pic·nic). Word meanings, then 6 rounds of *tap the word you hear* and *read this
@@ -39,6 +39,13 @@ aloud, plus 6 questions; 4 right passes and unlocks the next phase.
    phase goal.
 3. **❓ Check-up**: 4 questions in shuffled order, each with a one-line "why" and a
    📖 *look back at the story* button.
+4. **✏️ Write It**: 2 writing prompts per lesson. The first answers a story question in a
+   complete sentence (often with a starter like “Jen sat still because…”). The second is a
+   creative sentence that uses the lesson's spelling pattern (“use a word with ai or ay”).
+   Writing is checked kindly by the shared WritePad / WriteCheck from Sentence Studio
+   (`js/writepad.js`, `js/writecheck.js`, `css/writepad.css`, kept in sync with
+   `writestudio/`). It's needed for the sticker on a lesson's first finish. Lessons
+   finished before Write It existed stay finished.
 
 No microphone (or not Chrome/Edge): **grown-up helper mode**. The child reads to a
 grown-up, who taps ✅ *I read it!* or marks 🤔 tricky words.
@@ -54,6 +61,6 @@ Admin page already counts 24 lessons and 6 phases.
 ## Saved progress (per learner, via the Hub login)
 
 `rr_points`, `rr_stickers` (`l:<lesson>`, `p:<phase>`), `rr_trophies`, `rr_lessons`
-(lab / paragraph stars / fluency / quiz / done / best wpm), `rr_checks`, `rr_perfect`,
-`rr_fixed`, `rr_bestWcpm`; +1 shared Prize Wheel ticket (`rw_tickets`) per lesson and phase.
+(lab / paragraph stars / fluency / quiz / write / done / best wpm), `rr_checks`, `rr_perfect`,
+`rr_fixed`, `rr_bestWcpm`, `rr_writing` (the child's Write It answers, newest 200); +1 shared Prize Wheel ticket (`rw_tickets`) per lesson and phase.
 Everything is logged to the activity database through `Tracker` (answers, lessons, wpm).

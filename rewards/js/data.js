@@ -17,6 +17,7 @@ const REWARD_APPS = [
   { id: "homeschool",name: "Homeschool Academy",  emoji: "🎓", url: "../homeschool/index.html", cur: "hs_points", curIcon: "⭐", troph: "hs_trophies" },
   { id: "detectives",name: "Reading Detectives",  emoji: "🔍", url: "../detectives/index.html", cur: "rc_points", curIcon: "⭐", troph: "rc_trophies" },
   { id: "readrocket",name: "Read-Aloud Rocket",   emoji: "🚀", url: "../readrocket/index.html", cur: "rr_points", curIcon: "⭐", troph: "rr_trophies" },
+  { id: "writestudio",name: "Sentence Studio",    emoji: "✏️", url: "../writestudio/index.html", cur: "ws_points", curIcon: "⭐", troph: "ws_trophies" },
   { id: "speedway", name: "Learning Speedway",    emoji: "🏎️", url: "../speedway/index.html", cur: "sw_points", curIcon: "⭐", troph: "sw_trophies" },
   { id: "grandprix",name: "Turbo Grand Prix",     emoji: "🏁", url: "../grandprix/index.html", cur: "gp_points", curIcon: "🏅", troph: "gp_trophies" },
   { id: "phonics",  name: "Phonics Pals",         emoji: "🦜", url: "../phonics/index.html", cur: "ph_points", curIcon: "⭐", troph: "ph_trophies" },

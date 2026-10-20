@@ -1,3 +1,13 @@
+## FEATURE — Writing: Sentence Studio (G3) + Write It + Phase 2 of both reading paths · 2026-10-19
+- `writecheck.js` + `writepad.js` + `css/writepad.css` exist as identical copies in `writestudio/` and `readrocket/`. Apps stay standalone, so edit one copy and `cp` it to the other.
+- The writing box turns off spellcheck, autocorrect and auto-capitalize. Otherwise the phone keyboard fixes capitals and spelling before the checker can teach them.
+- Feedback shows at most 3 fix notes, sorted by importance (length/goal → capitals/end marks → spelling). A wall of red ink discourages kids.
+- "Say it first" dictation needs `single: true` plus a never-matching target. In continuous mode the listener only stops after 4 s of silence.
+- Write It became a lesson requirement only for lessons not yet done (`!wasDone`), so lessons finished earlier keep their sticker/done state.
+- Phonics steps 1–3 are all open from the start: sight words don't depend on finishing the storybooks.
+- In "find the missing word", when the blank starts the sentence, show the choices capitalized ("The", not "the").
+- Admin colors subjects from a fixed 8-slot list. A new subject needs a new color, so writing joined "Grammar & Writing". Subject names are derived from the registry, not stored, so renaming one is safe.
+
 ## FINDING — Publishing the repo safely (public GitHub) · 2026-10-17
 - `kferoz/kids-app` is public. Keystore, signing password, PDFs, zips and `android/build/` are gitignored.
 - The signing password moved to `android/signing.local.json` or env `KIDSAPP_KEY_PASS`. It never goes in source.

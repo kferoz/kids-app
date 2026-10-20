@@ -1,7 +1,7 @@
 /* ============================================================
    Read-Aloud Rocket — app engine
    Screens: home (phase path) → phase → lesson → Word Lab / Read Aloud
-            / Check-up → done · Phase Check · stickers · trophies
+            / Check-up / Write It → done · Phase Check · stickers · trophies
    Built on the Phonics Pals engine (listening buddy, live word marking,
    practise-the-tricky-words) with a fluency meter for 3rd–4th grade.
    ============================================================ */
@@ -10,18 +10,18 @@
 
   /* ---------------- storage ---------------- */
   var K = { pts: "rr_points", stk: "rr_stickers", tro: "rr_trophies", les: "rr_lessons", chk: "rr_checks",
-            perfect: "rr_perfect", fixed: "rr_fixed", best: "rr_bestWcpm", mute: "rr_mute", tickets: "rw_tickets" };
+            perfect: "rr_perfect", fixed: "rr_fixed", best: "rr_bestWcpm", mute: "rr_mute", writing: "rr_writing", tickets: "rw_tickets" };
   function load(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
   var S = {
     points: load(K.pts, 0), stickers: load(K.stk, []), trophies: load(K.tro, []),
     lessons: load(K.les, {}), checks: load(K.chk, {}),
-    perfect: load(K.perfect, 0), fixed: load(K.fixed, 0), best: load(K.best, 0), mute: load(K.mute, false),
+    perfect: load(K.perfect, 0), fixed: load(K.fixed, 0), best: load(K.best, 0), mute: load(K.mute, false), writing: load(K.writing, []),
     helper: !Listener.supported(), micNote: ""
   };
   function lrec(id) {
-    if (!S.lessons[id]) S.lessons[id] = { lab: false, paras: [], flu: [], seen: 0, quiz: false, done: false, wcpm: 0 };
+    if (!S.lessons[id]) S.lessons[id] = { lab: false, paras: [], flu: [], seen: 0, quiz: false, write: false, done: false, wcpm: 0 };
     return S.lessons[id];
   }
   function crec(pid) {
@@ -159,6 +159,7 @@
     if (S.perfect >= 10) trophy("perfect-10");
     if (S.fixed >= 5) trophy("word-fixer");
     if (Object.keys(S.checks).some(function (k) { return S.checks[k].passed; })) trophy("phase-pilot");
+    if (Object.keys(S.lessons).filter(function (k) { return S.lessons[k].write; }).length >= 3) trophy("rocket-writer");
   }
   var toastTimer = null;
   function toast(msg) {
@@ -237,12 +238,12 @@
     $("backBtn").hidden = screen === "home";
     document.body.dataset.screen = screen;
     window.scrollTo(0, 0);
-    ({ home: renderHome, phase: renderPhase, lesson: renderLesson, lab: renderLab, read: renderReader, quiz: renderQuiz,
+    ({ home: renderHome, phase: renderPhase, lesson: renderLesson, lab: renderLab, read: renderReader, quiz: renderQuiz, write: renderWrite,
        stickers: renderStickers, trophies: renderTrophies })[screen](arg);
   }
   function back() {
     var c = current, a = c.arg || {};
-    if (c.screen === "lab" || ((c.screen === "read" || c.screen === "quiz" || c.screen === "done") && a.key && a.key.indexOf("c:") !== 0)) go("lesson", a.key);
+    if (c.screen === "lab" || c.screen === "write" || ((c.screen === "read" || c.screen === "quiz" || c.screen === "done") && a.key && a.key.indexOf("c:") !== 0)) go("lesson", a.key);
     else if ((c.screen === "read" || c.screen === "quiz" || c.screen === "done") && a.key) go("phase", a.key.slice(2));
     else if (c.screen === "lesson") go("phase", lessonById(c.arg).p.id);
     else go("home");
@@ -283,7 +284,7 @@
       return '<button class="lesson-card' + (r.done ? " done" : "") + '" data-lesson="' + l.id + '">' +
         '<span class="lc-n">' + (r.done ? l.sticker.emoji : i + 1) + "</span>" +
         '<span class="lc-txt"><b>' + esc(l.title) + "</b><small>" + esc(l.skill) + "</small>" +
-        '<span class="steps-mini"><i class="' + (r.lab ? "ok" : "") + '">🔤</i><i class="' + (r.seen >= l.passage.length ? "ok" : "") + '">📖</i><i class="' + (r.quiz ? "ok" : "") + '">❓</i>' +
+        '<span class="steps-mini"><i class="' + (r.lab ? "ok" : "") + '">🔤</i><i class="' + (r.seen >= l.passage.length ? "ok" : "") + '">📖</i><i class="' + (r.quiz ? "ok" : "") + '">❓</i>' + (l.write ? '<i class="' + (r.write ? "ok" : "") + '">✏️</i>' : "") +
         '<span class="stars">' + starsHtml(unitStars(u)) + "</span>" + (w ? '<span class="wchip">⚡ ' + w + "</span>" : "") + "</span></span>" +
         '<span class="step-go">' + (r.done ? "✅" : "▶") + "</span></button>";
     }).join("");
@@ -294,7 +295,7 @@
       "</small></span><span class=\"step-go\">" + (c.passed ? "✅" : checkOpen ? "▶" : "🔒") + "</span></button>";
     view.innerHTML = '<div class="phase-head" style="' + themeVars(p) + '"><span class="ph-badge">' + p.badge.emoji + "</span><div><small>Phase " + p.n + "</small><h2>" + esc(p.title) + "</h2><p>" + esc(p.sub) +
         '</p><p class="goal">🎯 Speed goal: <b>' + p.goal + "</b> words a minute</p></div></div>" +
-      novaRow(c.passed ? "You passed this phase! Re-read any story to beat your speed." : done < p.lessons.length ? "Pick a lesson. Each one has a Word Lab, a story to read aloud, and a Check-up." : "All lessons done! Take the Phase Check to unlock the next phase!") +
+      novaRow(c.passed ? "You passed this phase! Re-read any story to beat your speed." : done < p.lessons.length ? "Pick a lesson. Each one has a Word Lab, a story to read aloud, a Check-up, and a writing challenge." : "All lessons done! Take the Phase Check to unlock the next phase!") +
       '<div class="steps">' + cards + checkCard + "</div>";
     view.querySelectorAll("[data-lesson]").forEach(function (el) { el.onclick = function () { sfx.pop(); go("lesson", el.dataset.lesson); }; });
     $("checkCard").onclick = function () {
@@ -316,6 +317,7 @@
         stepCard(1, "🔤", "Word Lab", r.lab ? "Done! ✔" : esc(l.skill) + ": hear, chunk & say the words", r.lab, "lab") +
         stepCard(2, "📖", "Read Aloud", read + " of " + l.passage.length + " paragraphs · " + starsHtml(unitStars(u)), read >= l.passage.length, "read") +
         stepCard(3, "❓", "Check-up", r.quiz ? "Done! ✔" : "Show what you understood", r.quiz, "quiz") +
+        (l.write ? stepCard(4, "✏️", "Write It", r.write ? "Done! ✔" : "Answer in your own sentences", r.write, "write") : "") +
       "</div>";
     view.querySelectorAll("[data-step]").forEach(function (el) {
       el.onclick = function () {
@@ -822,12 +824,16 @@
     var r = u.rec, l = u.l, wasDone = r.done, storyDone = r.seen >= l.passage.length;
     current = { screen: "done", arg: { key: u.key } };
     $("topTitle").textContent = l.title;
-    if (!storyDone || !r.lab) {
-      var need = !r.lab ? "lab" : "read";
-      view.innerHTML = novaRow(need === "lab" ? "Great Check-up! Finish the Word Lab to win the sticker!" : "Great Check-up! Now read every paragraph to win the sticker!", "happy") +
-        '<div class="celebrate"><button class="big-btn go" id="dGo">' + (need === "lab" ? "🔤 Word Lab" : "📖 Keep reading") + "</button></div>";
+    var needWrite = l.write && !r.write && !wasDone;
+    if (!storyDone || !r.lab || !r.quiz || needWrite) {
+      var need = !r.lab ? "lab" : !storyDone ? "read" : !r.quiz ? "quiz" : "write";
+      var MSG = { lab: "Finish the Word Lab to win the sticker!", read: "Now read every paragraph to win the sticker!", quiz: "Now answer the Check-up questions to win the sticker!",
+                  write: "Super! One last mission: write about the story in your own words!" };
+      var BTN = { lab: "🔤 Word Lab", read: "📖 Keep reading", quiz: "❓ Check-up", write: "✏️ Write It" };
+      view.innerHTML = novaRow((need === "write" ? "" : "Great work! ") + MSG[need], "happy") +
+        '<div class="celebrate"><button class="big-btn go" id="dGo">' + BTN[need] + "</button></div>";
       nova($("novaSay").textContent, "happy");
-      $("dGo").onclick = function () { if (need === "lab") go("lab", { key: u.key }); else go("read", { key: u.key, para: Math.min(r.seen, l.passage.length - 1) }); };
+      $("dGo").onclick = function () { if (need === "read") go("read", { key: u.key, para: Math.min(r.seen, l.passage.length - 1) }); else go(need, { key: u.key }); };
       return;
     }
     r.done = true; save();
@@ -854,6 +860,37 @@
     $("dHome").onclick = function () { go("home"); };
   }
 
+  /* ---------------- ✏️ Write It: answer in your own sentences ---------------- */
+  function renderWrite(arg) {
+    var u = unit(arg.key), l = u.l, wi = arg.w || 0, P = l.write[wi];
+    $("topTitle").textContent = "Write It · " + (wi + 1) + "/" + l.write.length;
+    view.innerHTML = novaRow("", "happy") +
+      '<div class="round-dots">' + l.write.map(function (_, k) { return '<i class="' + (k < wi ? "done" : k === wi ? "now" : "") + '"></i>'; }).join("") + "</div>" +
+      '<div class="write-box" style="' + themeVars(u.p) + '" id="padHost"></div>' +
+      '<p class="look-back"><button class="mini-btn" id="lookBack">📖 Look back at the story</button></p>';
+    $("lookBack").onclick = function () { showStory(u); };
+    WritePad.mount($("padHost"), {
+      prompt: P, buddy: "Nova", speak: speak, sfx: sfx, saveLabel: wi + 1 < l.write.length ? "Save it & next ▶" : "Save it ▶",
+      say: function (m, mood) { return nova(m, mood === "wow" ? "wow" : "happy"); },
+      listen: S.helper ? null : function (o) { listen({ target: o.target, vocab: o.vocab, single: o.single, onDone: o.onDone, onError: o.onError }); },
+      onDone: function (res) {
+        S.writing.push({ ts: Date.now(), lesson: l.id, prompt: P.p, text: res.text, stars: res.stars });
+        if (S.writing.length > 200) S.writing = S.writing.slice(-200);
+        store(K.writing, S.writing);
+        addPoints(res.stars * 2);
+        if (window.Tracker) Tracker.answer(res.stars >= 2, "Writing: " + l.skill, { text: res.text.slice(0, 200), stars: res.stars, tries: res.tries });
+        if (wi + 1 < l.write.length) { go("write", { key: u.key, w: wi + 1 }); return; }
+        var first = !u.rec.write;
+        u.rec.write = true; save();
+        if (first) addPoints(5);
+        if (window.Tracker) Tracker.complete("writeit", res.stars, 3, { item: l.title });
+        checkTrophies();
+        finishLesson(u, null);
+      }
+    });
+    nova(P.p, "happy");
+  }
+
   /* ---------------- stickers & trophies ---------------- */
   function renderStickers() {
     $("topTitle").textContent = "My Stickers";
@@ -876,7 +913,7 @@
         var got = S.trophies.indexOf(t.id) >= 0;
         return '<div class="trophy' + (got ? " got" : "") + '"><span class="ti">' + (got ? t.icon : "🔒") + "</span><span><b>" + esc(t.name) + "</b><small>" + esc(t.desc) + "</small></span></div>";
       }).join("") + "</div>" +
-      '<div class="stat-row"><span>⭐ ' + S.points + " points</span><span>⚡ Best: " + (S.best || 0) + " words/min</span><span>💯 " + S.perfect + " perfect paragraphs</span><span>🔧 " + S.fixed + " tricky words fixed</span></div>";
+      '<div class="stat-row"><span>⭐ ' + S.points + " points</span><span>⚡ Best: " + (S.best || 0) + " words/min</span><span>💯 " + S.perfect + " perfect paragraphs</span><span>🔧 " + S.fixed + " tricky words fixed</span><span>✏️ " + S.writing.length + " answers written</span></div>";
     nova($("novaSay").textContent, "happy");
   }
 
