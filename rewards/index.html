@@ -28,6 +28,8 @@
     <button class="tab active" data-tab="progress">📊 My Progress</button>
     <button class="tab" data-tab="wheel">🎡 Prize Wheel</button>
     <button class="tab" data-tab="critters">🐾 My Critters</button>
+    <button class="tab" data-tab="stickers">🎟️ Stickers</button>
+    <button class="tab" data-tab="dollars">💵 Dollars</button>
   </nav>
 
   <main id="app">
@@ -58,12 +60,26 @@
       <p class="section-sub center"><span id="critterCount">0</span> / <span id="critterTotal">0</span> critters collected. Win them on the Prize Wheel!</p>
       <div class="critter-grid" id="critterGrid"></div>
     </section>
+
+    <!-- ============ STICKER ALBUM (every app) ============ -->
+    <section id="stickersTab" class="tabview">
+      <p class="section-sub center">Every sticker you've won in every app, all in one album!</p>
+      <div class="rw-panel" id="stickerAlbum"></div>
+    </section>
+
+    <!-- ============ DOLLAR BANK ============ -->
+    <section id="dollarsTab" class="tabview">
+      <p class="section-sub center">Big, hard wins earn a <b>real dollar</b>. Here's every $1 challenge!</p>
+      <div class="rw-panel" id="dollarBank"></div>
+    </section>
   </main>
 
   <script src="../js/profile-store.js"></script>
   <script src="../js/voice.js"></script>
   <script src="../js/activitydb.js"></script>
   <script src="../js/tracker.js" data-app="rewards"></script>
+  <script src="../js/dollars.js"></script>
+  <script src="../js/kidbar.js" data-pocket="off"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>

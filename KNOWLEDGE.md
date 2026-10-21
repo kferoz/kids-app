@@ -1,3 +1,11 @@
+## FEATURE — Shared KidBar: floating Home, 🎒 pocket, Dollar Bank ($1 challenges) · 2026-10-21
+- Every app page loads `js/dollars.js` then `js/kidbar.js` right after tracker.js. Rewards Center passes `data-pocket="off"`. Admin loads only dollars.js.
+- $1 challenges are read from each app's saved state (mostly hard trophies), so apps need no calls. New phase trophies need a new `trophy(...)` line in `CHALLENGES`.
+- Ledger `kb_dollars` is per learner. Rows carry `ch` (challenge id), `seen` (celebrated) and `paid` (set in Admin). `sync()` is idempotent by row id, so earlier wins pay out on first load.
+- Admin's 💵 Dollars tab runs `sync` for every kid via `DollarBank.forKid(id)` raw keys. Rows a kid hasn't seen get celebrated in the next app they open.
+- Many apps store sticker ids, not emojis. On the app's own page kidbar maps them through its data globals and mirrors them into `kb_album` for the cross-app album. Before that, other pages can only show a count.
+- The floating 🏠 shows only when no `a[href]` equal to the Hub URL is on screen. That is why the bottom-left "🎒 Hub" pills were removed from the adventure-pack pages. tracker.js skips `kb_` keys.
+
 ## FEATURE — Round 2: Rocket Phase 4, Phonics Blends, Arabic harakat, Write & Trace Phase 2 · 2026-10-20
 - A speech bubble that changes height moves the tracing pad under the child's finger mid-letter. It showed on phones as a "failed" ش trace even though every stroke was right. While a pad is open, `jamal()`/`buddy()` lock the bubble's `min-height` so it can only grow. The pad also scrolls itself fully into view, because it captures touches and kids can't scroll by dragging on it.
 - Glyph tracing handles harakat for free. A fatha/kasra/damma is a separate connected piece, so "forgot the mark" works like "forgot the dots" (use `PRAISE.mark` for syllables).

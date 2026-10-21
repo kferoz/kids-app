@@ -83,7 +83,7 @@
 
   /* ---------- progress changes (wraps localStorage.setItem) ---------- */
   var proto = Storage.prototype, origSet = proto.setItem, origGet = proto.getItem;
-  var SKIP = /^(hub_|tt_voice|.*voice|.*settings|.*sound|.*mute)/i;
+  var SKIP = /^(hub_|kb_|tt_voice|.*voice|.*settings|.*sound|.*mute)/i;
   function measure(v) {
     if (v == null) return { n: 0, kind: "none" };
     var p; try { p = JSON.parse(v); } catch (e) { p = v; }

@@ -188,7 +188,7 @@
   var TABS = [
     { id: "overview", label: "📊 Overview" }, { id: "students", label: "👧 Students" },
     { id: "progress", label: "📈 Progress" }, { id: "suggest", label: "💡 Suggestions" },
-    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "data", label: "💾 Data" }
+    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💵 Dollars" }, { id: "data", label: "💾 Data" }
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.innerHTML = "";
@@ -213,9 +213,9 @@
   function renderTab() {
     C.hideTip();
     var host = $("panel");
-    $("filters").hidden = S.tab === "data" || S.tab === "students";
+    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars";
     var fn = { overview: renderOverview, students: renderStudents, progress: renderProgress, suggest: renderSuggest,
-               forecast: renderForecast, log: renderLog, data: renderData }[S.tab];
+               forecast: renderForecast, log: renderLog, dollars: renderDollars, data: renderData }[S.tab];
     host.innerHTML = "";
     fn(host);
   }
@@ -315,6 +315,44 @@
   }
 
   /* ---------- Students ---------- */
+  /* ---------- 💵 Dollar Bank: real $1 rewards for really hard wins (js/dollars.js) ---------- */
+  function renderDollars(host) {
+    var B = window.DollarBank; if (!B) return;
+    var who = DB.kids().map(function (k) { return { id: k.id, label: k.avatar + " " + k.name }; });
+    var guest = B.forKid("");
+    if (B.ledger(guest.g).length || B.earnedNow(guest.g).length) who.push({ id: "", label: "👤 Guest (nobody logged in)" });
+    if (!who.length) section(host, "💵 Dollars", '<span class="muted">No students yet.</span>');
+    who.forEach(function (w) {
+      var io = B.forKid(w.id); B.sync(io.g, io.s);
+      var t = B.totals(io.g), L = B.ledger(io.g).slice().reverse();
+      var sec = section(host, esc(w.label) + " · $" + t.earned + " earned",
+        "<b>$" + t.owed + "</b> still to hand over · $" + t.paid + " already paid");
+      if (!L.length) { sec.insertAdjacentHTML("beforeend", '<p class="muted">No dollars yet. The $1 challenges are listed below.</p>'); return; }
+      var rows = L.map(function (e) {
+        var a = appById(e.app);
+        return "<tr><td>" + shortDate(e.ts) + "</td><td>" + a.emoji + " " + esc(a.name) + "</td><td>" + esc(e.title) + "</td><td><b>$" + (e.amt || 1) + "</b></td><td>" +
+          (e.paid ? '✅ paid ' + shortDate(e.paid) + ' <button class="btn small" data-unpay="' + esc(e.id) + '">undo</button>'
+                  : '<button class="btn small primary" data-pay="' + esc(e.id) + '">Mark paid</button>') + "</td></tr>";
+      }).join("");
+      sec.insertAdjacentHTML("beforeend", (t.owed ? '<p><button class="btn primary" data-payall="1">✅ Mark all $' + t.owed + ' as paid</button></p>' : "") +
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>App</th><th>Challenge</th><th>$</th><th>Paid?</th></tr></thead><tbody>' + rows + "</tbody></table></div>");
+      sec.addEventListener("click", function (ev) {
+        var b = ev.target.closest("button"); if (!b) return;
+        var id = b.getAttribute("data-pay") || b.getAttribute("data-unpay") || (b.getAttribute("data-payall") ? "*" : null);
+        if (id == null) return;
+        B.setPaid(id, !b.hasAttribute("data-unpay"), io.g, io.s);
+        audit("dollar_paid", { kid: w.id, id: id, paid: !b.hasAttribute("data-unpay") });
+        renderTab();
+      });
+    });
+    var rules = section(host, "How kids earn a dollar", "Only big, hard wins pay: a whole phase, a Phase Check, a no-mistake run. Everyday wins still earn points and stickers. Reading Adventures keeps its own PIN-protected rule; its dollars show up here too.");
+    var byApp = {};
+    B.CHALLENGES.forEach(function (c) { (byApp[c.app] = byApp[c.app] || []).push(c.every ? c.title + " (each time)" : c.title); });
+    rules.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><tbody>' + Object.keys(byApp).map(function (a) {
+      var ap = appById(a); return "<tr><td>" + ap.emoji + " " + esc(ap.name) + "</td><td>" + byApp[a].map(esc).join(" · ") + "</td></tr>";
+    }).join("") + "</tbody></table></div>");
+  }
+
   function renderStudents(host) {
     var kids = DB.kids();
     var addSec = section(host, "➕ Add a new student", "New students appear on the Hub's “Who's learning today?” screen straight away.");

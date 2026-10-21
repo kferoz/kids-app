@@ -119,3 +119,7 @@ body {
 @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
 
 @media (prefers-reduced-motion: reduce) { .wheel { transition-duration: 0.4s !important; } * { animation-iteration-count: 1 !important; } }
+
+/* Sticker album + Dollar Bank tabs (cards styled by js/kidbar.js) */
+.rw-panel { background: #fffdf7; color: #2b2540; border-radius: 22px; padding: 14px; box-shadow: 0 6px 0 rgba(60,40,100,0.12); }
+.rw-panel .kb-grp { margin: 10px 0; }

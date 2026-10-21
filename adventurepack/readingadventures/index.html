@@ -443,6 +443,8 @@ details.sci-plan ol{ line-height:1.75; padding-left:1.2rem; margin:.5rem 0 0; }
 <script src="../../js/voice.js"></script>
 <script src="../../js/activitydb.js"></script>
 <script src="../../js/tracker.js" data-app="readingadventures"></script>
+<script src="../../js/dollars.js"></script>
+<script src="../../js/kidbar.js"></script>
 </head>
 <body>
 <div id="app">
@@ -453,6 +455,7 @@ details.sci-plan ol{ line-height:1.75; padding-left:1.2rem; margin:.5rem 0 0; }
       <div class="sub" id="headerSub">Fun stories with your favorite characters!</div>
     </div>
     <div class="head-actions">
+      <a class="btn ghost" href="../../index.html" title="Back to the Learning Hub" style="text-decoration:none">🏠 Hub</a>
       <button class="btn ghost" id="backBtn" style="display:none;" onclick="goBack()">⬅ Back</button>
       <button class="btn ghost" onclick="showStickers()">🎒 My Stickers</button>
       <button class="btn ghost" onclick="toggleSettings()">⚙️ Voice</button>
@@ -4025,6 +4028,5 @@ if('speechSynthesis' in window){
   speechSynthesis.getVoices();
 }
 </script>
-<a href="../../index.html" title="Back to the Learning Hub" style="position:fixed;left:10px;bottom:10px;z-index:9999;background:rgba(36,48,74,.85);color:#fff;font:700 13px/1 Trebuchet MS,sans-serif;padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25)">&#127890; Hub</a>
 </body>
 </html>

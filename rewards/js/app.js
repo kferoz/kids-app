@@ -191,8 +191,27 @@
     }
   }
 
+  // ---------- Sticker album + Dollar Bank (shared js/kidbar.js + js/dollars.js) ----------
+  function buildStickers() {
+    var html = window.KidBar ? KidBar.albumHtml() : "";
+    $("stickerAlbum").innerHTML = html || '<p class="kb-empty">No stickers yet. Finish lessons in the learning apps and they all show up here!</p>';
+  }
+  function buildDollars() {
+    if (!window.DollarBank || !window.KidBar) return;
+    DollarBank.sync();
+    var t = DollarBank.totals(), apps = [];
+    DollarBank.CHALLENGES.forEach(function (c) { if (apps.indexOf(c.app) < 0) apps.push(c.app); });
+    var html = '<div class="kb-bank"><div><b>$' + t.earned + '</b><small>earned</small></div><div><b>$' + t.owed +
+      '</b><small>to collect</small></div><div><b>$' + t.paid + '</b><small>in my hand</small></div></div>' +
+      '<p class="kb-note">💡 A grown-up hands over your dollars from Admin → 💵 Dollars.</p>';
+    apps.forEach(function (a) {
+      html += '<div class="kb-grp"><h4>' + KidBar.appEmoji(a) + " " + KidBar.appName(a) + "</h4>" + DollarBank.challengesFor(a).map(KidBar.chRow).join("") + "</div>";
+    });
+    $("dollarBank").innerHTML = html;
+  }
+
   function showTab(name) {
-    ["progress", "wheel", "critters"].forEach(function (t) {
+    ["progress", "wheel", "critters", "stickers", "dollars"].forEach(function (t) {
       $(t + "Tab").classList.toggle("active", t === name);
     });
     Array.prototype.forEach.call(el.tabBar.children, function (b) { b.classList.toggle("active", b.dataset.tab === name); });
@@ -214,7 +233,12 @@
     buildCritters();
 
     Array.prototype.forEach.call(el.tabBar.children, function (b) {
-      b.addEventListener("click", function () { showTab(b.dataset.tab); if (b.dataset.tab === "progress") buildProgress(); });
+      b.addEventListener("click", function () {
+        showTab(b.dataset.tab);
+        if (b.dataset.tab === "progress") buildProgress();
+        if (b.dataset.tab === "stickers") buildStickers();
+        if (b.dataset.tab === "dollars") buildDollars();
+      });
     });
     el.spinBtn.addEventListener("click", spin);
   }
