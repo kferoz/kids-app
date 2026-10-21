@@ -377,7 +377,125 @@ const PHASES = [
       ]
     }
   },
-  { id: "p4", n: 4, title: "Big Word Galaxy", sub: "Long words & reading with expression", goal: 100, color: "#ff922b", accent: "#e8590c", badge: { emoji: "🌌", name: "Galaxy Badge" } },
+  {
+    id: "p4", n: 4, title: "Big Word Galaxy", sub: "Long words & reading with expression", goal: 100,
+    color: "#ff922b", accent: "#e8590c", badge: { emoji: "🌌", name: "Galaxy Badge" },
+    lessons: [
+      {
+        id: "p4l1", title: "The Fantastic Volcano", skill: "Three-syllable words",
+        tip: "Big words are just small chunks holding hands. Clap the chunks: fan, tas, tic, fantastic! Vol, ca, no, volcano! Read one chunk at a time, then say the whole word smoothly.",
+        focus: ["fantastic", "volcano", "enormous", "important", "remember", "together", "carefully", "banana"],
+        chunks: { fantastic: "fan·tas·tic", volcano: "vol·ca·no", enormous: "e·nor·mous", important: "im·por·tant", remember: "re·mem·ber", together: "to·geth·er", carefully: "care·ful·ly", banana: "ba·na·na" },
+        passage: [
+          "For the science fair, Leo and his best friend Priya decided to build a volcano. Not a tiny one. They wanted an enormous volcano that would make the whole gym gasp. They worked together every afternoon for a week, shaping clay around an old plastic bottle.",
+          "Priya read the directions carefully. “It is important to remember the order,” she said. “First the baking soda, then the soap, and the vinegar goes in last.” Leo nodded, but he was busy painting red lava down the sides and eating a banana.",
+          "On the big day, a crowd gathered around their table. Leo poured in the baking soda and the soap. Then, with a dramatic bow, he poured in the vinegar. Nothing happened. Everyone waited. Leo's ears turned pink. Had they forgotten something?",
+          "Suddenly, the volcano rumbled, and bright red foam shot out of the top! It bubbled over the table and onto Leo's shoes. The crowd cheered. “That was fantastic!” said the judge, laughing. Leo looked at his foamy sneakers and grinned. “It was supposed to do that,” he said."
+        ],
+        vocab: [{ w: "enormous", def: "very, very big" }, { w: "dramatic", def: "big and showy, to get attention" }],
+        quiz: [
+          { q: "What did Leo and Priya build?", choices: ["a volcano", "a robot", "a rocket"], answer: 0, why: "They decided to build an enormous volcano for the science fair." },
+          { q: "Why did Priya say it was important to remember the order?", choices: ["so the volcano would erupt the right way", "so they would finish early", "so the judge would not see"], answer: 0, why: "The baking soda, soap and vinegar had to go in the right order to make the foam." },
+          { q: "How many syllables are in the word volcano?", choices: ["three", "two", "four"], answer: 0, why: "Vol · ca · no. Clap it: three chunks!" },
+          { q: "How did Leo feel when nothing happened at first?", choices: ["embarrassed", "sleepy", "angry"], answer: 0, why: "His ears turned pink. That is a clue he felt embarrassed." }
+        ],
+        write: [
+          { emoji: "🌋", p: "What happened when the volcano finally erupted? Answer in a complete sentence.", model: "Red foam shot out of the top and bubbled onto Leo's shoes.", need: { min: 8 } },
+          { emoji: "🔬", p: "What would YOU build for a science fair? Use a big word with three syllables, like fantastic, enormous or important.", ideas: ["I would build", "fantastic", "enormous", "important", "together", "volcano"], model: "I would build an enormous robot that cleans my room.", need: { min: 7, use: ["fantastic", "enormous", "important", "together", "volcano", "remember", "carefully", "banana", "dinosaur", "beautiful", "wonderful", "amazing", "telescope", "computer", "elephant", "butterfly", "spaghetti", "tomato", "potato", "animal", "invention", "experiment", "chocolate", "favorite", "different", "excited"], useHint: "Use a three-syllable word, like fantastic, enormous or important." } }
+        ],
+        sticker: { emoji: "🌋", name: "Foamy Volcano" }
+      },
+      {
+        id: "p4l2", title: "Grandpa's Talking Parrot", skill: "Reading dialogue with expression",
+        tip: "Quotation marks show the exact words a character says. Read them the way the character feels! If someone whispered, read softly. If someone shouted, read it big. Your voice is the movie!",
+        focus: ["whispered", "shouted", "giggled", "grumbled", "squawked", "announced", "muttered", "exclaimed"],
+        chunks: { whispered: "whis·pered", shouted: "shout·ed", giggled: "gig·gled", grumbled: "grum·bled", squawked: "squawked", announced: "an·nounced", muttered: "mut·tered", exclaimed: "ex·claimed" },
+        passage: [
+          "Grandpa has a green parrot named Captain. Captain repeats everything he hears, which is usually funny and sometimes a disaster. One morning, Grandpa announced, “We are having a fancy dinner tonight. The mayor is coming!” Captain flapped his wings. “The mayor is coming!” he squawked.",
+          "All day, we cleaned. Grandpa grumbled about the dust. “This house is a mess,” he muttered under his breath. My sister Nora giggled. “Captain heard that,” she whispered. Captain tilted his head. We all held our breath, but he only ate a sunflower seed.",
+          "At seven o'clock, the doorbell rang. The mayor stepped inside, smiling, in a shiny blue suit. “Welcome!” Grandpa exclaimed. Then Captain cleared his throat. “This house is a mess!” he shouted. Grandpa's face turned as red as a tomato. Nora covered her mouth.",
+          "But the mayor burst out laughing. “My house is a mess too!” she said. “My dog ate my shoe this morning.” Everyone laughed, and dinner was wonderful. Later, Grandpa looked at Captain and sighed. “Tomorrow,” he whispered, “we practise saying nice things.”"
+        ],
+        vocab: [{ w: "mayor", def: "the leader of a town or city" }, { w: "disaster", def: "something that goes very, very wrong" }],
+        quiz: [
+          { q: "What is special about Captain?", choices: ["He repeats everything he hears", "He can fly to the moon", "He can cook dinner"], answer: 0, why: "Captain repeats everything he hears, which is usually funny and sometimes a disaster." },
+          { q: "How should you read “This house is a mess,” he muttered?", choices: ["quietly and grumpy", "loud and happy", "fast and excited"], answer: 0, why: "Muttered means talking quietly to yourself, often in a grumpy way." },
+          { q: "Why did Grandpa's face turn red?", choices: ["Captain shouted that the house was a mess", "He ate a hot pepper", "He ran up the stairs"], answer: 0, why: "Captain shouted Grandpa's grumpy words in front of the mayor!" },
+          { q: "How did the mayor react?", choices: ["She laughed and said her house was messy too", "She left right away", "She got angry"], answer: 0, why: "The mayor burst out laughing. Her dog ate her shoe that morning!" }
+        ],
+        write: [
+          { emoji: "🦜", p: "Why was Captain's shout a problem? Answer in a complete sentence.", model: "Captain shouted that the house was a mess in front of the mayor.", need: { min: 8 } },
+          { emoji: "💬", p: "Write what YOUR pet (or a pretend pet) would say. Use a talking word like whispered, shouted, giggled or grumbled.", ideas: ["My cat", "whispered", "shouted", "giggled", "grumbled", "Feed me!"], model: "My cat shouted, Feed me right now or I will sit on your homework!", need: { min: 6, use: ["whispered", "shouted", "giggled", "grumbled", "squawked", "announced", "muttered", "exclaimed", "yelled", "cried", "laughed", "asked", "said", "screamed", "sang", "barked", "meowed", "growled"], useHint: "Use a talking word, like whispered, shouted, giggled or grumbled." } }
+        ],
+        sticker: { emoji: "🦜", name: "Captain Parrot" }
+      },
+      {
+        id: "p4l3", title: "Lost in the Corn Maze", skill: "Punctuation is your road map",
+        tip: "Punctuation tells your voice what to do. A comma means take a tiny pause. A period means stop. A question mark makes your voice go up at the end. An exclamation mark means say it with feeling!",
+        focus: ["suddenly", "finally", "direction", "nervous", "signal", "shortcut", "scarecrow", "giant"],
+        chunks: { suddenly: "sud·den·ly", finally: "fi·nal·ly", direction: "di·rec·tion", nervous: "ner·vous", signal: "sig·nal", shortcut: "short·cut", scarecrow: "scare·crow", giant: "gi·ant" },
+        passage: [
+          "The corn maze at Hill Farm was giant. The stalks were taller than Dad, and every path looked the same. “Stay together,” said Mom. But Sam spotted a shortcut, and he ran ahead. Left, right, left again. When he turned around, his family was gone.",
+          "Sam's heart beat fast. Which direction was the exit? He felt nervous, and his hands were sweaty. Should he run? Should he yell? Then he remembered what Mom always said: “If you are ever lost, stop, stay calm, and make a signal.”",
+          "So Sam stopped. He took three deep breaths. Then he cupped his hands around his mouth and called, “Mom! Dad! I am by the scarecrow!” A big scarecrow with a straw hat was standing right next to him. It looked like it was smiling.",
+          "Suddenly, he heard Dad's voice. “Stay right there, buddy!” A minute later, his family came around the corner. Finally, Sam could relax. Mom hugged him tight. “You did exactly the right thing,” she said. Sam smiled. “No more shortcuts,” he said. “Maybe just one.”"
+        ],
+        vocab: [{ w: "stalks", def: "the tall main stems of plants like corn" }, { w: "signal", def: "a sign or sound that sends a message" }],
+        quiz: [
+          { q: "Why did Sam get lost?", choices: ["He ran ahead to take a shortcut", "His family left without him", "It got dark"], answer: 0, why: "Sam spotted a shortcut and ran ahead, and then his family was gone." },
+          { q: "How should your voice sound when you read “Should he run?”", choices: ["going up at the end, like a question", "very quiet and flat", "like a loud shout"], answer: 0, why: "A question mark makes your voice go up at the end." },
+          { q: "What did Sam do that was smart?", choices: ["He stopped, stayed calm, and called out where he was", "He kept running", "He hid in the corn"], answer: 0, why: "He remembered Mom's rule: stop, stay calm, and make a signal." },
+          { q: "What does the comma tell you in “Left, right, left again”?", choices: ["take a tiny pause between the words", "stop reading", "shout the words"], answer: 0, why: "Commas mean a tiny pause, like Sam turning each corner." }
+        ],
+        write: [
+          { emoji: "🌽", p: "What should you do if you get lost? Answer in a complete sentence.", model: "If you get lost, you should stop, stay calm, and call for help.", need: { min: 8 } },
+          { emoji: "❓", p: "Write a question and an exclamation about a corn maze. Use a question mark and an exclamation mark!", ideas: ["Where is the exit?", "Wow!", "This maze is huge!", "Can you find me?"], model: "Where is the exit? This maze is so huge!", need: { min: 6, sentences: 2, marks: ["?", "!"] } }
+        ],
+        sticker: { emoji: "🌽", name: "Maze Master" }
+      },
+      {
+        id: "p4l4", title: "The Invention Convention", skill: "Big endings: -tion and -sion",
+        tip: "When you see t i o n at the end of a word, it says shun, like in station. S i o n can say shun or zhun, like in television. So in, ven, tion is invention!",
+        focus: ["invention", "convention", "attention", "station", "television", "decision", "explosion", "celebration"],
+        chunks: { invention: "in·ven·tion", convention: "con·ven·tion", attention: "at·ten·tion", station: "sta·tion", television: "tel·e·vi·sion", decision: "de·ci·sion", explosion: "ex·plo·sion", celebration: "cel·e·bra·tion" },
+        passage: [
+          "Every spring, our town holds an Invention Convention. Kids bring machines they made at home. This year, Mia made an invention called the Sock Finder. It was a little robot with a magnet, a flashlight, and a very good nose for lost socks.",
+          "At her station, Mia set up a pile of laundry. “May I have your attention, please?” she said. A crowd gathered. Even a news crew with a television camera came over. Mia pressed the big green button, and the Sock Finder rolled into the pile.",
+          "It beeped and blinked. Then there was a loud pop, almost like an explosion, and socks flew everywhere! One landed on the reporter's head. For a moment, nobody moved. Mia had to make a quick decision. Should she cry, or should she laugh?",
+          "She laughed, and so did everyone else. “It finds socks,” she said, “and then it shares them!” The judges loved her good attitude, and she won the prize for Most Surprising Invention. That night, her family had a celebration with pizza, and every single sock was finally matched."
+        ],
+        vocab: [{ w: "convention", def: "a big meeting where people show and share things" }, { w: "attitude", def: "the way you think and feel about something" }],
+        quiz: [
+          { q: "What did Mia's invention do?", choices: ["It found lost socks", "It made pizza", "It cleaned windows"], answer: 0, why: "Mia made the Sock Finder, a robot with a good nose for lost socks." },
+          { q: "What went wrong during the show?", choices: ["It popped and threw socks everywhere", "It would not turn on", "It rolled out the door"], answer: 0, why: "There was a loud pop, and socks flew everywhere. One landed on the reporter's head!" },
+          { q: "What sound does tion make at the end of station?", choices: ["shun", "tee-on", "ton"], answer: 0, why: "T i o n at the end of a word says shun: sta-shun." },
+          { q: "Why did Mia win a prize?", choices: ["She kept a good attitude and her invention surprised everyone", "Her robot was the biggest", "She was the only kid there"], answer: 0, why: "The judges loved her good attitude, and she won Most Surprising Invention." }
+        ],
+        write: [
+          { emoji: "🧦", p: "How did Mia handle her invention's mistake? Answer in a complete sentence.", model: "Mia laughed and made a joke, so everyone laughed with her.", need: { min: 7 } },
+          { emoji: "💡", p: "Describe an invention you would make. Use a -tion or -sion word, like invention, station or decision.", ideas: ["My invention", "is a machine that", "station", "attention", "television"], model: "My invention is a homework station that does math with me.", need: { min: 8, ends: ["tion", "sion", "tions", "sions"], teamHint: "Use a word that ends in -tion or -sion, like invention, station or decision." } }
+        ],
+        sticker: { emoji: "🧦", name: "Sock Finder" }
+      }
+    ],
+    check: {
+      title: "The Museum Sleepover",
+      passage: [
+        "Our class won a contest, and the prize was fantastic: a sleepover at the natural history museum! We brought sleeping bags, flashlights, and enormous bags of popcorn. Our teacher, Mr. Ortiz, announced the rules. “Stay with your buddy, and do not touch the dinosaurs.”",
+        "We set up our sleeping bags right under a giant dinosaur skeleton. When the lights went out, the museum felt different. Shadows stretched across the walls. My buddy Jada whispered, “Did that dinosaur just move?” I giggled, but my heart was thumping.",
+        "Suddenly, we heard a strange tapping sound. Tap, tap, tap. Everyone sat up. Mr. Ortiz pointed his flashlight down the hall. The tapping got closer and closer. Jada grabbed my arm. Then, around the corner came a small robot vacuum, bumping into the wall.",
+        "The whole class burst out laughing. The museum guard explained that the robot cleans every night. “It always gets everyone's attention,” he said with a wink. We finally fell asleep under the dinosaur. In the morning, I made a decision: museums are even better at night."
+      ],
+      quiz: [
+        { q: "Why did the class get to sleep at the museum?", choices: ["They won a contest", "Their school was closed", "It was a birthday party"], answer: 0, why: "The class won a contest, and the prize was a museum sleepover." },
+        { q: "Where did they put their sleeping bags?", choices: ["under a giant dinosaur skeleton", "in the gift shop", "outside on the lawn"], answer: 0, why: "They set up right under a giant dinosaur skeleton." },
+        { q: "How should you read Jada's line, “Did that dinosaur just move?”", choices: ["in a quiet, scared whisper", "in a big happy shout", "in a bored voice"], answer: 0, why: "Jada whispered, and the room was dark and spooky." },
+        { q: "What was making the tapping sound?", choices: ["a robot vacuum", "a real dinosaur", "Mr. Ortiz"], answer: 0, why: "A small robot vacuum came around the corner, bumping into the wall." },
+        { q: "How many syllables are in the word decision?", choices: ["three", "two", "four"], answer: 0, why: "De · ci · sion. Three chunks!" },
+        { q: "What does the narrator decide at the end?", choices: ["Museums are even better at night", "Museums are too scary", "Dinosaurs are boring"], answer: 0, why: "In the morning the narrator decided museums are even better at night." }
+      ]
+    }
+  },
   { id: "p5", n: 5, title: "Root Planet", sub: "Word roots & vocabulary (4th-grade words)", goal: 110, color: "#f06595", accent: "#c2255c", badge: { emoji: "🌍", name: "Root Planet Badge" } },
   { id: "p6", n: 6, title: "4th-Grade Star", sub: "Longer passages, main idea & inference", goal: 120, color: "#fcc419", accent: "#e67700", badge: { emoji: "⭐", name: "4th-Grade Star Badge" } }
 ];

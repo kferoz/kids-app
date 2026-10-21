@@ -1,3 +1,11 @@
+## FEATURE — Round 2: Rocket Phase 4, Phonics Blends, Arabic harakat, Write & Trace Phase 2 · 2026-10-20
+- A speech bubble that changes height moves the tracing pad under the child's finger mid-letter. It showed on phones as a "failed" ش trace even though every stroke was right. While a pad is open, `jamal()`/`buddy()` lock the bubble's `min-height` so it can only grow. The pad also scrolls itself fully into view, because it captures touches and kids can't scroll by dragging on it.
+- Glyph tracing handles harakat for free. A fatha/kasra/damma is a separate connected piece, so "forgot the mark" works like "forgot the dots" (use `PRAISE.mark` for syllables).
+- Phonics blends reuse the sh/ch/th screens through `isTeam(l)`. Each lesson's `teams` list drives highlighting, the "which team?" choices and wrong-answer pictures. Blends must NOT be added to `letterGroups` (st is two sounds). `teamCard()` only highlights them.
+- WriteCheck `useAll` matches whole words, so it can't require "?" or "!". Use `need.marks: ["?", "!"]`.
+- Arabic syllables: `CONS` + `HARAKAT[m].v` give the written form (ba, bi, bu). The English-voice fallback uses `fb` (bah, bee, boo), because an English voice reads "bi" as "bye".
+- Tests: map pointer coordinates from the `.tp-ink` canvas rect, not `.tp-wrap`. The wrap's 3px border skews strokes on small screens.
+
 ## FEATURE — Write & Trace (KG), Arabic Oasis (KG+G3), Phase 3 / Step 4 · 2026-10-20
 - `TracePad` (`tracewrite/js/tracepad.js` + `css/tracepad.css`, identical copies in `arabic/`) has two modes: SVG stroke paths (English handwriting) or a font glyph (Arabic, no stroke data).
 - Stroke mode: one finger stroke may finish several guide strokes ("a" without lifting), but only if it is ≥75% of their combined length. Extra strokes are checked at half the tolerance. Without both rules, the c of "a" completed its stem and the stem of "t" completed its crossbar, so the child's next correct stroke got "wandered off".

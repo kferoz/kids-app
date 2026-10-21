@@ -10,13 +10,18 @@ The Hub login's grade picks the path. With nobody logged in, the child picks one
 
 | Path | Phase 1 | Later phases (coming soon) |
 |---|---|---|
-| 🐣 Kindergarten | ا ب ت ث · ج ح خ · د ذ ر ز (3–4 letters a lesson) · Magic Words | More letters · Last letters · Little vowels · First words · Words I can write |
-| 🎒 3rd grade | all 28 letters in 4 lessons of 7, each with a Talk Time pack (greetings · polite words · about me · count to five) | Harakat · Sukoon/Shadda/Tanween · Letters hold hands · Word market · Sentence oasis |
+| 🐣 Kindergarten | ا ب ت ث · ج ح خ · د ذ ر ز (3–4 letters a lesson) · Magic Words. **Phase 2:** س ش · ص ض · ط ظ · Colors | Last letters · Little vowels · First words · Words I can write |
+| 🎒 3rd grade | all 28 letters in 4 lessons of 7, each with a Talk Time pack (greetings · polite words · about me · count to five). **Phase 2 Harakat Station:** fatha · kasra · damma · mix, with Talk Time (colors · family · food · feelings) | Sukoon/Shadda/Tanween · Letters hold hands · Word market · Sentence oasis |
 
 Letter lessons go **👋 Meet the Letters** → **🎮 Letter Game** → **✍️ Trace It**. The 3rd-grade path adds **🗣️ Talk Time**.
 - The Letter Game rounds are: hear the letter's name, then tap it. Picture word, then pick its first letter. **Dot Detective**: find the letter with "two dots on top". On the 3rd-grade path, also name the letter.
 - Wrong answers come from look-alike letters (ب ت ث ن ي, ج ح خ…) that the child has already met. Dots are what tell Arabic letters apart.
 - Talk Time is tap to hear, then say it out loud and tap "I said it!". Then a quiz: what does it mean, and "what would you say?" situations.
+
+Harakat lessons (`kind:"harakat"`) go **👋 Meet the Mark** → **🎮 Sound Game** → **📖 Read Words** → **✍️ Trace It** → **🗣️ Talk Time**.
+- The Sound Game's wrong answers are the same letter with an earlier mark (ba vs bi vs bu) once 2+ marks are known.
+- Read Words splits a word into syllables (`wordParts`: letter + its mark). The child taps them right to left, taps "I read it!", then plays a "which word did Jamal say?" quiz.
+- Trace It traces letters WITH their mark. The mark is its own piece, so it must be traced too.
 
 ## Speech
 

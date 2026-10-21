@@ -11,6 +11,8 @@
      kg — 3–4 letters a lesson, lots of pictures, Magic Words
      g3 — 7 letters a lesson, letter names, and a Talk Time step
    A phase with no `lessons` shows as "coming soon".
+   Lesson kinds: "letters" (meet/game/trace [+talk]), "talk" (KG phrase lesson),
+   "harakat" (3rd grade Phase 2: meet the mark / sound game / read words / trace / talk).
 
    Letter = { ch, name (kid spelling), ar (letter name in Arabic, for
    an Arabic voice), say (what an ENGLISH voice says when the device
@@ -47,6 +49,18 @@ const LETTERS = {
   "ه": { name: "Haa (soft)", ar: "هاء", say: "haa", dots: [0], how: "This Haa is round, like a little face. Breathe out softly: h.", word: { ar: "هدية", tr: "hadiyya", en: "gift", e: "🎁" } },
   "و": { name: "Waaw", ar: "واو", say: "waaw", dots: [0], how: "Waaw has a round head and a tail curling down. It says w, or oo!", word: { ar: "وردة", tr: "warda", en: "rose", e: "🌹" } },
   "ي": { name: "Yaa", ar: "ياء", say: "yaa", dots: [2, "below"], how: "Yaa has TWO dots underneath, like two little feet! It says y, or ee.", word: { ar: "يد", tr: "yad", en: "hand", e: "✋" } }
+};
+
+/* consonant sound of each letter, for reading syllables (ba, bi, bu) */
+const CONS = { "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
+  "ص": "s", "ض": "d", "ط": "t", "ظ": "dh", "ع": "'", "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y" };
+
+/* the three short vowels (harakat). v = how the syllable is written in English letters,
+   fb = what an English voice says for it when there is no Arabic voice */
+const HARAKAT = {
+  fatha: { mark: "\u064E", name: "Fatha", v: "a", fb: "ah", where: "a little slash ON TOP", how: "Fatha is a little slash on top of the letter. It says a, like in apple. Open your mouth wide, like a hungry lion: ba, ta, ja!", e: "🦁" },
+  kasra: { mark: "\u0650", name: "Kasra", v: "i", fb: "ee", where: "a little slash UNDERNEATH", how: "Kasra is a little slash under the letter. It says i, like in sit. Smile wide, like you're taking a photo: bi, ti, ji!", e: "📸" },
+  damma: { mark: "\u064F", name: "Damma", v: "u", fb: "oo", where: "a tiny curly waaw ON TOP", how: "Damma looks like a tiny curly waaw on top. It says u, like in put. Make your lips round, like you're blowing a kiss: bu, tu, ju!", e: "😗" }
 };
 
 /* letters that look alike — the best wrong answers ("dot detective") */
@@ -87,6 +101,39 @@ const TALK = {
     q: [{ q: "How many eyes do you have? 👀", a: "اثنان" },
         { q: "How many fingers on one hand? ✋", a: "خمسة" },
         { q: "How many noses do you have? 👃", a: "واحد" }] },
+  colors: { title: "Colors", phrases: [
+    { ar: "أحمر", tr: "ahmar", en: "Red", e: "🔴" },
+    { ar: "أزرق", tr: "azraq", en: "Blue", e: "🔵" },
+    { ar: "أخضر", tr: "akhdar", en: "Green", e: "🟢" },
+    { ar: "أصفر", tr: "asfar", en: "Yellow", e: "🟡" } ],
+    q: [{ q: "What color is a banana? 🍌", a: "أصفر" },
+        { q: "What color is the sky on a sunny day? ☀️", a: "أزرق" },
+        { q: "What color is the grass? 🌱", a: "أخضر" },
+        { q: "What color is a strawberry? 🍓", a: "أحمر" }] },
+  family: { title: "My Family", phrases: [
+    { ar: "أب", tr: "ab", en: "Dad", e: "👨" },
+    { ar: "أم", tr: "umm", en: "Mom", e: "👩" },
+    { ar: "أخ", tr: "akh", en: "Brother", e: "👦" },
+    { ar: "أخت", tr: "ukht", en: "Sister", e: "👧" } ],
+    q: [{ q: "Who is the mommy of your family?", a: "أم" },
+        { q: "A boy who has the same mom and dad as you is your…", a: "أخ" },
+        { q: "A girl who has the same mom and dad as you is your…", a: "أخت" }] },
+  food: { title: "Yummy Food", phrases: [
+    { ar: "ماء", tr: "maa", en: "Water", e: "💧" },
+    { ar: "خبز", tr: "khubz", en: "Bread", e: "🍞" },
+    { ar: "حليب", tr: "haleeb", en: "Milk", e: "🥛" },
+    { ar: "تمر", tr: "tamr", en: "Dates", e: "🌴" } ],
+    q: [{ q: "You are very thirsty after playing. What do you ask for?", a: "ماء" },
+        { q: "You want to make a sandwich. What do you need?", a: "خبز" },
+        { q: "What comes from a cow and goes on cereal? 🐄", a: "حليب" }] },
+  feelings: { title: "How I Feel", phrases: [
+    { ar: "سعيد", tr: "saeed", en: "Happy", e: "😄" },
+    { ar: "حزين", tr: "hazeen", en: "Sad", e: "😢" },
+    { ar: "جائع", tr: "jaai", en: "Hungry", e: "🍽️" },
+    { ar: "متعب", tr: "mutaab", en: "Tired", e: "😴" } ],
+    q: [{ q: "It's your birthday and you got a puppy! How do you feel?", a: "سعيد" },
+        { q: "You stayed up way too late. How do you feel?", a: "متعب" },
+        { q: "Your tummy is growling! How do you feel?", a: "جائع" }] },
   magic: { title: "Magic Words", phrases: [
     { ar: "مرحبا", tr: "marhaban", en: "Hello!", e: "👋" },
     { ar: "شكرا", tr: "shukran", en: "Thank you", e: "🙏" },
@@ -111,7 +158,13 @@ const PHASES = {
         { id: "ak3", kind: "letters", title: "د ذ ر ز", letters: ["د", "ذ", "ر", "ز"], sticker: { emoji: "🦒", name: "Zaraafa the Giraffe" } },
         { id: "ak4", kind: "talk", title: "Magic Words", talk: "magic", sticker: { emoji: "🙏", name: "Shukran Star" } }
       ] },
-    { id: "k2", n: 2, title: "More Letters", sub: "س ش ص ض ط ظ", emoji: "🐟", color: "#a5d8ff", accent: "#1c7ed6" },
+    { id: "k2", n: 2, title: "More Letters", sub: "س ش ص ض ط ظ + Colors", emoji: "🐟", color: "#a5d8ff", accent: "#1c7ed6",
+      lessons: [
+        { id: "ak5", kind: "letters", title: "س ش", letters: ["س", "ش"], sticker: { emoji: "☀️", name: "Shams the Sun" } },
+        { id: "ak6", kind: "letters", title: "ص ض", letters: ["ص", "ض"], sticker: { emoji: "🐸", name: "Difdaa the Frog" } },
+        { id: "ak7", kind: "letters", title: "ط ظ", letters: ["ط", "ظ"], sticker: { emoji: "✈️", name: "Taa-ira the Plane" } },
+        { id: "ak8", kind: "talk", title: "Colors", talk: "colors", sticker: { emoji: "🌈", name: "Rainbow Camel" } }
+      ] },
     { id: "k3", n: 3, title: "Last Letters", sub: "ع غ ف ق ك ل م ن ه و ي", emoji: "🐘", color: "#b2f2bb", accent: "#2f9e44" },
     { id: "k4", n: 4, title: "Little Vowels", sub: "Fatha, kasra, damma: ba, bi, bu", emoji: "🎵", color: "#d0bfff", accent: "#7048e8" },
     { id: "k5", n: 5, title: "My First Words", sub: "Read short words with pictures", emoji: "🍎", color: "#ffc9c9", accent: "#e03131" },
@@ -125,7 +178,22 @@ const PHASES = {
         { id: "ag3", kind: "letters", title: "ض ط ظ ع غ ف ق", letters: ["ض", "ط", "ظ", "ع", "غ", "ف", "ق"], talk: "me", sticker: { emoji: "🦅", name: "Saqr the Falcon" } },
         { id: "ag4", kind: "letters", title: "ك ل م ن ه و ي", letters: ["ك", "ل", "م", "ن", "ه", "و", "ي"], talk: "count", sticker: { emoji: "🌙", name: "Oasis Moon" } }
       ] },
-    { id: "g2", n: 2, title: "Harakat Station", sub: "Fatha, kasra, damma: read ba, bi, bu", emoji: "🎵", color: "#a5d8ff", accent: "#1c7ed6" },
+    { id: "g2", n: 2, title: "Harakat Station", sub: "Fatha, kasra, damma: read ba, bi, bu", emoji: "🎵", color: "#a5d8ff", accent: "#1c7ed6",
+      // harakat lesson: marks = new mark(s), letters = syllables to practise, words = short words to read
+      lessons: [
+        { id: "ag5", kind: "harakat", title: "Fatha: ba ta ja", marks: ["fatha"], letters: ["ب", "ت", "ج", "د", "ر", "س", "م"], talk: "colors",
+          words: [{ ar: "كَتَبَ", en: "he wrote", e: "✍️" }, { ar: "جَلَسَ", en: "he sat", e: "🪑" }, { ar: "رَسَمَ", en: "he drew", e: "🎨" }, { ar: "فَتَحَ", en: "he opened", e: "🚪" }],
+          sticker: { emoji: "🦁", name: "Fatha Lion" } },
+        { id: "ag6", kind: "harakat", title: "Kasra: bi ti ji", marks: ["kasra"], letters: ["ب", "ف", "ك", "ل", "ن", "ق", "ش"], talk: "family",
+          words: [{ ar: "شَرِبَ", en: "he drank", e: "🥤" }, { ar: "لَعِبَ", en: "he played", e: "⚽" }, { ar: "سَمِعَ", en: "he heard", e: "👂" }, { ar: "ضَحِكَ", en: "he laughed", e: "😂" }],
+          sticker: { emoji: "📸", name: "Kasra Smile" } },
+        { id: "ag7", kind: "harakat", title: "Damma: bu tu ju", marks: ["damma"], letters: ["ب", "ت", "د", "ك", "ل", "س", "ن"], talk: "food",
+          words: [{ ar: "كُتِبَ", en: "it was written", e: "📝" }, { ar: "فُتِحَ", en: "it was opened", e: "📦" }, { ar: "رُسِمَ", en: "it was drawn", e: "🖍️" }, { ar: "حُمِلَ", en: "it was carried", e: "🎒" }],
+          sticker: { emoji: "😗", name: "Damma Kiss" } },
+        { id: "ag8", kind: "harakat", title: "Harakat Mix", marks: ["fatha", "kasra", "damma"], letters: ["ب", "د", "ر", "س", "ق", "ك", "ل"], talk: "feelings", mix: true,
+          words: [{ ar: "كَبُرَ", en: "it grew big", e: "🌳" }, { ar: "صَغُرَ", en: "it got small", e: "🐜" }, { ar: "لَعِبَ", en: "he played", e: "⚽" }, { ar: "كُتِبَ", en: "it was written", e: "📝" }],
+          sticker: { emoji: "🎵", name: "Harakat Hero" } }
+      ] },
     { id: "g3", n: 3, title: "Sukoon, Shadda & Tanween", sub: "Stop signs, double letters, -an -in -un", emoji: "🛑", color: "#d0bfff", accent: "#7048e8" },
     { id: "g4", n: 4, title: "Letters Hold Hands", sub: "Beginning, middle and end shapes", emoji: "🤝", color: "#b2f2bb", accent: "#2f9e44" },
     { id: "g5", n: 5, title: "Word Market", sub: "Colors, family, food & school words", emoji: "🛍️", color: "#ffc9c9", accent: "#e03131" },
@@ -139,6 +207,8 @@ const PRAISE = {
   trace: ["Beautiful writing! Jameel!", "Wow, a real Arabic writer!", "Mumtaaz! That letter looks perfect!", "Ahsant! My hump is so proud!"],
   traceOff: ["Oopsie! Stay on the letter, like a camel on the path.", "Whoa, that wandered into the desert! Try again."],
   dots: ["Great body! Now don't forget the dots!", "Almost! The dots are part of the letter, too!"],
+  mark: ["Great letter! Now don't forget the little mark!", "Almost! The haraka is part of the sound, so trace it too!"],
+  read: ["You read Arabic! That's amazing!", "Wow, a real Arabic reader!", "Mumtaaz! Every sound was in the right place!"],
   said: ["I heard you! Beautiful Arabic!", "Wow, you sound like a real Arabic speaker!", "Ahsant! Say it again tomorrow and you'll never forget it!"]
 };
 
@@ -158,5 +228,7 @@ const AR_TROPHIES = [
   { id: "writer", icon: "✍️", name: "Arabic Writer", desc: "Trace 10 letters" },
   { id: "talker", icon: "🗣️", name: "Chatterbox", desc: "Say 10 Arabic words out loud" },
   { id: "all-letters", icon: "👑", name: "Alphabet Champion", desc: "Meet all 28 letters" },
-  { id: "phase-1", icon: "🏅", name: "Oasis Star", desc: "Finish Phase 1" }
+  { id: "phase-1", icon: "🏅", name: "Oasis Star", desc: "Finish Phase 1" },
+  { id: "phase-2", icon: "🎵", name: "Oasis Explorer", desc: "Finish Phase 2" },
+  { id: "reader", icon: "📖", name: "Arabic Reader", desc: "Read 8 Arabic words with harakat" }
 ];

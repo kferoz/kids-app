@@ -13,6 +13,7 @@
      sentences: 1,        // fewest sentences
      use: ["because"],    // must use ONE of these words
      useAll: [...],       // must use ALL of these words
+     marks: ["?", "!"],   // punctuation marks the writing must contain
      end: "?",            // the writing must end with this mark
      adj: 2,              // describing words needed (from ADJ)
      trans: 2,            // order/transition words needed (from TRANS)
@@ -211,6 +212,12 @@
       else stars.push("“" + tw2.slice(0, tn).join("” and “") + "”: great spelling-pattern words!");
     }
     if (need.useAll) need.useAll.forEach(function (u) { if (!has(t, u)) issues.push({ id: "use", msg: "Don't forget to use “" + u + "”." }); });
+    if (need.marks) {   // punctuation the writing must use, e.g. ["?", "!"]
+      var NAMES = { "?": "a question mark (?)", "!": "an exclamation mark (!)", ",": "a comma (,)" };
+      var miss = need.marks.filter(function (m) { return t.indexOf(m) < 0; });
+      if (miss.length) issues.push({ id: "use", msg: "Use " + miss.map(function (m) { return NAMES[m] || m; }).join(" and ") + "." });
+      else stars.push("Great punctuation! Your reader will hear your voice.");
+    }
     var adjs = lw.filter(function (w, i) { return ADJ.indexOf(w) >= 0 && lw.indexOf(w) === i; })
       .sort(function (a, b) { return (TIRED[a] ? 1 : 0) - (TIRED[b] ? 1 : 0); });   // praise the juicy ones first
     if (need.adj) {

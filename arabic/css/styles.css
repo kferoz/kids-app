@@ -674,6 +674,26 @@ body {
 .met-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .met-chip { width: 48px; height: 52px; display: grid; place-items: center; font-size: 30px; border-radius: 12px; background: #f1f3f5; color: #adb5bd; border: 2px dashed #ced4da; }
 .met-chip.on { background: #fff4e6; color: #c2410c; border: 2px solid #e8590c; }
+/* ---------- Phase 2: harakat ---------- */
+.mark-cards { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.mark-card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 170px; padding: 10px 16px 14px; background: #e7f5ff; border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: 0 6px 0 #1c7ed6; }
+.mark-card.pop { animation: pop .4s; }
+.mark-card b { font-family: "Baloo 2", cursive; font-size: 22px; }
+.mark-card small { color: var(--ink-soft); font-size: 15px; }
+.mark-big { color: #1c7ed6; line-height: 1.1; }
+.syl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 10px; max-width: 760px; margin: 0 auto 14px; }
+.syl-grid.row { display: flex; justify-content: center; flex-wrap: wrap; }
+.syl-card { display: flex; flex-direction: column; align-items: center; padding: 6px 10px 8px; min-width: 80px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); }
+.syl-card:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.syl-card .ar { font-size: 46px; line-height: 1.35; color: #c2410c; }
+.syl-card small { font-weight: 700; font-size: 16px; }
+.syl-card.heard { background: #fff4e6; box-shadow: 0 4px 0 #e8590c; }
+.read-meaning { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 14px; animation: pop .4s; }
+.read-meaning b { font-family: "Baloo 2", cursive; font-size: 30px; }
+@media (max-width: 560px) {
+  .syl-grid { grid-template-columns: repeat(3, 1fr); }
+  .syl-card .ar { font-size: 38px; }
+}
 @media (max-width: 560px) {
   .ar-grid { grid-template-columns: repeat(2, 1fr); }
   .choice.ar-letter { font-size: 44px; min-width: 76px; }

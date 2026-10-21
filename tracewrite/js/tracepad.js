@@ -366,6 +366,11 @@
     var ro = window.ResizeObserver ? new ResizeObserver(size) : null;
     if (ro) ro.observe(wrap); else window.addEventListener("resize", size);
     size();
+    // the pad captures the finger, so a child can't scroll by dragging on it: bring it fully into view
+    setTimeout(function () {
+      var r = wrap.getBoundingClientRect();
+      if (alive && (r.bottom > window.innerHeight || r.top < 0)) wrap.scrollIntoView({ block: r.height < window.innerHeight ? "end" : "start" });
+    }, 0);
 
     /* ---------- show me how ---------- */
     function demo() {

@@ -17,7 +17,7 @@ the start; each later step opens when the one before it is finished.
 | 2 | Story Books | the five books below | ✅ built |
 | 3 | Sight Words | 4 lessons of 5 words (I a the see is · and my like go to · we can you look up · said here play come me): 👀 Meet the Words (hear it, spell it, see it in a sentence) → 🎮 Word Game (tap the word you hear, read it to Echo, find the missing word) → 🧩 Build a Sentence (tap word tiles in order, then read the sentence to Echo), the first step toward writing | ✅ built |
 | 4 | Sh, Ch, Th | 4 lessons (sh · ch · th · mixed): 👋 Meet the Sound (two letters, one sound; tap pictures to sound them out with the team as ONE sound) → 🎮 Sound Game (tap the word you hear, pick the missing sh/ch/th, read a word to Echo) → 🧩 Build a Sentence. Opens after Step 3 | ✅ built |
-| 5 | Blends | | coming soon |
+| 5 | Blends | 4 lessons (st sp sn · fl cl bl · gr tr cr · end blends -st -nd -mp), `kind:"blend"`, same screens as Step 4. Each letter keeps its own sound when sounding out, and the blend letters are highlighted. Opens after Step 4 | ✅ built |
 | 6 | Magic e | | coming soon |
 
 Letter lessons are saved in `ph_lessons` and win `l:<id>` stickers plus the 🔠 *Letter Pro*

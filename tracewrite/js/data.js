@@ -28,11 +28,18 @@ const SHAPES = {
   t: { w: 52, strokes: [{ d: "M24,24 L24,92 C24,100 32,103 40,97" }, { d: "M10,58 L40,58" }] },
   p: { w: 62, strokes: [{ d: "M14,60 L14,132" }, { d: "M14,74 C20,58 46,56 50,78 C53,100 28,105 14,92" }] },
   i: { w: 32, strokes: [{ d: "M16,60 L16,100" }, { dot: [16, 42] }] },
-  n: { w: 60, strokes: [{ d: "M12,60 L12,100" }, { d: "M12,77 C16,63 26,59 34,59 C44,59 48,67 48,77 L48,100" }] }
+  n: { w: 60, strokes: [{ d: "M12,60 L12,100" }, { d: "M12,77 C16,63 26,59 34,59 C44,59 48,67 48,77 L48,100" }] },
+  // Phase 2: round letters start like a "magic c"
+  c: { w: 56, strokes: [{ d: "M46,68 C40,58 24,57 17,66 C9,77 11,94 20,99 C29,104 41,100 46,92" }] },
+  o: { w: 60, strokes: [{ d: "M38,60 C20,58 12,72 12,81 C12,94 22,101 31,100 C44,99 50,88 49,79 C48,67 42,60 36,60" }] },
+  d: { w: 64, strokes: [{ d: "M50,68 C44,58 30,57 22,63 C12,71 12,93 22,99 C33,105 46,98 50,86" }, { d: "M50,22 L50,100" }] },
+  g: { w: 62, strokes: [{ d: "M48,68 C42,58 28,57 20,63 C10,71 10,93 20,99 C31,105 44,98 48,86" }, { d: "M48,60 L48,120 C48,134 26,136 16,126" }] },
+  m: { w: 84, strokes: [{ d: "M12,60 L12,100" }, { d: "M12,76 C15,63 22,59 29,59 C37,59 41,66 41,76 L41,100" }, { d: "M41,76 C44,63 51,59 58,59 C66,59 70,66 70,76 L70,100" }] },
+  k: { w: 58, strokes: [{ d: "M14,22 L14,100" }, { d: "M46,60 L15,82 L48,100" }] }
 };
 
 /* letter → a sound speech can say (TTS reads letter NAMES otherwise) */
-const LETTER_SAY = { s: "sss", a: "ah", t: "tuh", p: "puh", i: "ih", n: "nnn" };
+const LETTER_SAY = { s: "sss", a: "ah", t: "tuh", p: "puh", i: "ih", n: "nnn", c: "kuh", o: "aw", d: "duh", g: "guh", m: "mmm", k: "kuh" };
 
 /* how Scribbles talks about each shape while tracing */
 const SHAPE_TALK = {
@@ -47,7 +54,13 @@ const SHAPE_TALK = {
   t: "t says tuh! Big line down from the top, then cross it on the middle line.",
   p: "p says puh! Line down below the floor, then back up and around.",
   i: "i says ih, like insect! A little line down, then a dot on top. Plop!",
-  n: "n says nnn, like nose! Line down, back up, and over the hill."
+  n: "n says nnn, like nose! Line down, back up, and over the hill.",
+  c: "c says kuh, like cat! This is the magic c. Start near the top, curve back and around, like a big open mouth. Chomp!",
+  o: "o says aw, like octopus! Start like a magic c, then keep going all the way around. Close the door!",
+  d: "d says duh, like dog! First a magic c, then a TALL line from the very top, all the way down.",
+  g: "g says guh, like goat! A magic c, then a line down below the floor, with a little hook like a fishing rod.",
+  m: "m says mmm, like moon! Line down, then two hills: up and over, up and over. Mmm, yummy!",
+  k: "k says kuh, like key! A tall line down, then a little arrow: in, and out. Like a kick!"
 };
 
 const PHASES = [
@@ -66,7 +79,23 @@ const PHASES = [
         sticker: { emoji: "📝", name: "Word Writer" } }
     ]
   },
-  { id: "w2", n: 2, title: "Round Letters", sub: "m d g o c k", emoji: "🍩", color: "#d0bfff", accent: "#7048e8" },
+  {
+    id: "w2", n: 2, title: "Round Letters", sub: "c o d g m k", emoji: "🍩", color: "#d0bfff", accent: "#7048e8",
+    lessons: [
+      { id: "wl5", kind: "letters", title: "c · o · d", items: ["c", "o", "d"],
+        words: [{ w: "cod", e: "🐟", say: "cod. A cod is a fish!" }, { w: "dot", e: "⚫", say: "dot. A little dot!" }, { w: "cot", e: "🛏️", say: "cot. A cot is a little bed." }],
+        sticker: { emoji: "🍩", name: "Magic c Donut" } },
+      { id: "wl6", kind: "letters", title: "g · m · k", items: ["g", "m", "k"],
+        words: [{ w: "mom", e: "👩", say: "mom. I love my mom!" }, { w: "kid", e: "🧒", say: "kid. A happy kid!" }, { w: "dig", e: "⛏️", say: "dig. Dig in the sand!" }],
+        sticker: { emoji: "🔑", name: "Kicky Key" } },
+      { id: "wl7", kind: "words", title: "Round Words", items: ["dog", "cat", "map"],
+        words: [{ w: "pig", e: "🐷", say: "pig. Oink, oink!" }, { w: "mop", e: "🧹", say: "mop. Mop the floor!" }, { w: "cap", e: "🧢", say: "cap. A cool cap!" }],
+        sticker: { emoji: "🐶", name: "Dotty Dog" } },
+      { id: "wl8", kind: "words", title: "Silly Words", items: ["pod", "cog", "mat"],
+        words: [{ w: "pot", e: "🍲", say: "pot. Soup in a pot!" }, { w: "kit", e: "🧰", say: "kit. A tool kit!" }, { w: "pad", e: "📒", say: "pad. A note pad!" }],
+        sticker: { emoji: "🤪", name: "Silly Speller" } }
+    ]
+  },
   { id: "w3", n: 3, title: "Tall Letters", sub: "e u r h b f", emoji: "🦒", color: "#b2f2bb", accent: "#2f9e44" },
   { id: "w4", n: 4, title: "Tricky Letters", sub: "l j v w x y z q", emoji: "🦓", color: "#a5d8ff", accent: "#1c7ed6" },
   { id: "w5", n: 5, title: "Capitals & My Name", sub: "Big letters and writing your name", emoji: "👑", color: "#ffc9c9", accent: "#e03131" },
@@ -103,5 +132,6 @@ const TW_TROPHIES = [
   { id: "speller", icon: "🧩", name: "Little Speller", desc: "Build 5 words" },
   { id: "artist", icon: "🎨", name: "Super Artist", desc: "Make a Magic Drawing" },
   { id: "perfect-5", icon: "💯", name: "Perfect Five", desc: "Trace 5 shapes with no oopsies" },
-  { id: "phase-1", icon: "🏅", name: "Writing Star", desc: "Finish all of Phase 1" }
+  { id: "phase-1", icon: "🏅", name: "Writing Star", desc: "Finish all of Phase 1" },
+  { id: "phase-2", icon: "🍩", name: "Round Letter Champ", desc: "Finish all of Phase 2" }
 ];

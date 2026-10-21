@@ -91,6 +91,8 @@
   }
   function buddy(msg, mood, noVoice) {
     var b = $("buddySay"), bot = $("buddyBot");
+    // while tracing, the bubble may only grow: a shrinking bubble would move the pad under the child's finger
+    if (b && pad) b.style.minHeight = b.offsetHeight + "px";
     if (b) { b.textContent = msg; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
     if (bot) bot.innerHTML = Art.scribbles(mood || "happy");
     return noVoice ? Promise.resolve(true) : speak(msg);
@@ -435,7 +437,7 @@
     if (!wasDone) { giveTicket(); addPoints(10); trophy("first-lesson"); }
     if (window.Tracker) Tracker.complete("lesson", 1, 1, { item: l.title, firstTime: !wasDone });
     var p = phaseOfLesson(l.id);
-    if (phaseDone(p) && p.n === 1) trophy("phase-1");
+    if (phaseDone(p)) trophy("phase-" + p.n);
     hud(); sfx.fanfare(); confetti(100);
     current = { screen: "done", arg: { lesson: l.id } };
     var nextL = p.lessons.filter(function (x) { return !lrec(x.id).done; })[0];

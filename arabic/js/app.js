@@ -14,13 +14,13 @@
 
   /* ---------------- storage ---------------- */
   var K = { pts: "ar_points", stk: "ar_stickers", tro: "ar_trophies", les: "ar_lessons", met: "ar_met", track: "ar_track",
-            said: "ar_said", dots: "ar_dots", traced: "ar_traced", mute: "ar_mute", tickets: "rw_tickets" };
+            said: "ar_said", dots: "ar_dots", traced: "ar_traced", read: "ar_read", mute: "ar_mute", tickets: "rw_tickets" };
   function load(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   var S = { points: load(K.pts, 0), stickers: load(K.stk, []), trophies: load(K.tro, []), lessons: load(K.les, {}), met: load(K.met, []),
-            said: load(K.said, 0), dots: load(K.dots, 0), traced: load(K.traced, 0), mute: load(K.mute, false), track: load(K.track, "") };
+            said: load(K.said, 0), dots: load(K.dots, 0), traced: load(K.traced, 0), read: load(K.read, 0), mute: load(K.mute, false), track: load(K.track, "") };
   function lrec(id) {
-    if (!S.lessons[id]) S.lessons[id] = { meet: false, game: false, trace: false, talk: false, done: false, stars: {} };
+    if (!S.lessons[id]) S.lessons[id] = { meet: false, game: false, read: false, trace: false, talk: false, done: false, stars: {} };
     return S.lessons[id];
   }
   function save() { store(K.les, S.lessons); }
@@ -47,6 +47,7 @@
   function lessonComplete(l) {
     var r = lrec(l.id);
     if (l.kind === "talk") return r.meet && r.game;
+    if (l.kind === "harakat") return r.meet && r.game && r.read && r.trace && r.talk;
     return r.meet && r.game && r.trace && (!needsTalk(l) || r.talk);
   }
   // every letter taught up to and including this lesson (for fair wrong answers)
@@ -142,6 +143,8 @@
   // show text in the bubble; speak `parts` (defaults to the text)
   function jamal(msg, mood, parts) {
     var b = $("buddySay"), bot = $("buddyBot");
+    // while tracing, the bubble may only grow: a shrinking bubble would move the pad under the child's finger
+    if (b && pad) b.style.minHeight = b.offsetHeight + "px";
     if (b) { b.textContent = msg; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
     if (bot) bot.innerHTML = Art.jamal(mood || "happy");
     return parts === false ? Promise.resolve(true) : say(parts || [msg]);
@@ -202,11 +205,11 @@
     document.body.dataset.screen = screen;
     window.scrollTo(0, 0);
     ({ home: renderHome, phase: renderPhase, lesson: renderLesson, meet: renderMeet, game: renderGame, trace: renderTrace,
-       tmeet: renderTalkMeet, tquiz: renderTalkQuiz, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
+       tmeet: renderTalkMeet, tquiz: renderTalkQuiz, hmeet: renderMarkMeet, hgame: renderMarkGame, hread: renderReadWords, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
   }
   function back() {
     var c = current;
-    if (/^(meet|game|trace|tmeet|tquiz|done)$/.test(c.screen)) go("lesson", c.arg.lesson);
+    if (/^(meet|game|trace|tmeet|tquiz|hmeet|hgame|hread|done)$/.test(c.screen)) go("lesson", c.arg.lesson);
     else if (c.screen === "lesson") go("phase", phaseOfLesson(c.arg).id);
     else go("home");
   }
@@ -251,10 +254,11 @@
     view.innerHTML = buddyRow("Pick a lesson! Arabic is read from right to left, like a camel walking home!") +
       '<div class="steps">' + p.lessons.map(function (l, i) {
         var r = lrec(l.id), talk = l.kind === "talk";
-        var minis = talk ? ["meet:👋", "game:🎮"] : ["meet:👋", "game:🎮", "trace:✍️"].concat(needsTalk(l) ? ["talk:🗣️"] : []);
+        var hk = l.kind === "harakat";
+        var minis = talk ? ["meet:👋", "game:🎮"] : hk ? ["meet:👋", "game:🎮", "read:📖", "trace:✍️", "talk:🗣️"] : ["meet:👋", "game:🎮", "trace:✍️"].concat(needsTalk(l) ? ["talk:🗣️"] : []);
         return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + "</span>" +
-          '<span class="step-ic">' + (r.done ? l.sticker.emoji : talk ? "💬" : "🔤") + "</span>" +
-          '<span class="step-txt"><b class="' + (talk ? "" : "ar ar-title") + '"' + (talk ? "" : ' lang="ar" dir="rtl"') + ">" + esc(l.title) + "</b>" +
+          '<span class="step-ic">' + (r.done ? l.sticker.emoji : talk ? "💬" : hk ? "🎵" : "🔤") + "</span>" +
+          '<span class="step-txt"><b class="' + (talk || hk ? "" : "ar ar-title") + '"' + (talk || hk ? "" : ' lang="ar" dir="rtl"') + ">" + esc(l.title) + "</b>" +
           '<span class="steps-mini">' + minis.map(function (m) { var k = m.split(":"); return '<i class="' + (r[k[0]] ? "ok" : "") + '">' + k[1] + "</i>"; }).join("") + "</span></span>" +
           '<span class="step-go">' + (r.done ? "✅" : "▶") + "</span></button>";
       }).join("") + "</div>";
@@ -276,6 +280,16 @@
         '<div class="steps">' +
           stepCard(1, "👋", "Meet the Words", r.meet ? "Done! ✔" : "Hear them, say them out loud", r.meet, "tmeet") +
           stepCard(2, "🎮", "Word Game", r.game ? "Done! ✔" : "What does it mean? What would you say?", r.game, "tquiz") +
+        "</div>";
+    } else if (l.kind === "harakat") {
+      view.innerHTML = '<div class="letter-strip" dir="rtl">' + l.marks.map(function (m) { return '<span class="ls-chip">' + arSpan("ب" + HARAKAT[m].mark) + "</span>"; }).join("") + "</div>" +
+        buddyRow(r.done ? "Mumtaaz! You can read with harakat now!" : "Harakat are little marks that tell a letter which sound to make. Let's go!") +
+        '<div class="steps">' +
+          stepCard(1, "👋", "Meet the Mark" + (l.mix ? "s" : ""), r.meet ? "Done! ✔" : "See it, hear it, say the sounds", r.meet, "hmeet") +
+          stepCard(2, "🎮", "Sound Game", r.game ? "Done! ✔" : "Hear a sound, find it. See it, say it", r.game, "hgame") +
+          stepCard(3, "📖", "Read Words", r.read ? "Done! ✔" : "Read real Arabic words, sound by sound", r.read, "hread") +
+          stepCard(4, "✍️", "Trace It", r.trace ? "Done! ✔" : "Write letters WITH their marks", r.trace, "trace") +
+          stepCard(5, "🗣️", "Talk Time: " + TALK[l.talk].title, r.talk ? "Done! ✔" : "Real Arabic words to say every day", r.talk, "tmeet") +
         "</div>";
     } else {
       view.innerHTML = '<div class="letter-strip" dir="rtl">' + l.letters.map(function (x) { return '<span class="ls-chip">' + arSpan(x) + "</span>"; }).join("") + "</div>" +
@@ -427,12 +441,20 @@
 
   /* ---------------- ✍️ trace each letter ---------------- */
   var AR_FONT = "'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', 'Geeza Pro', 'Noto Sans Arabic', 'Arial', serif";
+  // what a lesson traces: its letters, or (harakat lessons) 3 syllables WITH their mark
+  function traceItems(l) {
+    if (l.kind !== "harakat") return l.letters.map(function (ch) { return { t: ch, ch: ch }; });
+    if (l.mix) return l.marks.map(function (m) { return syl(l.letters[0], m); });
+    return l.letters.slice(0, 3).map(function (ch) { return syl(ch, l.marks[0]); });
+  }
   function renderTrace(arg) {
-    var l = lessonById(arg.lesson), i = arg.i || 0, ch = l.letters[i], L = LETTERS[ch], fails = 0, stars = arg.stars || [];
-    $("topTitle").textContent = "Trace It · " + (i + 1) + "/" + l.letters.length;
+    var l = lessonById(arg.lesson), items = traceItems(l), i = arg.i || 0, it = items[i], ch = it.ch, L = LETTERS[ch], fails = 0, stars = arg.stars || [];
+    var isSyl = !!it.m, sayIt = isSyl ? { ar: it.t, fb: it.fb } : { ar: L.ar, fb: L.say };
+    $("topTitle").textContent = "Trace It · " + (i + 1) + "/" + items.length;
     view.innerHTML = buddyRow("") +
-      '<div class="game-box ar-trace-box"><div class="round-dots">' + l.letters.map(function (_, k) { return '<i class="' + (k < i ? "done" : k === i ? "now" : "") + '"></i>'; }).join("") + "</div>" +
-      '<div class="ar-trace-head">' + arSpan(ch, "ar-mid") + '<span><b>' + esc(L.name) + "</b><small>" + esc(dotWords(ch)) + " · " + L.word.e + " " + esc(L.word.tr) + "</small></span></div>" +
+      '<div class="game-box ar-trace-box"><div class="round-dots">' + items.map(function (_, k) { return '<i class="' + (k < i ? "done" : k === i ? "now" : "") + '"></i>'; }).join("") + "</div>" +
+      '<div class="ar-trace-head">' + arSpan(it.t, "ar-mid") + '<span><b>' + esc(isSyl ? it.tr : L.name) + "</b><small>" +
+        (isSyl ? esc(HARAKAT[it.m].name + ": " + HARAKAT[it.m].where) : esc(dotWords(ch)) + " · " + L.word.e + " " + esc(L.word.tr)) + "</small></span></div>" +
       '<div class="ar-pad" id="pad"></div>' +
       '<div class="say-row"><button class="mini-btn" id="showMe">👀 Show me</button><button class="mini-btn" id="hearIt">🔊 Hear it</button><button class="mini-btn" id="clearIt">🧽 Start over</button></div>' +
       '<div id="nextRow"></div></div>';
@@ -442,39 +464,225 @@
     TracePad.ready(AR_FONT.split(",")[0]).then(function () {
       if (mine !== nav) return;
       pad = TracePad.mount($("pad"), {
-        w: 120, h: 120, glyph: { text: ch, family: AR_FONT, rtl: ch !== "ا" }, guide: "full", ink: pick(["#e8590c", "#1c7ed6", "#2f9e44", "#ae3ec9"]),
+        w: 120, h: 120, glyph: { text: it.t, family: AR_FONT, rtl: ch !== "ا" }, guide: "full", ink: pick(["#e8590c", "#1c7ed6", "#2f9e44", "#ae3ec9"]),
         onStroke: function (r) {
           if (mine !== nav) return;
           if (!r.ok) { fails++; sfx.boop(); jamal(pick(PRAISE.traceOff), "think"); }
-          else if (!r.complete) { if (r.missing === "dots") jamal(pick(PRAISE.dots), "happy"); else jamal(pick(["Keep going!", "Nice, keep writing!", "More, more! Cover the whole letter!"]), "happy"); }
+          else if (!r.complete) { if (r.missing === "dots") jamal(pick(isSyl ? PRAISE.mark : PRAISE.dots), "happy"); else jamal(pick(["Keep going!", "Nice, keep writing!", "More, more! Cover the whole letter!"]), "happy"); }
         },
         onDone: function () {
           if (mine !== nav) return;
           var st = fails === 0 ? 3 : fails <= 2 ? 2 : 1; stars[i] = st;
           S.traced++; store(K.traced, S.traced); if (S.traced >= 10) trophy("writer");
-          if (window.Tracker) Tracker.answer(fails === 0, "Arabic writing", { letter: ch });
+          if (window.Tracker) Tracker.answer(fails === 0, "Arabic writing", { letter: it.t });
           addPoints(st); sfx.bell(); confetti(st * 12);
-          $("nextRow").innerHTML = '<div class="tw-win"><span class="done-stars">' + starsHtml(st) + '</span><button class="big-btn go" id="nextBtn">' + (i + 1 < l.letters.length ? "Next letter ▶" : "🎉 Finish") + "</button></div>";
+          $("nextRow").innerHTML = '<div class="tw-win"><span class="done-stars">' + starsHtml(st) + '</span><button class="big-btn go" id="nextBtn">' + (i + 1 < items.length ? "Next ▶" : "🎉 Finish") + "</button></div>";
           $("nextBtn").onclick = function () {
-            if (i + 1 < l.letters.length) go("trace", { lesson: l.id, i: i + 1, stars: stars });
+            if (i + 1 < items.length) go("trace", { lesson: l.id, i: i + 1, stars: stars });
             else {
-              var r = lrec(l.id), avg = Math.round(stars.reduce(function (a, b) { return a + (b || 1); }, 0) / l.letters.length);
+              var r = lrec(l.id), avg = Math.round(stars.reduce(function (a, b) { return a + (b || 1); }, 0) / items.length);
               r.trace = true; r.stars.trace = Math.max(r.stars.trace || 0, avg); save();
               if (window.Tracker) Tracker.complete("trace", avg, 3, { item: "Arabic " + l.title });
-              stepDone(l, avg, "You wrote every letter!");
+              stepDone(l, avg, isSyl ? "You wrote letters with harakat!" : "You wrote every letter!");
             }
           };
           var m = pick(PRAISE.trace);
-          jamal(m, "wow", [m, "You wrote", { ar: L.ar, fb: L.say }]);
+          jamal(m, "wow", [m, "You wrote", sayIt]);
         }
       });
       $("showMe").onclick = function () { pad.clear(); pad.demo(); };
       $("clearIt").onclick = function () { pad.clear(); $("nextRow").innerHTML = ""; };
     });
-    $("hearIt").onclick = function () { say([{ ar: L.ar, fb: L.say }, L.how]); };
-    var intro = (ch === "ا" ? "Alif goes from top to bottom, like rain falling! " : i === 0 ? "Arabic is written from right to left, so start on the right side! " : "") +
-      "Trace over " + L.name + " with your finger." + (L.dots[0] ? " Don't forget the " + dotWords(ch).replace(/ (on top|below|inside)$/, "") + "!" : "");
-    jamal(intro, "happy", ["Let's write", { ar: L.ar, fb: L.say }, intro]);
+    $("hearIt").onclick = function () { say(isSyl ? [sayIt, HARAKAT[it.m].how] : [sayIt, L.how]); };
+    var intro = isSyl ? (i === 0 ? "Write the letter first, then add its little mark! " : "") + "Trace " + it.tr + ": " + L.name + " with " + HARAKAT[it.m].where + "."
+      : (ch === "ا" ? "Alif goes from top to bottom, like rain falling! " : i === 0 ? "Arabic is written from right to left, so start on the right side! " : "") +
+        "Trace over " + L.name + " with your finger." + (L.dots[0] ? " Don't forget the " + dotWords(ch).replace(/ (on top|below|inside)$/, "") + "!" : "");
+    jamal(intro, "happy", ["Let's write", sayIt, intro]);
+  }
+
+  /* ---------------- 🎵 harakat: syllables, meet the mark, sound game, read words ---------------- */
+  // a letter + one haraka → { t: text, tr: "ba", fb: what an English voice says, ch, m }
+  function syl(ch, m) {
+    var c = CONS[ch], H = HARAKAT[m];
+    return { t: ch + H.mark, tr: c + H.v, fb: (c === "'" ? "" : c) + H.fb, ch: ch, m: m };
+  }
+  var MARK_OF = {};
+  Object.keys(HARAKAT).forEach(function (m) { MARK_OF[HARAKAT[m].mark] = m; });
+  // split a word with harakat into its syllables
+  function wordParts(ar) {
+    var parts = [];
+    Array.from(ar).forEach(function (c) {
+      if (MARK_OF[c] && parts.length) { var p = parts[parts.length - 1], s2 = syl(p.ch, MARK_OF[c]); p.t += c; p.tr = s2.tr; p.fb = s2.fb; p.m = s2.m; }
+      else parts.push({ t: c, ch: c, tr: CONS[c] || c, fb: CONS[c] || c });
+    });
+    return parts;
+  }
+  function wordTr(w) { return wordParts(w.ar).map(function (p) { return p.tr; }).join(""); }
+  function wordFb(w) { return wordParts(w.ar).map(function (p) { return p.fb; }).join("-"); }
+  function marksSoFar(l) {   // every haraka taught up to and including this lesson
+    var out = [], stop = false;
+    PHASES[trackOfLesson(l.id)].forEach(function (p) {
+      (p.lessons || []).forEach(function (x) {
+        if (stop) return;
+        if (x.kind === "harakat") x.marks.forEach(function (m) { if (out.indexOf(m) < 0) out.push(m); });
+        if (x.id === l.id) stop = true;
+      });
+    });
+    return out;
+  }
+  function circleMark(m) { return arSpan("\u25CC" + HARAKAT[m].mark, "ar-huge mark-big"); }
+
+  function renderMarkMeet(arg) {
+    var l = lessonById(arg.lesson), heard = 0;
+    var letters = l.mix ? l.letters.slice(0, 4) : l.letters;
+    $("topTitle").textContent = "Meet the Mark" + (l.mix ? "s" : "");
+    view.innerHTML = buddyRow("") +
+      '<div class="mark-cards">' + l.marks.map(function (m) {
+        return '<button class="mark-card" data-m="' + m + '">' + circleMark(m) + "<b>" + esc(HARAKAT[m].name) + " " + HARAKAT[m].e + "</b><small>" + esc(HARAKAT[m].where) + " · says “" + HARAKAT[m].v + "”</small></button>";
+      }).join("") + "</div>" +
+      '<p class="game-q">Tap each sound and say it with Jamal!</p>' +
+      '<div class="syl-grid" dir="rtl">' + letters.map(function (ch) {
+        return l.marks.map(function (m) { var x = syl(ch, m); return '<button class="syl-card" data-ch="' + ch + '" data-m="' + m + '">' + arSpan(x.t) + "<small>" + esc(x.tr) + "</small></button>"; }).join("");
+      }).join("") + "</div>" +
+      '<div class="home-actions"><button class="big-btn go" id="meetDone">▶ Play the Sound Game</button></div>';
+    view.querySelectorAll(".mark-card").forEach(function (el) {
+      el.onclick = function () { var H = HARAKAT[el.dataset.m]; sfx.pop(); el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); jamal(H.how, "happy", [H.how]); };
+    });
+    view.querySelectorAll(".syl-card").forEach(function (el) {
+      el.onclick = function () {
+        var x = syl(el.dataset.ch, el.dataset.m);
+        if (!el.classList.contains("heard")) { el.classList.add("heard"); heard++; }
+        sfx.pop(); jamal(LETTERS[x.ch].name + " with " + HARAKAT[x.m].name + " says " + x.tr + "!", "happy", [{ ar: x.t, fb: x.fb }]);
+        if (heard >= 4) pulse($("meetDone"));
+      };
+    });
+    $("meetDone").onclick = function () {
+      var r = lrec(l.id); if (!r.meet) { r.meet = true; save(); addPoints(3); }
+      go("hgame", { lesson: l.id });
+    };
+    var m0 = HARAKAT[l.marks[0]];
+    jamal(l.mix ? "Fatha, kasra and damma: three little marks, three sounds! a, i, u. Tap them all!" : "Meet " + m0.name + "! " + m0.how, "happy");
+  }
+
+  function renderMarkGame(arg) {
+    var l = lessonById(arg.lesson), known = marksSoFar(l), round = 0, score = 0;
+    var plan = []; shuffle(l.letters).concat(shuffle(l.letters)).slice(0, 8).forEach(function (ch, i) {
+      var m = l.mix ? known[i % known.length] : l.marks[0];
+      plan.push({ x: syl(ch, m), t: i % 2 ? "see" : "hear" });
+    });
+    $("topTitle").textContent = "Sound Game";
+    // wrong answers: the same letter with another mark (once 2+ marks are known), else other letters
+    function others(x) {
+      var same = known.filter(function (m) { return m !== x.m; }).map(function (m) { return syl(x.ch, m); });
+      var diff = shuffle(l.letters.filter(function (c) { return c !== x.ch && CONS[c] !== CONS[x.ch]; })).map(function (c) { return syl(c, x.m); });
+      return shuffle(same).concat(diff).slice(0, 2);
+    }
+    function frame(inner, msg, mood) {
+      view.innerHTML = buddyRow(msg, mood) + '<div class="game-box">' +
+        '<div class="round-dots">' + plan.map(function (_, i) { return '<i class="' + (i < round - 1 ? "done" : i === round - 1 ? "now" : "") + '"></i>'; }).join("") + "</div>" + inner + "</div>";
+    }
+    function next() {
+      if (round >= plan.length) return finish();
+      var P = plan[round++], cs = shuffle([P.x].concat(others(P.x))), tries = 0;
+      if (P.t === "hear") {
+        frame('<p class="game-q">Which sound do you hear? <button class="mini-btn" id="again">🔊 Hear it</button></p>' +
+          '<div class="choice-row" dir="rtl">' + cs.map(function (c) { return '<button class="choice ar-choice ar-letter" data-c="' + c.tr + '">' + arSpan(c.t) + "</button>"; }).join("") + "</div>", "Listen! Which sound is it?", "happy");
+        jamal("Listen! Which sound is it?", "happy", ["Listen!", { ar: P.x.t, fb: P.x.fb }]);
+        $("again").onclick = function () { say([{ ar: P.x.t, fb: P.x.fb }]); };
+      } else {
+        frame('<p class="game-q">How do you read this?</p><div class="say-word ar-show">' + arSpan(P.x.t, "ar-huge") + "</div>" +
+          '<div class="choice-row">' + cs.map(function (c) { return '<button class="choice word ar-choice" data-c="' + c.tr + '">' + esc(c.tr) + "</button>"; }).join("") + "</div>", "How do you read this? Look at the mark!", "think");
+        jamal("How do you read this? Look at the little mark!", "think");
+      }
+      view.querySelectorAll(".ar-choice").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.c === P.x.tr) {
+            view.querySelectorAll(".ar-choice").forEach(function (b) { b.disabled = true; });
+            el.classList.add("right"); sfx.ding(); confetti(14);
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Harakat", { sound: P.x.tr });
+            var m = pick(PRAISE.right);
+            jamal(m + " " + P.x.tr + "!", "wow", [m, { ar: P.x.t, fb: P.x.fb }]).then(onNav(function () { setTimeout(onNav(next), 250); }));
+          } else {
+            tries++; el.classList.add("nope"); sfx.boop();
+            var H = HARAKAT[P.x.m];
+            jamal(tries >= 2 ? "Look where the mark is: " + H.where + " means " + H.v + "!" : pick(PRAISE.oops), "think");
+          }
+        };
+      });
+    }
+    function finish() {
+      var r = lrec(l.id), first = !r.game;
+      r.game = true; r.stars.game = Math.max(r.stars.game || 0, score >= plan.length - 1 ? 3 : score >= plan.length / 2 ? 2 : 1); save();
+      if (first) addPoints(5);
+      if (window.Tracker) Tracker.complete("harakatgame", score, plan.length, { item: "Arabic " + l.title });
+      stepDone(l, r.stars.game, score + " of " + plan.length + " right!");
+    }
+    next();
+  }
+
+  // read each word sound by sound, then "which word did Jamal say?"
+  function renderReadWords(arg) {
+    var l = lessonById(arg.lesson), i = arg.i || 0, W = l.words, score = arg.score || 0;
+    if (i >= W.length) return readQuiz(l, 0, 0);
+    var w = W[i], parts = wordParts(w.ar);
+    $("topTitle").textContent = "Read Words · " + (i + 1) + "/" + W.length;
+    view.innerHTML = buddyRow("") +
+      '<div class="game-box"><div class="round-dots">' + W.map(function (_, k) { return '<i class="' + (k < i ? "done" : k === i ? "now" : "") + '"></i>'; }).join("") + "</div>" +
+      '<div class="say-word ar-show">' + arSpan(w.ar, "ar-huge") + "</div>" +
+      '<p class="game-q">Tap each sound, from right to left ⬅</p>' +
+      '<div class="syl-grid row" dir="rtl">' + parts.map(function (p, k) { return '<button class="syl-card" data-k="' + k + '">' + arSpan(p.t) + "<small>" + esc(p.tr) + "</small></button>"; }).join("") + "</div>" +
+      '<div class="say-row"><button class="mini-btn" id="hearWord">🔊 Hear the word</button><button class="big-btn go small" id="readIt">📖 I read it!</button></div>' +
+      '<div id="meaning"></div></div>';
+    view.querySelectorAll(".syl-card").forEach(function (el) {
+      el.onclick = function () { var p = parts[+el.dataset.k]; el.classList.add("heard"); sfx.pop(); say([{ ar: p.t, fb: p.fb }]); };
+    });
+    $("hearWord").onclick = function () { say([{ ar: w.ar, fb: wordFb(w) }]); };
+    $("readIt").onclick = function () {
+      $("readIt").disabled = true; sfx.fanfare(); confetti(24); addPoints(2);
+      S.read = (S.read || 0) + 1; store(K.read, S.read); if (S.read >= 8) trophy("reader");
+      $("meaning").innerHTML = '<div class="read-meaning"><span class="pic-big">' + w.e + "</span><b>" + esc(wordTr(w)) + "</b><span>means “" + esc(w.en) + "”</span>" +
+        '<button class="big-btn go" id="nextWord">' + (i + 1 < W.length ? "Next word ▶" : "🎮 Word quiz") + "</button></div>";
+      var m = pick(PRAISE.read);
+      jamal(m + " " + wordTr(w) + " means " + w.en + ".", "wow", [m, { ar: w.ar, fb: wordFb(w) }, "means " + w.en]);
+      $("nextWord").onclick = function () { go("hread", { lesson: l.id, i: i + 1 }); };
+    };
+    jamal(i === 0 ? "Let's read! Tap each sound from right to left, then put them together. You can do it!" : "Next word! Sound by sound, from right to left.", "happy");
+  }
+  function readQuiz(l, q, score) {
+    var W = l.words, order = shuffle(W).slice(0, 3), tries = 0;
+    function show() {
+      if (q >= order.length) return done();
+      var w = order[q], cs = shuffle([w].concat(shuffle(W.filter(function (x) { return x !== w; })).slice(0, 2)));
+      tries = 0;
+      $("topTitle").textContent = "Word quiz · " + (q + 1) + "/" + order.length;
+      view.innerHTML = buddyRow("Which word did I say?") + '<div class="game-box">' +
+        '<div class="round-dots">' + order.map(function (_, k) { return '<i class="' + (k < q ? "done" : k === q ? "now" : "") + '"></i>'; }).join("") + "</div>" +
+        '<p class="game-q">Which word did Jamal say? <button class="mini-btn" id="again">🔊 Hear it</button></p>' +
+        '<div class="choice-row" dir="rtl">' + cs.map(function (c) { return '<button class="choice ar-choice ar-letter" data-c="' + esc(c.ar) + '">' + arSpan(c.ar) + "</button>"; }).join("") + "</div></div>";
+      jamal("Which word did I say?", "happy", ["Which word did I say?", { ar: w.ar, fb: wordFb(w) }]);
+      $("again").onclick = function () { say([{ ar: w.ar, fb: wordFb(w) }]); };
+      view.querySelectorAll(".ar-choice").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.c === w.ar) {
+            view.querySelectorAll(".ar-choice").forEach(function (b) { b.disabled = true; });
+            el.classList.add("right"); sfx.ding(); confetti(14);
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Arabic reading", { word: wordTr(w) });
+            var m = pick(PRAISE.right);
+            jamal(m + " " + wordTr(w) + "!", "wow", [m]).then(onNav(function () { q++; setTimeout(onNav(show), 250); }));
+          } else { tries++; el.classList.add("nope"); sfx.boop(); jamal(pick(PRAISE.oops) + " Listen to each sound.", "think"); }
+        };
+      });
+    }
+    function done() {
+      var r = lrec(l.id), first = !r.read;
+      r.read = true; r.stars.read = Math.max(r.stars.read || 0, score >= 3 ? 3 : score >= 2 ? 2 : 1); save();
+      if (first) addPoints(5);
+      if (window.Tracker) Tracker.complete("readwords", score, order.length, { item: "Arabic " + l.title });
+      stepDone(l, r.stars.read, "You read " + W.length + " Arabic words!");
+    }
+    show();
   }
 
   /* ---------------- 🗣️ talk time ---------------- */
@@ -575,8 +783,11 @@
     if (lessonComplete(l)) return finishLesson(l);
     var r = lrec(l.id);
     current = { screen: "done", arg: { lesson: l.id } };
-    var nextStep = l.kind === "talk" ? (!r.meet ? "tmeet" : "tquiz") : !r.meet ? "meet" : !r.game ? "game" : !r.trace ? "trace" : "tmeet";
-    var nextName = { meet: "👋 Meet the Letters", game: "🎮 Letter Game", trace: "✍️ Trace It", tmeet: "🗣️ Talk Time", tquiz: "🎮 Word Game" }[nextStep];
+    var nextStep = l.kind === "talk" ? (!r.meet ? "tmeet" : "tquiz")
+      : l.kind === "harakat" ? (!r.meet ? "hmeet" : !r.game ? "hgame" : !r.read ? "hread" : !r.trace ? "trace" : "tmeet")
+      : !r.meet ? "meet" : !r.game ? "game" : !r.trace ? "trace" : "tmeet";
+    var nextName = { meet: "👋 Meet the Letters", game: "🎮 Letter Game", trace: "✍️ Trace It", tmeet: "🗣️ Talk Time", tquiz: "🎮 Word Game",
+                     hmeet: "👋 Meet the Mark", hgame: "🎮 Sound Game", hread: "📖 Read Words" }[nextStep];
     sfx.fanfare(); confetti(50);
     view.innerHTML = buddyRow("", "wow") +
       '<div class="celebrate"><div class="big-emoji">🐪✨</div><h2>' + esc(title) + '</h2><div class="done-stars">' + starsHtml(stars) + "</div>" +
@@ -593,13 +804,13 @@
     if (!wasDone) { giveTicket(); addPoints(10); trophy("first-lesson"); }
     if (window.Tracker) Tracker.complete("lesson", 1, 1, { item: "Arabic " + l.title, firstTime: !wasDone });
     var p = phaseOfLesson(l.id);
-    if (phaseDone(p) && p.n === 1) trophy("phase-1");
+    if (phaseDone(p)) trophy("phase-" + p.n);
     hud(); sfx.fanfare(); confetti(100);
     current = { screen: "done", arg: { lesson: l.id } };
     var nextL = p.lessons.filter(function (x) { return !lrec(x.id).done; })[0];
     view.innerHTML = buddyRow("", "wow") +
       '<div class="celebrate"><div class="sticker-reveal' + (newSticker ? " new" : "") + '"><span>' + l.sticker.emoji + "</span></div>" +
-      "<h2>Mumtaaz! You finished " + (l.kind === "talk" ? esc(l.title) : arSpan(l.title)) + "!</h2>" +
+      "<h2>Mumtaaz! You finished " + (l.kind === "letters" ? arSpan(l.title) : esc(l.title)) + "!</h2>" +
       (wasDone ? "" : '<p class="done-loot">🎟️ +1 Prize Wheel ticket · ⭐ +10 bonus</p>') +
       '<div class="done-actions">' + (nextL ? '<button class="big-btn go" id="dNext">🐪 Next lesson</button>' : "") +
       '<button class="big-btn alt" id="dHome">🗺️ All phases</button></div></div>';

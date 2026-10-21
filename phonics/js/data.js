@@ -32,7 +32,19 @@ const LETTER_SOUNDS = {
 const DIGRAPHS = {
   sh: { say: "shhh", e: "🤫", how: "Put your finger on your lips, like a baby is sleeping. Shhh!", joke: "Shhh! Even my feathers are tiptoeing!" },
   ch: { say: "chuh", e: "🚂", how: "Like a little train! Ch, ch, ch, choo choo!", joke: "Ch, ch, choo choo! All aboard the word train!" },
-  th: { say: "thhh", e: "👅", how: "Stick your tongue out just a tiny bit and blow. Th, th. It's a silly face!", joke: "Th, th! Don't worry, sticking out your tongue is allowed today!" }
+  th: { say: "thhh", e: "👅", how: "Stick your tongue out just a tiny bit and blow. Th, th. It's a silly face!", joke: "Th, th! Don't worry, sticking out your tongue is allowed today!" },
+  // Step 5 blends: two sounds that slide together (each letter still says its own sound)
+  st: { say: "stuh", e: "⭐", how: "S and t slide together: sss, tuh, st! Like star!", joke: "St, st! Stop! I'm laughing so hard my tail feathers fell off!" },
+  sp: { say: "spuh", e: "🥄", how: "S and p slide together: sss, puh, sp! Like spoon!", joke: "Sp, sp! A spider in a spoon? Spooky!" },
+  sn: { say: "snuh", e: "🐌", how: "S and n slide together: sss, nnn, sn! Like a slow snail.", joke: "Sn, sn! A snail sneezed. Bless you, snail!" },
+  fl: { say: "fluh", e: "🚩", how: "F and l slide together: fff, lll, fl! Flap like a flag in the wind!", joke: "Fl, fl! I can fly, but I can't fly a flag!" },
+  cl: { say: "kluh", e: "👏", how: "C and l slide together: kuh, lll, cl! Clap, clap!", joke: "Cl, cl! Clap for yourself, you clever reader!" },
+  bl: { say: "bluh", e: "🫧", how: "B and l slide together: buh, lll, bl! Blow a big bubble!", joke: "Bl, bl, bl! That's the sound of a fish blowing bubbles!" },
+  gr: { say: "gruh", e: "🐻", how: "G and r slide together: guh, rrr, gr! Growl like a bear!", joke: "Grrr! Don't worry, it's a friendly growl!" },
+  tr: { say: "truh", e: "🚚", how: "T and r slide together: tuh, rrr, tr! Like a truck!", joke: "Tr, tr! The truck is tooting its horn for you!" },
+  cr: { say: "kruh", e: "🦀", how: "C and r slide together: kuh, rrr, cr! Like a crab!", joke: "Cr, cr! A crab is clapping its claws for you!" },
+  nd: { say: "nnd", e: "✋", how: "At the END of a word, n and d slide together: nnn, duh, nd! Like hand!", joke: "Nd, nd! Give me a high five with your hand!" },
+  mp: { say: "mmp", e: "🦘", how: "At the end, m and p slide together: mmm, puh, mp! Like jump!", joke: "Mp, mp! Jump, jump, like a kangaroo on a trampoline!" }
 };
 
 const BOOKS = [
@@ -300,7 +312,8 @@ const PH_TROPHIES = [
   { id: "letter-pro", icon: "🔠", name: "Letter Pro", desc: "Finish all 4 Letter Sounds lessons" },
   { id: "sight-star", icon: "👀", name: "Sight Word Star", desc: "Finish all 4 Sight Words lessons" },
   { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" },
-  { id: "team-champ", icon: "🤫", name: "Sound Team Champ", desc: "Finish all 4 Sh, Ch, Th lessons" }
+  { id: "team-champ", icon: "🤫", name: "Sound Team Champ", desc: "Finish all 4 Sh, Ch, Th lessons" },
+  { id: "blend-champ", icon: "🌊", name: "Blend Champ", desc: "Finish all 4 Blends lessons" }
 ];
 
 /* ============================================================
@@ -314,7 +327,9 @@ const PH_TROPHIES = [
                             from word tiles (first writing practice)
    Phase 4 Sh, Ch, Th     → digraph lessons (kind "digraph"): meet the
                             sound team, a sound game, then build sentences
-   Phases 5–6             → no lessons yet = "coming soon"
+   Phase 5 Blends         → blend lessons (kind "blend"): same 3 steps as Phase 4,
+                            but each letter keeps its own sound and they slide together
+   Phase 6                → no lessons yet = "coming soon"
    A phase opens when the one before it is finished; phases 1–3 are
    open from the start.
    ============================================================ */
@@ -372,6 +387,24 @@ const PHASES = [
         sentences: [{ s: "The rat ate the cheese.", e: "🧀" }, { s: "Wash the dish with me.", e: "🧼" }, { s: "The shed is on the path.", e: "🛖" }],
         sticker: { emoji: "🧀", name: "Cheesy Champ" } }
     ] },
-  { id: "k5", n: 5, title: "Blends", sub: "Sounds that slide together: st, fl, gr", emoji: "🌊", color: "#ffc9c9", accent: "#e03131" },
+  { id: "k5", n: 5, title: "Blends", sub: "Sounds that slide together: st, fl, gr", emoji: "🌊", color: "#ffc9c9", accent: "#e03131",
+    lessons: [
+      { id: "bl1", kind: "blend", title: "st · sp · sn", teams: ["st", "sp", "sn"],
+        words: [{ w: "star", e: "⭐" }, { w: "stop", e: "🛑" }, { w: "spoon", e: "🥄" }, { w: "spider", e: "🕷️" }, { w: "snail", e: "🐌" }, { w: "snake", e: "🐍" }],
+        sentences: [{ s: "I see a star.", e: "⭐" }, { s: "The snail is slow.", e: "🐌" }, { s: "Stop, big snake!", e: "🐍" }],
+        sticker: { emoji: "🐌", name: "Speedy Snail" } },
+      { id: "bl2", kind: "blend", title: "fl · cl · bl", teams: ["fl", "cl", "bl"],
+        words: [{ w: "flag", e: "🚩" }, { w: "flower", e: "🌸" }, { w: "clock", e: "🕰️" }, { w: "cloud", e: "☁️" }, { w: "blue", e: "🔵" }, { w: "block", e: "🧱" }],
+        sentences: [{ s: "The flag is red.", e: "🚩" }, { s: "I like the blue block.", e: "🧱" }, { s: "Clap for me!", e: "👏" }],
+        sticker: { emoji: "🌸", name: "Flower Power" } },
+      { id: "bl3", kind: "blend", title: "gr · tr · cr", teams: ["gr", "tr", "cr"],
+        words: [{ w: "grapes", e: "🍇" }, { w: "grass", e: "🌱" }, { w: "tree", e: "🌳" }, { w: "truck", e: "🚚" }, { w: "crab", e: "🦀" }, { w: "crown", e: "👑" }],
+        sentences: [{ s: "The crab is red.", e: "🦀" }, { s: "I see a big tree.", e: "🌳" }, { s: "The truck is on the grass.", e: "🚚" }],
+        sticker: { emoji: "👑", name: "Crab King" } },
+      { id: "bl4", kind: "blend", title: "-st · -nd · -mp", teams: ["st", "nd", "mp"], mix: true,
+        words: [{ w: "nest", e: "🪺" }, { w: "fist", e: "✊" }, { w: "hand", e: "✋" }, { w: "sand", e: "🏖️" }, { w: "lamp", e: "💡" }, { w: "jump", e: "🦘" }],
+        sentences: [{ s: "Jump in the sand.", e: "🏖️" }, { s: "The bird is in the nest.", e: "🪺" }, { s: "Hold my hand.", e: "✋" }],
+        sticker: { emoji: "🦘", name: "Jumpy Roo" } }
+    ] },
   { id: "k6", n: 6, title: "Magic e", sub: "cake, bike, home: the e makes the vowel say its name", emoji: "✨", color: "#fff3bf", accent: "#f59f00" }
 ];
