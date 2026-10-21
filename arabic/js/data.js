@@ -12,7 +12,7 @@
      g3 — 7 letters a lesson, letter names, and a Talk Time step
    A phase with no `lessons` shows as "coming soon".
    Lesson kinds: "letters" (meet/game/trace [+talk]), "talk" (KG phrase lesson),
-   "harakat" (3rd grade Phase 2: meet the mark / sound game / read words / trace / talk).
+   "harakat" (3rd grade Phases 2–3: meet the mark / sound game / read words / trace / talk).
 
    Letter = { ch, name (kid spelling), ar (letter name in Arabic, for
    an Arabic voice), say (what an ENGLISH voice says when the device
@@ -52,7 +52,7 @@ const LETTERS = {
 };
 
 /* consonant sound of each letter, for reading syllables (ba, bi, bu) */
-const CONS = { "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
+const CONS = { "ا": "", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
   "ص": "s", "ض": "d", "ط": "t", "ظ": "dh", "ع": "'", "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y" };
 
 /* the three short vowels (harakat). v = how the syllable is written in English letters,
@@ -60,7 +60,14 @@ const CONS = { "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h", "خ": "kh
 const HARAKAT = {
   fatha: { mark: "\u064E", name: "Fatha", v: "a", fb: "ah", where: "a little slash ON TOP", how: "Fatha is a little slash on top of the letter. It says a, like in apple. Open your mouth wide, like a hungry lion: ba, ta, ja!", e: "🦁" },
   kasra: { mark: "\u0650", name: "Kasra", v: "i", fb: "ee", where: "a little slash UNDERNEATH", how: "Kasra is a little slash under the letter. It says i, like in sit. Smile wide, like you're taking a photo: bi, ti, ji!", e: "📸" },
-  damma: { mark: "\u064F", name: "Damma", v: "u", fb: "oo", where: "a tiny curly waaw ON TOP", how: "Damma looks like a tiny curly waaw on top. It says u, like in put. Make your lips round, like you're blowing a kiss: bu, tu, ju!", e: "😗" }
+  damma: { mark: "\u064F", name: "Damma", v: "u", fb: "oo", where: "a tiny curly waaw ON TOP", how: "Damma looks like a tiny curly waaw on top. It says u, like in put. Make your lips round, like you're blowing a kiss: bu, tu, ju!", e: "😗" },
+  // Phase 3 (3rd grade). Sukoon and shadda are read with a carrier: أَبْ "ab", أَبَّ "abba".
+  // pair = the mark it is easiest to mix up with; the Sound Game always offers it as a wrong answer
+  sukoon: { pair: "fatha", mark: "\u0652", name: "Sukoon", v: "", fb: "", says: "no vowel. Stop!", where: "a tiny circle ON TOP", how: "Sukoon is a tiny circle on top. It's a STOP sign! The letter makes its sound and stops, with no vowel at all: ab, at, ad. Quick and short!", e: "🛑" },
+  shadda: { pair: "sukoon", mark: "\u0651", name: "Shadda", v: "", fb: "", says: "the letter twice!", where: "a little w ON TOP", how: "Shadda looks like a little w on top. It means DOUBLE! Say the letter two times, like it's bouncing: ab-ba, at-ta, ad-da. Boing, boing!", e: "🦘" },
+  fathatan: { pair: "fatha", mark: "\u064B", name: "Fathatan", v: "an", fb: "an", where: "TWO slashes on top", how: "Two fathas on top! That's tanween. It adds a little n at the end: ban, tan, jan. Like a tiny bell ringing: n!", e: "🔔" },
+  kasratan: { pair: "kasra", mark: "\u064D", name: "Kasratan", v: "in", fb: "een", where: "TWO slashes underneath", how: "Two kasras underneath! Tanween again. Smile and add an n: bin, tin, jin!", e: "😁" },
+  dammatan: { pair: "damma", mark: "\u064C", name: "Dammatan", v: "un", fb: "oon", where: "a double curly damma on top", how: "A double damma on top! Round lips, then a little n: bun, tun, jun. Most Arabic nouns wear this one, like qalamun, a pen!", e: "🎀" }
 };
 
 /* letters that look alike — the best wrong answers ("dot detective") */
@@ -134,6 +141,48 @@ const TALK = {
     q: [{ q: "It's your birthday and you got a puppy! How do you feel?", a: "سعيد" },
         { q: "You stayed up way too late. How do you feel?", a: "متعب" },
         { q: "Your tummy is growling! How do you feel?", a: "جائع" }] },
+  animals: { title: "Animal Friends", phrases: [
+    { ar: "قطة", tr: "qitta", en: "Cat", e: "🐱" },
+    { ar: "كلب", tr: "kalb", en: "Dog", e: "🐶" },
+    { ar: "أسد", tr: "asad", en: "Lion", e: "🦁" },
+    { ar: "سمكة", tr: "samaka", en: "Fish", e: "🐟" } ],
+    q: [{ q: "Who says meow? 🥛", a: "قطة" },
+        { q: "Who says woof woof and wags its tail?", a: "كلب" },
+        { q: "Who is the king of the jungle and says ROAR?", a: "أسد" },
+        { q: "Who swims in the sea and blows bubbles?", a: "سمكة" }] },
+  school: { title: "At School", phrases: [
+    { ar: "مدرسة", tr: "madrasa", en: "School", e: "🏫" },
+    { ar: "معلم", tr: "muallim", en: "Teacher", e: "🧑‍🏫" },
+    { ar: "كتاب", tr: "kitaab", en: "Book", e: "📕" },
+    { ar: "قلم", tr: "qalam", en: "Pen", e: "✏️" } ],
+    q: [{ q: "Where do you go to learn every day?", a: "مدرسة" },
+        { q: "What do you write with?", a: "قلم" },
+        { q: "Who helps you learn in class?", a: "معلم" }] },
+  body: { title: "My Body", phrases: [
+    { ar: "يد", tr: "yad", en: "Hand", e: "✋" },
+    { ar: "عين", tr: "ayn", en: "Eye", e: "👁️" },
+    { ar: "أنف", tr: "anf", en: "Nose", e: "👃" },
+    { ar: "فم", tr: "fam", en: "Mouth", e: "👄" } ],
+    q: [{ q: "What do you smell a flower with? 🌸", a: "أنف" },
+        { q: "What do you wave hello with? 👋", a: "يد" },
+        { q: "What do you eat a sandwich with? 🥪", a: "فم" }] },
+  weather: { title: "Weather", phrases: [
+    { ar: "شمس", tr: "shams", en: "Sun", e: "☀️" },
+    { ar: "مطر", tr: "matar", en: "Rain", e: "🌧️" },
+    { ar: "حار", tr: "haarr", en: "Hot", e: "🥵" },
+    { ar: "بارد", tr: "baarid", en: "Cold", e: "🥶" } ],
+    q: [{ q: "You need an umbrella! What is falling from the sky? ☔", a: "مطر" },
+        { q: "You want ice cream because it is so…", a: "حار" },
+        { q: "You need a big coat and gloves because it is so…", a: "بارد" }] },
+  count10: { title: "Count to Ten", phrases: [
+    { ar: "ستة", tr: "sitta", en: "Six", e: "6️⃣" },
+    { ar: "سبعة", tr: "sabaa", en: "Seven", e: "7️⃣" },
+    { ar: "ثمانية", tr: "thamaaniya", en: "Eight", e: "8️⃣" },
+    { ar: "تسعة", tr: "tisaa", en: "Nine", e: "9️⃣" },
+    { ar: "عشرة", tr: "ashara", en: "Ten", e: "🔟" } ],
+    q: [{ q: "How many fingers on BOTH hands? 🙌", a: "عشرة" },
+        { q: "How many legs does a spider have? 🕷️", a: "ثمانية" },
+        { q: "How many days are in one week? 📅", a: "سبعة" }] },
   magic: { title: "Magic Words", phrases: [
     { ar: "مرحبا", tr: "marhaban", en: "Hello!", e: "👋" },
     { ar: "شكرا", tr: "shukran", en: "Thank you", e: "🙏" },
@@ -165,7 +214,13 @@ const PHASES = {
         { id: "ak7", kind: "letters", title: "ط ظ", letters: ["ط", "ظ"], sticker: { emoji: "✈️", name: "Taa-ira the Plane" } },
         { id: "ak8", kind: "talk", title: "Colors", talk: "colors", sticker: { emoji: "🌈", name: "Rainbow Camel" } }
       ] },
-    { id: "k3", n: 3, title: "Last Letters", sub: "ع غ ف ق ك ل م ن ه و ي", emoji: "🐘", color: "#b2f2bb", accent: "#2f9e44" },
+    { id: "k3", n: 3, title: "Last Letters", sub: "ع غ ف ق ك ل م ن ه و ي + Animals", emoji: "🐘", color: "#b2f2bb", accent: "#2f9e44",
+      lessons: [
+        { id: "ak9", kind: "letters", title: "ع غ ف ق", letters: ["ع", "غ", "ف", "ق"], sticker: { emoji: "🐘", name: "Feel the Elephant" } },
+        { id: "ak10", kind: "letters", title: "ك ل م", letters: ["ك", "ل", "م"], sticker: { emoji: "🍋", name: "Laymoon the Lemon" } },
+        { id: "ak11", kind: "letters", title: "ن ه و ي", letters: ["ن", "ه", "و", "ي"], sticker: { emoji: "🐝", name: "Nahla the Bee" } },
+        { id: "ak12", kind: "talk", title: "Animal Friends", talk: "animals", sticker: { emoji: "🦁", name: "Asad the Lion" } }
+      ] },
     { id: "k4", n: 4, title: "Little Vowels", sub: "Fatha, kasra, damma: ba, bi, bu", emoji: "🎵", color: "#d0bfff", accent: "#7048e8" },
     { id: "k5", n: 5, title: "My First Words", sub: "Read short words with pictures", emoji: "🍎", color: "#ffc9c9", accent: "#e03131" },
     { id: "k6", n: 6, title: "Words I Can Write", sub: "Trace and write little words", emoji: "✍️", color: "#fff3bf", accent: "#f59f00" }
@@ -194,7 +249,23 @@ const PHASES = {
           words: [{ ar: "كَبُرَ", en: "it grew big", e: "🌳" }, { ar: "صَغُرَ", en: "it got small", e: "🐜" }, { ar: "لَعِبَ", en: "he played", e: "⚽" }, { ar: "كُتِبَ", en: "it was written", e: "📝" }],
           sticker: { emoji: "🎵", name: "Harakat Hero" } }
       ] },
-    { id: "g3", n: 3, title: "Sukoon, Shadda & Tanween", sub: "Stop signs, double letters, -an -in -un", emoji: "🛑", color: "#d0bfff", accent: "#7048e8" },
+    { id: "g3", n: 3, title: "Sukoon, Shadda & Tanween", sub: "Stop signs, double letters, -an -in -un", emoji: "🛑", color: "#d0bfff", accent: "#7048e8",
+      lessons: [
+        { id: "ag9", kind: "harakat", title: "Sukoon: ab at ad", marks: ["sukoon"], letters: ["ب", "ت", "د", "ر", "س", "ل", "م"], talk: "school",
+          words: [{ ar: "قِفْ", en: "stop!", e: "🛑" }, { ar: "قُمْ", en: "stand up!", e: "🧍" }, { ar: "نَمْ", en: "sleep!", e: "😴" }, { ar: "كُلْ", en: "eat!", e: "🍽️" }],
+          sticker: { emoji: "🛑", name: "Sukoon Stop Sign" } },
+        { id: "ag10", kind: "harakat", title: "Shadda: abba atta", marks: ["shadda"], letters: ["ب", "د", "ر", "م", "ل", "ن", "ك"], talk: "body",
+          words: [{ ar: "شَدَّ", en: "he pulled", e: "💪" }, { ar: "ضَمَّ", en: "he hugged", e: "🤗" }, { ar: "عَدَّ", en: "he counted", e: "🔢" }, { ar: "مَدَّ", en: "he stretched", e: "🙆" }],
+          sticker: { emoji: "🦘", name: "Bouncy Shadda" } },
+        { id: "ag11", kind: "harakat", title: "Tanween: -un -an -in", marks: ["dammatan", "fathatan", "kasratan"], letters: ["ب", "ت", "د", "ر", "ق", "ل", "م"], talk: "weather",
+          intro: "Tanween! Two marks instead of one, and they add a little n at the end: un, an, in. Tap them all!",
+          words: [{ ar: "قَلَمٌ", en: "a pen", e: "✏️" }, { ar: "جَمَلٌ", en: "a camel", e: "🐪" }, { ar: "قَمَرٌ", en: "a moon", e: "🌙" }, { ar: "وَلَدٌ", en: "a boy", e: "👦" }],
+          sticker: { emoji: "🔔", name: "Tanween Bell" } },
+        { id: "ag12", kind: "harakat", title: "Phase 3 Mix", marks: ["sukoon", "shadda", "dammatan"], letters: ["ب", "د", "ر", "ل", "م", "ن", "ك"], talk: "count10", mix: true,
+          intro: "Stop sign, bounce, and ring the bell! Sukoon, shadda and tanween all together. Tap them all!",
+          words: [{ ar: "كَلْبٌ", en: "a dog", e: "🐶" }, { ar: "دُبٌّ", en: "a bear", e: "🐻" }, { ar: "قِطٌّ", en: "a cat", e: "🐱" }, { ar: "بَيْتٌ", en: "a house", e: "🏠" }],
+          sticker: { emoji: "🏆", name: "Mark Master" } }
+      ] },
     { id: "g4", n: 4, title: "Letters Hold Hands", sub: "Beginning, middle and end shapes", emoji: "🤝", color: "#b2f2bb", accent: "#2f9e44" },
     { id: "g5", n: 5, title: "Word Market", sub: "Colors, family, food & school words", emoji: "🛍️", color: "#ffc9c9", accent: "#e03131" },
     { id: "g6", n: 6, title: "Sentence Oasis", sub: "Read and write short sentences", emoji: "🌴", color: "#fff3bf", accent: "#f59f00" }
@@ -230,5 +301,6 @@ const AR_TROPHIES = [
   { id: "all-letters", icon: "👑", name: "Alphabet Champion", desc: "Meet all 28 letters" },
   { id: "phase-1", icon: "🏅", name: "Oasis Star", desc: "Finish Phase 1" },
   { id: "phase-2", icon: "🎵", name: "Oasis Explorer", desc: "Finish Phase 2" },
+  { id: "phase-3", icon: "🌟", name: "Oasis Master", desc: "Finish Phase 3" },
   { id: "reader", icon: "📖", name: "Arabic Reader", desc: "Read 8 Arabic words with harakat" }
 ];

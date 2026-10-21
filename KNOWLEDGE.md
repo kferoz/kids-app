@@ -1,3 +1,11 @@
+## FEATURE — Rocket Phase 5, Phonics Magic e, Arabic Phase 3, Write & Trace Phase 3 · 2026-10-21
+- Magic e sounding out says the vowel's NAME (`MAGIC_E[v].name`) and keeps the e silent. Avoid soft-c words (dice): `LETTER_SOUNDS.c` is "kuh".
+- Arabic sukoon/shadda can't be voiced alone: syllables ride on a carrier alif (أَبْ "ab", أَبَّ "abba"); Trace It drops the carrier (`traceSyl`).
+- `wordParts` must accept shadda before OR after the vowel (Unicode order varies), so it keeps `p.sh` and recomputes tr. `CONS["ا"] = ""` makes an alif after fathatan silent.
+- Each new haraka has `pair` (dammatan↔damma, sukoon↔fatha); random distractors from 8 known marks hid the key contrast.
+- Rocket root write goals reuse `team` (substring), so "sport" also passes `port`. Every `focus` word must appear in the passage (the content audit checks it).
+- Old test suites auto-close the $1 celebration (lib.js observer) unless the seed sets `window.__keepParty`; retro dollars otherwise cover the buttons they click.
+
 ## FEATURE — Shared KidBar: floating Home, 🎒 pocket, Dollar Bank ($1 challenges) · 2026-10-21
 - Every app page loads `js/dollars.js` then `js/kidbar.js` right after tracker.js. Rewards Center passes `data-pocket="off"`. Admin loads only dollars.js.
 - $1 challenges are read from each app's saved state (mostly hard trophies), so apps need no calls. New phase trophies need a new `trophy(...)` line in `CHALLENGES`.
@@ -34,6 +42,7 @@
 - Claude-in-Chrome cannot open `file://` URLs; IndexedDB under file:// stays untested by automation.
 - Python `open(p,"w")` on Windows writes CRLF; pass `newline=""` or LF files become whole-file git diffs.
 - Line-ending-only changes alter the APK content hash: rebuild before committing, or the Stop hook bumps the version.
+- The Bash tool runs commands through `eval`: an apostrophe inside a quoted heredoc (Ma'am, Grandma's) breaks parsing. Write such files with the Write tool.
 
 ## FINDING — Headless verification without Claude-in-Chrome · 2026-10-19
 - Edge `--headless --dump-dom` silently outputs nothing here; use `playwright-core` with `executablePath` to msedge.exe.

@@ -265,7 +265,7 @@
     $("backBtn").hidden = screen === "home";
     document.body.dataset.screen = screen;
     window.scrollTo(0, 0);
-    ({ home: renderPath, shelf: renderShelf, phase: renderLetterPhase, lesson: renderLetterLesson, meet: renderMeet, lgame: renderLetterGame, lquiz: renderLetterQuiz, smeet: renderSightMeet, sgame: renderSightGame, sbuild: renderSightBuild, dmeet: renderTeamMeet, dgame: renderTeamGame, book: renderBook, warm: renderWarm, read: renderReader, quiz: renderQuiz, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
+    ({ home: renderPath, shelf: renderShelf, phase: renderLetterPhase, lesson: renderLetterLesson, meet: renderMeet, lgame: renderLetterGame, lquiz: renderLetterQuiz, smeet: renderSightMeet, sgame: renderSightGame, sbuild: renderSightBuild, dmeet: renderTeamMeet, dgame: renderTeamGame, mmeet: renderMagicMeet, mgame: renderMagicGame, book: renderBook, warm: renderWarm, read: renderReader, quiz: renderQuiz, stickers: renderStickers, trophies: renderTrophies })[screen](arg);
   }
   function back() {
     var c = current;
@@ -863,14 +863,14 @@
   function renderLetterPhase(pid) {
     var p = phaseById(pid || "k1");
     $("topTitle").textContent = "Step " + p.n + ": " + p.title;
-    var sight = p.lessons[0].kind === "sight", team = isTeam(p.lessons[0]), blend = p.lessons[0].kind === "blend";
-    view.innerHTML = echoRow(blend ? "In a blend, two sounds slide together, like a slide at the park! Pick a blend!" : team ? "Some letters hold hands and make a brand new sound! Pick a sound team!" : sight ? "Sight words are words we know by heart. Pick a group of words!" : "Every letter makes a sound. Pick a group of letters to learn!") +
+    var sight = p.lessons[0].kind === "sight", team = isTeam(p.lessons[0]), blend = p.lessons[0].kind === "blend", magic = isMagic(p.lessons[0]);
+    view.innerHTML = echoRow(magic ? "Magic e is a quiet little wizard. It makes the vowel say its NAME! Pick a lesson!" : blend ? "In a blend, two sounds slide together, like a slide at the park! Pick a blend!" : team ? "Some letters hold hands and make a brand new sound! Pick a sound team!" : sight ? "Sight words are words we know by heart. Pick a group of words!" : "Every letter makes a sound. Pick a group of letters to learn!") +
       '<div class="steps">' + p.lessons.map(function (l, i) {
         var r = lrec(l.id);
-        if (team) return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + '</span>' +
-          '<span class="step-ic">' + (r.done ? l.sticker.emoji : l.mix ? "🎲" : DIGRAPHS[l.teams[0]].e) + '</span>' +
+        if (team || magic) return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + '</span>' +
+          '<span class="step-ic">' + (r.done ? l.sticker.emoji : magic ? "🪄" : l.mix ? "🎲" : DIGRAPHS[l.teams[0]].e) + '</span>' +
           '<span class="step-txt"><b class="letters-title">' + esc(l.title) + "</b>" +
-          '<span class="steps-mini"><i class="' + (r.meet ? "ok" : "") + '">👋</i><i class="' + (r.game ? "ok" : "") + '">🎮</i><i class="' + (r.quiz ? "ok" : "") + '">🧩</i></span></span>' +
+          '<span class="steps-mini"><i class="' + (r.meet ? "ok" : "") + '">' + (magic ? "🪄" : "👋") + '</i><i class="' + (r.game ? "ok" : "") + '">🎮</i><i class="' + (r.quiz ? "ok" : "") + '">🧩</i></span></span>' +
           '<span class="step-go">' + (r.done ? "✅" : "▶") + "</span></button>";
         if (sight) return '<button class="step-card' + (r.done ? " ok" : "") + '" data-lesson="' + l.id + '"><span class="step-n">' + (i + 1) + '</span>' +
           '<span class="step-ic">' + (r.done ? l.sticker.emoji : "👀") + '</span>' +
@@ -889,6 +889,7 @@
   function renderLetterLesson(id) {
     if (lessonById(id).kind === "sight") return renderSightLesson(id);
     if (isTeam(lessonById(id))) return renderTeamLesson(id);
+    if (isMagic(lessonById(id))) return renderMagicLesson(id);
     var l = letterLesson(id), r = lrec(id);
     $("topTitle").textContent = "Letters: " + l.title;
     view.innerHTML = '<div class="letter-strip">' + l.letters.map(function (x) { return '<span class="ls-chip">' + x + "</span>"; }).join("") + "</div>" +
@@ -1235,7 +1236,7 @@
     var end = X.s.slice(-1), words = X.s.slice(0, -1).split(" "), tiles = shuffle(words.map(function (w, i) { return { w: w, i: i }; }));
     var placed = [], tries = 0;
     $("topTitle").textContent = "Build a Sentence · " + (si + 1) + "/" + l.sentences.length;
-    view.innerHTML = echoRow("", "happy") + '<div class="game-box" style="' + (isTeam(l) ? themeOf(l) : SW_THEME) + '">' +
+    view.innerHTML = echoRow("", "happy") + '<div class="game-box" style="' + (isTeam(l) || isMagic(l) ? themeOf(l) : SW_THEME) + '">' +
       '<div class="round-dots">' + l.sentences.map(function (_, k) { return '<i class="' + (k < si ? "done" : k === si ? "now" : "") + '"></i>'; }).join("") + "</div>" +
       '<p class="game-q"><span class="pic-big">' + X.e + '</span> <button class="mini-btn" id="again">🔊 Hear it</button></p>' +
       '<div class="sw-line" id="line"></div><div class="sw-bank">' + tiles.map(function (t, k) { return '<button class="choice word sw-tile" data-k="' + k + '">' + esc(t.w) + "</button>"; }).join("") + "</div>" +
@@ -1299,13 +1300,13 @@
     echo("Listen: " + X.s + " Now build it! Tap the words in order.", "happy");
   }
   function finishSightLesson(l, score, total) {
-    var r = lrec(l.id), wasDone = r.done, team = isTeam(l);
+    var r = lrec(l.id), wasDone = r.done, team = isTeam(l), magic = isMagic(l);
     r.quiz = true;
     current = { screen: "ldone", arg: { lesson: l.id } };
     if (!r.meet || !r.game) {
       saveLessons();
-      var need = !r.meet ? (team ? "dmeet" : "smeet") : (team ? "dgame" : "sgame");
-      var label = { smeet: "👀 Meet the Words", sgame: "🎮 Word Game", dmeet: "👋 Meet the Sound", dgame: "🎮 Sound Game" }[need];
+      var need = !r.meet ? (magic ? "mmeet" : team ? "dmeet" : "smeet") : (magic ? "mgame" : team ? "dgame" : "sgame");
+      var label = { smeet: "👀 Meet the Words", sgame: "🎮 Word Game", dmeet: "👋 Meet the Sound", dgame: "🎮 Sound Game", mmeet: "🪄 Meet Magic e", mgame: "🎮 Magic Game" }[need];
       view.innerHTML = echoRow("Great building! Now finish the " + label.slice(3) + " step to win your sticker!", "happy") +
         '<div class="celebrate"><button class="big-btn go" id="dGo">' + label + "</button></div>";
       echo($("echoSay").textContent, "happy");
@@ -1315,19 +1316,19 @@
     r.done = true; saveLessons();
     var newSticker = giveSticker("l:" + l.id);
     if (!wasDone) { giveTicket(); addPoints(10); }
-    if (window.Tracker) Tracker.complete(team ? "soundteams" : "sightwords", score, total, { item: (team ? "Sound team " : "Sight words ") + l.title, firstTime: !wasDone });
+    if (window.Tracker) Tracker.complete(magic ? "magice" : team ? "soundteams" : "sightwords", score, total, { item: (magic ? "Magic e " : team ? "Sound team " : "Sight words ") + l.title, firstTime: !wasDone });
     var ls = phaseOfLesson(l.id).lessons;
-    if (ls.every(function (x) { return lrec(x.id).done; })) trophy(l.kind === "blend" ? "blend-champ" : team ? "team-champ" : "sight-star");
+    if (ls.every(function (x) { return lrec(x.id).done; })) trophy(magic ? "magic-champ" : l.kind === "blend" ? "blend-champ" : team ? "team-champ" : "sight-star");
     hud(); sfx.fanfare(); confetti(90);
     var nextL = ls.filter(function (x) { return !lrec(x.id).done; })[0];
     view.innerHTML = echoRow("", "happy") +
       '<div class="celebrate"><div class="sticker-reveal' + (newSticker ? " new" : "") + '"><span>' + l.sticker.emoji + "</span></div>" +
-      "<h2>" + (team ? "You know the " + esc(l.title) + " sound!" : "You know " + esc(l.words.join(", ")) + "!") + "</h2>" +
+      "<h2>" + (magic ? "Magic e wizard: " + l.vowels.map(function (v) { return v + "_e"; }).join(" ") + "!" : team ? "You know the " + esc(l.title) + " sound!" : "You know " + esc(l.words.join(", ")) + "!") + "</h2>" +
       (wasDone ? "" : '<p class="done-loot">🎟️ +1 Prize Wheel ticket · ⭐ +10 bonus</p>') +
       '<div class="done-actions">' +
-        (nextL ? '<button class="big-btn go" id="dNext">' + (team ? "🤫 Next sound: " : "👀 Next words: ") + esc(nextL.title) + "</button>" : '<button class="big-btn go" id="dBooks">📚 Read the story books</button>') +
+        (nextL ? '<button class="big-btn go" id="dNext">' + (magic ? "🪄 Next magic: " : team ? "🤫 Next sound: " : "👀 Next words: ") + esc(nextL.title) + "</button>" : '<button class="big-btn go" id="dBooks">📚 Read the story books</button>') +
         '<button class="big-btn alt" id="dHome">🗺️ All steps</button></div></div>';
-    echo(newSticker ? "You did it! Here is your " + l.sticker.name + " sticker!" : "You know these words so well!", "happy");
+    echo(newSticker ? "You did it! Here is your " + l.sticker.name + " sticker!" + (magic && !nextL ? " You finished every step of Phonics Pals. You are a real reader now!" : "") : "You know these words so well!", "happy");
     if ($("dNext")) $("dNext").onclick = function () { go("lesson", nextL.id); };
     if ($("dBooks")) $("dBooks").onclick = function () { go("shelf"); };
     $("dHome").onclick = function () { go("home"); };
@@ -1512,6 +1513,208 @@
   }
 
   /* ---------------- sticker book & trophies ---------------- */
+  /* ============================================================
+     PHASE 6 — Magic e: tap the wand (cap → cape) → magic game → build a sentence
+     (the sentence step reuses the sight-word builder)
+     ============================================================ */
+  function isMagic(l) { return l.kind === "magic"; }
+  // the vowel that says its name: the last vowel before the final e
+  function magicVowel(w) {
+    var s = w.slice(0, -1);
+    for (var i = s.length - 1; i >= 0; i--) if ("aeiou".indexOf(s.charAt(i)) >= 0) return { v: s.charAt(i), at: i };
+    return { v: "a", at: -1 };
+  }
+  // letter card: the vowel lit up, the quiet e sparkling at the end
+  function magicCard(w) {
+    var mv = magicVowel(w), pos = 0;
+    return letterGroups(w.slice(0, -1)).map(function (g, i) {
+      var mine = pos === mv.at; pos += g.length;
+      return '<span class="lt' + (mine ? " v me-v" : "") + '" data-g="' + i + '">' + esc(g) + "</span>";
+    }).join("") + '<span class="lt me-e" data-g="e">e</span>';
+  }
+  // sound it out: the vowel says its NAME and the e stays quiet
+  function magicOut(word, host) {
+    var mv = magicVowel(word), groups = letterGroups(word.slice(0, -1)), pos = 0, chain = Promise.resolve(true);
+    function light(i) { if (host) host.querySelectorAll(".lt").forEach(function (el) { el.classList.toggle("lit", i === "all" || el.dataset.g === String(i)); }); }
+    hush();
+    groups.forEach(function (g, i) {
+      var isV = pos === mv.at; pos += g.length;
+      chain = chain.then(function (ok) {
+        if (!ok) return false;
+        light(i);
+        return speak(isV ? MAGIC_E[mv.v].name : LETTER_SOUNDS[g] || LETTER_SOUNDS[g.charAt(0)] || g, { rate: 0.75 })
+          .then(function (still) { return still ? wait(120).then(function () { return true; }) : false; });
+      });
+    });
+    return chain.then(function (ok) {
+      if (!ok) { light(-1); return false; }
+      light("e");
+      return wait(450).then(function () { light("all"); return speak(word, { rate: 0.8 }); })
+        .then(function (r) { setTimeout(function () { light(-1); }, 500); return r; });
+    });
+  }
+  function shortSay(v) { return LETTER_SOUNDS[v] || v; }
+  function renderMagicLesson(id) {
+    var l = lessonById(id), r = lrec(id);
+    $("topTitle").textContent = "Magic e: " + l.title;
+    view.innerHTML = '<div class="letter-strip">' + l.vowels.map(function (v) { return '<span class="ls-chip me-chip">' + v + "_e</span>"; }).join("") + "</div>" +
+      echoRow(r.done ? "You're a Magic e wizard! Play again any time!" : r.meet ? "Let's play the magic game!" : l.mix ? "Time to mix up ALL the magic vowels!" : "Abracadabra! Let's meet Magic e!") +
+      '<div class="steps">' +
+        stepCard(1, "🪄", "Meet Magic e", r.meet ? "Done! ✔" : "Tap the wand: cap turns into cape!", r.meet, "mmeet") +
+        stepCard(2, "🎮", "Magic Game", r.game ? "Done! ✔" : "Hear it, read it: cap or cape?", r.game, "mgame") +
+        stepCard(3, "🧩", "Build a Sentence", r.quiz ? "Done! ✔" : "Put the words in order, then read it", r.quiz, "sbuild") +
+      "</div>";
+    view.querySelectorAll("[data-step]").forEach(function (el) { el.onclick = function () { sfx.pop(); go(el.dataset.step, { lesson: id }); }; });
+    echo($("echoSay").textContent, "happy");
+  }
+  function renderMagicMeet(arg) {
+    var l = lessonById(arg.lesson), zapped = {};
+    $("topTitle").textContent = "Meet Magic e";
+    view.innerHTML = echoRow("") +
+      '<div class="me-pairs">' + l.pairs.map(function (p, i) {
+        return '<div class="me-pair" data-i="' + i + '"><span class="me-pic">' + p.ae + '</span><span class="me-word">' + magicCard(p.b) + "</span>" +
+          '<button class="me-wand" data-i="' + i + '">🪄 Add magic e</button></div>';
+      }).join("") + "</div>" +
+      '<p class="game-q">More magic words! Tap one to sound it out.</p>' +
+      '<div class="meet-grid">' + l.words.map(function (x) {
+        return '<button class="meet-card me-card" data-w="' + esc(x.w) + '"><span class="mc-pic">' + x.e + '</span><span class="mc-word">' + magicCard(x.w) + "</span></button>";
+      }).join("") + "</div>" +
+      '<div class="home-actions"><button class="big-btn go" id="meetDone">▶ Play the Magic Game</button></div>';
+    view.querySelectorAll(".me-wand").forEach(function (b) {
+      b.onclick = function () {
+        var i = +b.dataset.i, p = l.pairs[i], box = view.querySelector('.me-pair[data-i="' + i + '"]'), v = magicVowel(p.b).v;
+        if (box.classList.contains("zapped")) { speak(p.a + ". " + p.b + "!", { rate: 0.8 }); return; }
+        sfx.ding(); box.classList.add("zapped"); zapped[i] = true; b.textContent = "🔊 Again";
+        setTimeout(function () { box.querySelector(".me-pic").textContent = p.be; }, 350);
+        speak(p.a + ". Add magic e. " + p.b + "! The " + v + " says its name, " + MAGIC_E[v].name + ".", { rate: 0.82 });
+        if (Object.keys(zapped).length === l.pairs.length) { confetti(30); pulse($("meetDone")); }
+      };
+    });
+    view.querySelectorAll(".me-card").forEach(function (el) { el.onclick = function () { el.classList.add("heard"); magicOut(el.dataset.w, el); }; });
+    $("meetDone").onclick = function () {
+      var r = lrec(l.id); if (!r.meet) { r.meet = true; saveLessons(); addPoints(3); }
+      go("mgame", { lesson: l.id });
+    };
+    var v0 = l.vowels[0];
+    echo(l.mix ? "All the magic vowels are here! Tap each wand and watch the words change!" :
+      "This is Magic e. It never makes a sound. Shhh! But it's a wizard! Put it at the end, and " + v0 + " says its name, " + MAGIC_E[v0].name + "! Tap a wand!", "happy");
+  }
+  function renderMagicGame(arg) {
+    var l = lessonById(arg.lesson), useMic = !S.helper, round = 0, score = 0;
+    var pairs = shuffle(l.pairs), words = shuffle(l.words);
+    var plan = ["hear", "pick", "say", "hear", "pick", "say"].map(function (t, i) {
+      return { t: t === "say" && !useMic ? "pick" : t, p: pairs[i % pairs.length], x: words[i % words.length] };
+    });
+    $("topTitle").textContent = "Magic Game";
+    function frame(inner, msg, mood) {
+      view.innerHTML = echoRow(msg, mood) + '<div class="game-box" style="' + themeOf(l) + '">' +
+        '<div class="round-dots">' + plan.map(function (_, i) { return '<i class="' + (i < round - 1 ? "done" : i === round - 1 ? "now" : "") + '"></i>'; }).join("") + "</div>" + inner + "</div>";
+    }
+    function next() {
+      if (round >= plan.length) return finish();
+      var r = plan[round++];
+      if (r.t === "say") sayRound(r.x); else if (r.t === "pick") pickRound(r.p); else hearRound(r.p);
+    }
+    function right(msg) {
+      sfx.ding(); confetti(14);
+      echo(pick(PRAISE.right) + " " + msg, "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
+    }
+    function why(w, p) {
+      var v = magicVowel(p.b).v;
+      return w === p.b ? w + " has magic e, so " + v + " says its name, " + MAGIC_E[v].name + "." : w + " has no magic e, so " + v + " says " + shortSay(v) + ".";
+    }
+    // hear cap or cape → tap the one Echo said
+    function hearRound(p) {
+      var tries = 0, want = Math.random() < 0.6 ? p.b : p.a;
+      var opts = shuffle([{ w: p.a, e: p.ae }, { w: p.b, e: p.be }]);
+      frame('<p class="game-q">Tap the word you hear <button class="mini-btn" id="again">🔊</button></p><div class="choice-row">' +
+        opts.map(function (o) { return '<button class="choice pic-choice" data-w="' + esc(o.w) + '"><span class="qe">' + o.e + '</span><span class="qt">' + (o.w === p.b ? magicCard(o.w) : esc(o.w)) + "</span></button>"; }).join("") + "</div>",
+        "Listen carefully: " + want, "happy");
+      speak("Find the word: " + want);
+      $("again").onclick = function () { speak(want, { rate: 0.7 }); };
+      view.querySelectorAll(".pic-choice").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.w === want) {
+            el.classList.add("right"); view.querySelectorAll(".pic-choice").forEach(function (b) { b.disabled = true; });
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Magic e", { word: want });
+            right(why(want, p));
+          } else {
+            tries++; el.classList.add("nope"); sfx.boop();
+            echo(pick(PRAISE.oops) + " " + why(el.dataset.w, p) + " Listen: " + want + ".", "happy");
+          }
+        };
+      });
+    }
+    // see the picture → read cap and cape → pick the one that matches (Echo doesn't say it!)
+    function pickRound(p) {
+      var tries = 0, long = Math.random() < 0.55, want = long ? p.b : p.a;
+      frame('<p class="game-q">Which word matches the picture?</p><div class="say-word pic-say"><span class="pic-big">' + (long ? p.be : p.ae) + "</span></div>" +
+        '<div class="choice-row">' + shuffle([p.a, p.b]).map(function (w) { return '<button class="choice word me-pick" data-w="' + esc(w) + '">' + (w === p.b ? magicCard(w) : esc(w)) + "</button>"; }).join("") + "</div>",
+        "Read both words. Which one is the picture?", "happy");
+      speak("Read both words. Which one matches the picture?");
+      view.querySelectorAll(".me-pick").forEach(function (el) {
+        el.onclick = function () {
+          if (el.dataset.w === want) {
+            el.classList.add("right"); view.querySelectorAll(".me-pick").forEach(function (b) { b.disabled = true; });
+            if (!tries) { score++; addPoints(2); }
+            if (window.Tracker) Tracker.answer(!tries, "Magic e", { word: want, read: true });
+            right(want + "! " + why(want, p));
+          } else {
+            tries++; el.classList.add("nope"); sfx.boop();
+            echo(tries >= 2 ? "Look for the magic e at the end! " + why(want, p) : "Hmm, that one says " + el.dataset.w + ". Look at the picture again!", "happy");
+          }
+        };
+      });
+    }
+    function sayRound(x) {
+      var tries = 0;
+      frame('<p class="game-q">Read this magic word to Echo!</p><div class="say-word pic-say" id="sayWord"><span class="pic-big">' + x.e + "</span><span>" + magicCard(x.w) + "</span></div>" +
+        '<div class="say-row"><button class="mic-btn" id="sayMic"><span>🎤</span></button><button class="mini-btn" id="hearIt">🔊 Help me</button></div>', "Tap the microphone and read the word!", "listen");
+      speak("Tap the microphone and read the word!");
+      $("hearIt").onclick = function () { magicOut(x.w, $("sayWord")); };
+      $("sayMic").onclick = function () {
+        var btn = $("sayMic"); if (btn.classList.contains("live")) return;
+        hush(); sfx.mic(); btn.classList.add("live");
+        setTimeout(function () {
+          listen({ target: Listener.tokens(x.w), single: true,
+            onDone: function (res) {
+              btn.classList.remove("live");
+              if (!document.body.contains(btn)) return;
+              if (res.hits[0]) {
+                $("sayWord").classList.add("right"); score++; addPoints(tries ? 2 : 3);
+                if (window.Tracker) Tracker.answer(!tries, "Magic e", { word: x.w, said: true });
+                right(x.w + "! The e stayed quiet, just like a wizard.");
+              } else if (++tries >= 2) {
+                if (window.Tracker) Tracker.answer(false, "Magic e", { word: x.w, said: true });
+                echo("Good try! It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+              } else {
+                echo(res.heardAny ? "So close! Let's sound it out together." : "I couldn't hear you. Say it nice and loud!", "happy")
+                  .then(onNav(function () { return res.heardAny ? magicOut(x.w, $("sayWord")) : null; }));
+              }
+            },
+            onError: function (code) { btn.classList.remove("live"); useMic = false; micTrouble(code, true); setTimeout(onNav(next), 2500); }
+          });
+        }, 200);
+      };
+    }
+    function finish() {
+      var r = lrec(l.id), first = !r.game;
+      r.game = true; saveLessons();
+      if (first) addPoints(5);
+      if (window.Tracker) Tracker.complete("magicgame", score, plan.length, { item: "Magic e " + l.title });
+      sfx.fanfare(); confetti(50);
+      current = { screen: "ldone", arg: { lesson: l.id } };
+      view.innerHTML = echoRow(score + " of " + plan.length + "! " + MAGIC_E[l.vowels[0]].joke + " Now let's build some sentences!", "happy") +
+        '<div class="celebrate"><div class="big-emoji">🪄✨</div><h2>' + score + " of " + plan.length + " right!</h2>" +
+        '<button class="big-btn go" id="toBuild">🧩 Build a Sentence</button><button class="big-btn alt" id="toLesson">⬅ Back</button></div>';
+      echo($("echoSay").textContent, "happy");
+      $("toBuild").onclick = function () { go("sbuild", { lesson: l.id }); };
+      $("toLesson").onclick = function () { go("lesson", l.id); };
+    }
+    next();
+  }
+
   function renderStickers() {
     $("topTitle").textContent = "My Sticker Book";
     var bookS = BOOKS.map(function (b) {
@@ -1538,12 +1741,13 @@
         return '<div class="stk' + (got ? " got" : "") + '" style="--bk:' + p.color + '"><span class="se">' + (got ? l.sticker.emoji : "❔") + "</span><small>" + (got ? esc(l.sticker.name) : esc(l.title)) + "</small></div>";
       }).join("");
     }
-    var teamS = album("k4"), blendS = album("k5");
+    var teamS = album("k4"), blendS = album("k5"), magicS = album("k6");
     view.innerHTML = echoRow("Look at all your stickers! Read pages perfectly to win more!", "happy") +
       '<section class="album"><h3>🔤 Letter Stickers</h3><div class="stk-grid">' + letterS + "</div></section>" +
       '<section class="album"><h3>👀 Sight Word Stickers</h3><div class="stk-grid">' + sightS + "</div></section>" +
       '<section class="album"><h3>🤫 Sound Team Stickers</h3><div class="stk-grid">' + teamS + "</div></section>" +
       '<section class="album"><h3>🌊 Blend Stickers</h3><div class="stk-grid">' + blendS + "</div></section>" +
+      '<section class="album"><h3>🪄 Magic e Stickers</h3><div class="stk-grid">' + magicS + "</div></section>" +
       '<section class="album"><h3>📚 Book Stickers</h3><div class="stk-grid">' + bookS + "</div></section>" +
       '<section class="album"><h3>🌟 Perfect-Reading Stickers <small>(' + (nextFunSticker() ? toNext + " more perfect page" + (toNext > 1 ? "s" : "") + " for the next one" : "all collected!") + ")</small></h3><div class=\"stk-grid\">" + funS + "</div></section>";
     echo($("echoSay").textContent, "happy");

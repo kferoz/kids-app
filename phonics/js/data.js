@@ -313,7 +313,8 @@ const PH_TROPHIES = [
   { id: "sight-star", icon: "👀", name: "Sight Word Star", desc: "Finish all 4 Sight Words lessons" },
   { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" },
   { id: "team-champ", icon: "🤫", name: "Sound Team Champ", desc: "Finish all 4 Sh, Ch, Th lessons" },
-  { id: "blend-champ", icon: "🌊", name: "Blend Champ", desc: "Finish all 4 Blends lessons" }
+  { id: "blend-champ", icon: "🌊", name: "Blend Champ", desc: "Finish all 4 Blends lessons" },
+  { id: "magic-champ", icon: "🧙", name: "Magic e Wizard", desc: "Finish all 4 Magic e lessons" }
 ];
 
 /* ============================================================
@@ -406,5 +407,35 @@ const PHASES = [
         sentences: [{ s: "Jump in the sand.", e: "🏖️" }, { s: "The bird is in the nest.", e: "🪺" }, { s: "Hold my hand.", e: "✋" }],
         sticker: { emoji: "🦘", name: "Jumpy Roo" } }
     ] },
-  { id: "k6", n: 6, title: "Magic e", sub: "cake, bike, home: the e makes the vowel say its name", emoji: "✨", color: "#fff3bf", accent: "#f59f00" }
+  { id: "k6", n: 6, title: "Magic e", sub: "cake, bike, home: the e makes the vowel say its name", emoji: "✨", color: "#fff3bf", accent: "#f59f00",
+    lessons: [
+      { id: "me1", kind: "magic", title: "a_e", vowels: ["a"],
+        pairs: [{ a: "cap", ae: "🧢", b: "cape", be: "🦸" }, { a: "can", ae: "🥫", b: "cane", be: "🦯" }, { a: "tap", ae: "🚰", b: "tape", be: "📼" }, { a: "man", ae: "👨", b: "mane", be: "🦁" }],
+        words: [{ w: "cake", e: "🎂" }, { w: "snake", e: "🐍" }, { w: "game", e: "🎮" }, { w: "plane", e: "✈️" }, { w: "skate", e: "⛸️" }, { w: "wave", e: "🌊" }],
+        sentences: [{ s: "I ate the cake.", e: "🎂" }, { s: "The snake is in the lake.", e: "🐍" }, { s: "Wave at the plane!", e: "✈️" }],
+        sticker: { emoji: "🦸", name: "Super Cape" } },
+      { id: "me2", kind: "magic", title: "i_e", vowels: ["i"],
+        pairs: [{ a: "kit", ae: "🧰", b: "kite", be: "🪁" }, { a: "pin", ae: "📌", b: "pine", be: "🌲" }, { a: "fin", ae: "🦈", b: "fine", be: "👍" }, { a: "dim", ae: "🔅", b: "dime", be: "🪙" }],
+        words: [{ w: "bike", e: "🚲" }, { w: "kite", e: "🪁" }, { w: "five", e: "5️⃣" }, { w: "slide", e: "🛝" }, { w: "smile", e: "😊" }, { w: "hide", e: "🙈" }],
+        sentences: [{ s: "I ride my bike.", e: "🚲" }, { s: "Five kids slide.", e: "🛝" }, { s: "Smile at me!", e: "😊" }],
+        sticker: { emoji: "🪁", name: "High Kite" } },
+      { id: "me3", kind: "magic", title: "o_e · u_e", vowels: ["o", "u"],
+        pairs: [{ a: "hop", ae: "🐇", b: "hope", be: "🙏" }, { a: "not", ae: "❌", b: "note", be: "📝" }, { a: "cub", ae: "🐻", b: "cube", be: "🧊" }, { a: "tub", ae: "🛁", b: "tube", be: "🧪" }],
+        words: [{ w: "home", e: "🏠" }, { w: "bone", e: "🦴" }, { w: "rose", e: "🌹" }, { w: "nose", e: "👃" }, { w: "cube", e: "🧊" }, { w: "tune", e: "🎵" }],
+        sentences: [{ s: "The dog has a bone.", e: "🦴" }, { s: "I smell the rose.", e: "🌹" }, { s: "We go home.", e: "🏠" }],
+        sticker: { emoji: "🦴", name: "Doggy Bone" } },
+      { id: "me4", kind: "magic", title: "Magic mix", vowels: ["a", "i", "o", "u"], mix: true,
+        pairs: [{ a: "rob", ae: "🦹", b: "robe", be: "🥋" }, { a: "cut", ae: "✂️", b: "cute", be: "🐥" }, { a: "bit", ae: "🤏", b: "bite", be: "🍪" }, { a: "twin", ae: "👯", b: "twine", be: "🧶" }],
+        words: [{ w: "lake", e: "🏞️" }, { w: "nine", e: "9️⃣" }, { w: "stone", e: "🪨" }, { w: "rope", e: "🪢" }, { w: "smoke", e: "💨" }, { w: "prize", e: "🏆" }],
+        sentences: [{ s: "Ride the bike home.", e: "🚲" }, { s: "The cute cub ate a cake.", e: "🐻" }, { s: "I hope I win a prize!", e: "🏆" }],
+        sticker: { emoji: "🧙", name: "Magic Wizard" } }
+    ] }
 ];
+
+/* Step 6 Magic e: a quiet e at the end makes the vowel say its NAME */
+const MAGIC_E = {
+  a: { name: "ay", joke: "Ay, ay, ay! The cap put on a cape and became a superhero!" },
+  i: { name: "eye", joke: "Eye, eye, captain! The kit grew a string and flew away as a kite!" },
+  o: { name: "oh", joke: "Oh, oh, oh! Hop turned into hope. I hope you're having fun!" },
+  u: { name: "you", joke: "You, you! The bear cub turned into an ice cube! Brrr!" }
+};

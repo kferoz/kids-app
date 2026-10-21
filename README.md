@@ -31,6 +31,13 @@ you create inherits any progress from before login existed, so nothing is lost.)
 Prize Wheel tickets are shared** as one family pot, so any child's tickets can be spent on
 the wheel.
 
+### 🎒 On every app page
+
+`js/kidbar.js` (with `js/dollars.js`) adds the same three things to every app:
+- **🏠 Home**: a floating button back to the Hub whenever the page's own Home link is missing or scrolled out of sight.
+- **🎒 My Pocket**: this app's stickers, every sticker from every other app, and the **Dollar Bank** (the $1 challenges here and every dollar earned).
+- **💵 A real dollar for a really hard win**: finishing a whole phase or step, passing a Phase Check, a no-mistake run. Everyday wins still earn points and stickers. A big celebration pops up, and grown-ups hand the dollar over and mark it paid in Admin → 💵 Dollars.
+
 ### ⚙️ Admin (for grown-ups)
 
 One [Admin page](./admin/index.html) covers **every app** (the **⚙️ Admin** button, top-right of
@@ -44,6 +51,7 @@ the Hub; guarded by a grown-up math question, or a PIN you set). Tabs:
 | 💡 Suggestions | What each child should practise next (weak skills, ready-for-harder, untried apps, best time of day, near-finish nudges) and **ideas to improve the apps** (too hard/too easy, kids leaving quickly, favourites to grow, content that's run out) |
 | 🔮 Forecast | Weekly time and accuracy with a dashed 4-week trend forecast, and estimated finish dates per app |
 | 🧾 Activity Log | The full audit trail — every session, answer, finish, score change, login and admin change — filterable, searchable, exportable to CSV |
+| 💵 Dollars | The **Dollar Bank**: every real $1 a child earned for a really hard win (a whole phase, a Phase Check, a no-mistake run…), with **Mark paid**, plus the list of $1 challenges per app |
 | 💾 Data | Database size, **backup / restore** (JSON), trimming old events, clearing history, admin PIN |
 
 Every chart has a "Show data table" view and works in light and dark mode.

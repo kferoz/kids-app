@@ -481,3 +481,21 @@ button.pill:active { transform: translateY(2px); box-shadow: none; }
 .dg-gap { min-width: 64px; border-color: #1c7ed6; }
 .dg-gap.filled { color: #1c7ed6; }
 .choice.dg-pick { font-family: "Andika", sans-serif; font-size: 40px; min-width: 110px; }
+
+/* ---------- Step 6: Magic e ---------- */
+.ls-chip.me-chip { background: #fff3bf; border-color: #f59f00; }
+.me-pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 6px 0 14px; }
+.me-pair { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 22px; box-shadow: 0 6px 0 #f59f00; }
+.me-pic { font-size: 54px; line-height: 1; transition: transform .35s; }
+.me-pair.zapped .me-pic { animation: meZap .7s; }
+.me-word { font-family: "Andika", sans-serif; font-size: 40px; font-weight: 700; }
+.me-pair .lt.me-e { display: inline-block; max-width: 0; opacity: 0; overflow: hidden; vertical-align: bottom; transition: max-width .4s, opacity .4s; }
+.me-pair.zapped .lt.me-e { max-width: 1em; opacity: 1; }
+.me-pair .lt.me-v { transition: color .3s, background .3s; }
+.me-pair:not(.zapped) .lt.me-v { color: inherit; background: none; }
+.lt.me-v { color: #e8590c; background: #fff3bf; border-radius: 8px; }
+.lt.me-e { color: #f59f00; text-shadow: 0 0 6px #ffd43b; font-style: italic; }
+.me-wand { border: 0; border-radius: 16px; padding: 8px 12px; font: 700 17px/1.1 "Baloo 2", sans-serif; background: linear-gradient(135deg, #ffd43b, #f59f00); color: #3b2a00; cursor: pointer; box-shadow: 0 4px 0 #e67700; }
+.me-card.heard { background: #fff9db; box-shadow: 0 5px 0 #f59f00; }
+.choice.me-pick { font-family: "Andika", sans-serif; font-size: 40px; min-width: 120px; }
+@keyframes meZap { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(.2) rotate(180deg); } 100% { transform: scale(1) rotate(360deg); } }

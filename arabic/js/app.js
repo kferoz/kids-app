@@ -444,8 +444,14 @@
   // what a lesson traces: its letters, or (harakat lessons) 3 syllables WITH their mark
   function traceItems(l) {
     if (l.kind !== "harakat") return l.letters.map(function (ch) { return { t: ch, ch: ch }; });
-    if (l.mix) return l.marks.map(function (m) { return syl(l.letters[0], m); });
-    return l.letters.slice(0, 3).map(function (ch) { return syl(ch, l.marks[0]); });
+    if (l.mix) return l.marks.map(function (m) { return traceSyl(l.letters[0], m); });
+    return l.letters.slice(0, 3).map(function (ch) { return traceSyl(ch, l.marks[0]); });
+  }
+  function traceSyl(ch, m) {
+    var x = syl(ch, m);
+    if (m === "sukoon") return { t: ch + HARAKAT[m].mark, tr: CONS[ch], fb: CONS[ch], ch: ch, m: m };
+    if (m === "shadda") return { t: ch + HARAKAT[m].mark + "\u064E", tr: CONS[ch] + CONS[ch] + "a", fb: x.fb, ch: ch, m: m };
+    return x;
   }
   function renderTrace(arg) {
     var l = lessonById(arg.lesson), items = traceItems(l), i = arg.i || 0, it = items[i], ch = it.ch, L = LETTERS[ch], fails = 0, stars = arg.stars || [];
@@ -502,18 +508,31 @@
 
   /* ---------------- 🎵 harakat: syllables, meet the mark, sound game, read words ---------------- */
   // a letter + one haraka → { t: text, tr: "ba", fb: what an English voice says, ch, m }
+  // sukoon and shadda can't be said alone, so they ride on a carrier alif: أَبْ "ab", أَبَّ "abba"
   function syl(ch, m) {
-    var c = CONS[ch], H = HARAKAT[m];
-    return { t: ch + H.mark, tr: c + H.v, fb: (c === "'" ? "" : c) + H.fb, ch: ch, m: m };
+    var c = CONS[ch], H = HARAKAT[m], f = c === "'" ? "" : c;
+    if (m === "sukoon") return { t: "\u0623\u064E" + ch + H.mark, tr: "a" + c, fb: "a" + f, ch: ch, m: m };
+    if (m === "shadda") return { t: "\u0623\u064E" + ch + H.mark + "\u064E", tr: "a" + c + c + "a", fb: "a" + f + "-" + f + "ah", ch: ch, m: m };
+    return { t: ch + H.mark, tr: c + H.v, fb: f + H.fb, ch: ch, m: m };
   }
+  // what a mark "says", for the meet cards and hints
+  function marksays(m) { var H = HARAKAT[m]; return H.says || H.v; }
   var MARK_OF = {};
   Object.keys(HARAKAT).forEach(function (m) { MARK_OF[HARAKAT[m].mark] = m; });
-  // split a word with harakat into its syllables
+  // split a word with harakat into its syllables. Shadda doubles the consonant (dubbun = dub·bun),
+  // sukoon leaves it bare (kalbun = ka·l·bun), and an alif after fathatan is silent.
   function wordParts(ar) {
     var parts = [];
     Array.from(ar).forEach(function (c) {
-      if (MARK_OF[c] && parts.length) { var p = parts[parts.length - 1], s2 = syl(p.ch, MARK_OF[c]); p.t += c; p.tr = s2.tr; p.fb = s2.fb; p.m = s2.m; }
-      else parts.push({ t: c, ch: c, tr: CONS[c] || c, fb: CONS[c] || c });
+      var m = MARK_OF[c], p = parts[parts.length - 1];
+      if (m && p) {
+        p.t += c;
+        if (m === "shadda") p.sh = true; else p.m = m;
+        var k = CONS[p.ch] != null ? CONS[p.ch] : p.ch, f = k === "'" ? "" : k, H = p.m ? HARAKAT[p.m] : null;
+        p.tr = (p.sh ? k : "") + k + (H ? H.v : "");
+        p.fb = (p.sh ? f + "-" : "") + f + (H ? H.fb : "");
+      } else if (c === "ا" && p && p.m === "fathatan") p.t += c;
+      else parts.push({ t: c, ch: c, tr: CONS[c] != null ? CONS[c] : c, fb: CONS[c] != null ? CONS[c] : c });
     });
     return parts;
   }
@@ -538,7 +557,7 @@
     $("topTitle").textContent = "Meet the Mark" + (l.mix ? "s" : "");
     view.innerHTML = buddyRow("") +
       '<div class="mark-cards">' + l.marks.map(function (m) {
-        return '<button class="mark-card" data-m="' + m + '">' + circleMark(m) + "<b>" + esc(HARAKAT[m].name) + " " + HARAKAT[m].e + "</b><small>" + esc(HARAKAT[m].where) + " · says “" + HARAKAT[m].v + "”</small></button>";
+        return '<button class="mark-card" data-m="' + m + '">' + circleMark(m) + "<b>" + esc(HARAKAT[m].name) + " " + HARAKAT[m].e + "</b><small>" + esc(HARAKAT[m].where) + " · " + (HARAKAT[m].says ? esc(HARAKAT[m].says) : "says “" + HARAKAT[m].v + "”") + "</small></button>";
       }).join("") + "</div>" +
       '<p class="game-q">Tap each sound and say it with Jamal!</p>' +
       '<div class="syl-grid" dir="rtl">' + letters.map(function (ch) {
@@ -561,21 +580,22 @@
       go("hgame", { lesson: l.id });
     };
     var m0 = HARAKAT[l.marks[0]];
-    jamal(l.mix ? "Fatha, kasra and damma: three little marks, three sounds! a, i, u. Tap them all!" : "Meet " + m0.name + "! " + m0.how, "happy");
+    jamal(l.intro || (l.mix ? "Fatha, kasra and damma: three little marks, three sounds! a, i, u. Tap them all!" : "Meet " + m0.name + "! " + m0.how), "happy");
   }
 
   function renderMarkGame(arg) {
     var l = lessonById(arg.lesson), known = marksSoFar(l), round = 0, score = 0;
     var plan = []; shuffle(l.letters).concat(shuffle(l.letters)).slice(0, 8).forEach(function (ch, i) {
-      var m = l.mix ? known[i % known.length] : l.marks[0];
+      var m = l.marks.length > 1 ? l.marks[i % l.marks.length] : l.marks[0];
       plan.push({ x: syl(ch, m), t: i % 2 ? "see" : "hear" });
     });
     $("topTitle").textContent = "Sound Game";
     // wrong answers: the same letter with another mark (once 2+ marks are known), else other letters
     function others(x) {
-      var same = known.filter(function (m) { return m !== x.m; }).map(function (m) { return syl(x.ch, m); });
+      var same = shuffle(known.filter(function (m) { return m !== x.m; })), pr = HARAKAT[x.m].pair;
+      if (pr && same.indexOf(pr) >= 0) { same.splice(same.indexOf(pr), 1); same.unshift(pr); }   // bun vs bu, ab vs ba
       var diff = shuffle(l.letters.filter(function (c) { return c !== x.ch && CONS[c] !== CONS[x.ch]; })).map(function (c) { return syl(c, x.m); });
-      return shuffle(same).concat(diff).slice(0, 2);
+      return same.map(function (m) { return syl(x.ch, m); }).concat(diff).slice(0, 2);
     }
     function frame(inner, msg, mood) {
       view.innerHTML = buddyRow(msg, mood) + '<div class="game-box">' +
@@ -606,7 +626,7 @@
           } else {
             tries++; el.classList.add("nope"); sfx.boop();
             var H = HARAKAT[P.x.m];
-            jamal(tries >= 2 ? "Look where the mark is: " + H.where + " means " + H.v + "!" : pick(PRAISE.oops), "think");
+            jamal(tries >= 2 ? "Look at the mark: " + H.where + " means " + marksays(P.x.m) + "!" : pick(PRAISE.oops), "think");
           }
         };
       });

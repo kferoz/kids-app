@@ -17,6 +17,12 @@ saved points, stars, coins and trophies and shows them together:
 Spend a 🎟️ ticket to spin the wheel and win **collectible critters** or **bonus tickets**.
 Earn tickets by playing the [Free Games Arcade](../arcade).
 
+### 🎟️ Stickers
+Every sticker from every app in one album (from `js/kidbar.js`; an app's stickers show here after it has been opened once).
+
+### 💵 Dollars
+The Dollar Bank: every $1 challenge in every app, what's earned, and what a grown-up has already handed over.
+
 ### 🐾 My Critters (gadget)
 A collection of 12 friendly critters (Sparkle the unicorn, Rex the dino, Hoot the owl…)
 that you unlock by spinning the Prize Wheel.

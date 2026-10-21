@@ -24,13 +24,14 @@
     { id: "speedway", name: "Learning Speedway", emoji: "🏎️", grades: ["kg"], subject: "Math & English",
       progress: function (r) { var d = Object.keys(r.obj("sw_stars")).length; return { done: d, total: 16, label: d + " of 16 roads · " + r.arr("sw_cars").length + " cars" }; } },
     { id: "phonics", name: "Phonics Pals", emoji: "🦜", grades: ["kg"], subject: "Reading",
-      // Step 1 = 4 letter lessons + Step 3 = 4 sight-word lessons + Step 4 sh/ch/th + Step 5 blends, 4 lessons each (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
+      // Step 1 = 4 letter lessons + Step 3 = 4 sight-word lessons + Step 4 sh/ch/th + Step 5 blends + Step 6 magic e, 4 lessons each (ph_lessons), Step 2 = 5 books (ph_books); raise the totals as phases are added
       progress: function (r) { var b = r.obj("ph_books"), d = Object.keys(b).filter(function (k) { return b[k] && b[k].done; }).length;
         var l = r.obj("ph_lessons"), ld = Object.keys(l).filter(function (k) { return /^ls/.test(k) && l[k] && l[k].done; }).length;
         var sd = Object.keys(l).filter(function (k) { return /^sw/.test(k) && l[k] && l[k].done; }).length;
         var td = Object.keys(l).filter(function (k) { return /^dg/.test(k) && l[k] && l[k].done; }).length;
         var bd = Object.keys(l).filter(function (k) { return /^bl/.test(k) && l[k] && l[k].done; }).length;
-        return { done: d + ld + sd + td + bd, total: 21, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + bd + " of 4 blend lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
+        var md = Object.keys(l).filter(function (k) { return /^me/.test(k) && l[k] && l[k].done; }).length;
+        return { done: d + ld + sd + td + bd + md, total: 25, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + bd + " of 4 blend lessons · " + md + " of 4 magic e lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
       progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[kid.grade + "-math"] || []).length, e = (d[kid.grade + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
@@ -57,14 +58,14 @@
       progress: function (r) { var l = r.obj("ws_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length, j = r.arr("ws_journal").length;
         return { done: d, total: 10, label: d + " of 10 writing lessons · " + j + " pieces in the Writing Book · " + r.num("ws_selfFix") + " self-fixes" }; } },
     { id: "tracewrite", name: "Write & Trace", emoji: "🖍️", grades: ["kg"], subject: "Grammar & Writing",
-      // Phases 1–2 = 8 lessons (tw_lessons); raise the total as phases are added
+      // Phases 1–3 = 12 lessons (tw_lessons); raise the total as phases are added
       progress: function (r) { var l = r.obj("tw_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length;
-        return { done: d, total: 8, label: d + " of 8 handwriting lessons · " + r.num("tw_clean") + " perfect traces · " + r.num("tw_built") + " words spelled" }; } },
+        return { done: d, total: 12, label: d + " of 12 handwriting lessons · " + r.num("tw_clean") + " perfect traces · " + r.num("tw_built") + " words spelled" }; } },
     { id: "arabic", name: "Arabic Oasis", emoji: "🐪", grades: ["kg", "g3"], subject: "Arabic",
-      // lessons ak* = KG path, ag* = 3rd-grade path (ar_lessons); Phases 1–2 = 8 lessons each, raise as phases are added
+      // lessons ak* = KG path, ag* = 3rd-grade path (ar_lessons); Phases 1–3 = 12 lessons each, raise as phases are added
       progress: function (r, kid) { var l = r.obj("ar_lessons"), pre = kid.grade === "kg" ? /^ak/ : /^ag/;
         var d = Object.keys(l).filter(function (k) { return pre.test(k) && l[k] && l[k].done; }).length;
-        return { done: d, total: 8, label: d + " of 8 lessons · " + r.arr("ar_met").length + " of 28 letters met · " + r.num("ar_traced") + " letters traced · " + r.num("ar_said") + " words said" }; } },
+        return { done: d, total: 12, label: d + " of 12 lessons · " + r.arr("ar_met").length + " of 28 letters met · " + r.num("ar_traced") + " letters traced · " + r.num("ar_said") + " words said" }; } },
     { id: "detectives", name: "Reading Detectives", emoji: "🦝", grades: ["g3"], subject: "Reading",
       progress: function (r) { var d = r.num("rc_solved"); return { done: d, total: 15, label: d + " of 15 cases solved" }; } },
     { id: "readingadventures", name: "Reading Adventures", emoji: "📖", grades: ["kg", "g3"], subject: "Reading",

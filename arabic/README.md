@@ -10,8 +10,8 @@ The Hub login's grade picks the path. With nobody logged in, the child picks one
 
 | Path | Phase 1 | Later phases (coming soon) |
 |---|---|---|
-| 🐣 Kindergarten | ا ب ت ث · ج ح خ · د ذ ر ز (3–4 letters a lesson) · Magic Words. **Phase 2:** س ش · ص ض · ط ظ · Colors | Last letters · Little vowels · First words · Words I can write |
-| 🎒 3rd grade | all 28 letters in 4 lessons of 7, each with a Talk Time pack (greetings · polite words · about me · count to five). **Phase 2 Harakat Station:** fatha · kasra · damma · mix, with Talk Time (colors · family · food · feelings) | Sukoon/Shadda/Tanween · Letters hold hands · Word market · Sentence oasis |
+| 🐣 Kindergarten | ا ب ت ث · ج ح خ · د ذ ر ز (3–4 letters a lesson) · Magic Words. **Phase 2:** س ش · ص ض · ط ظ · Colors. **Phase 3:** ع غ ف ق · ك ل م · ن ه و ي · Animal Friends (all 28 letters done) | Little vowels · First words · Words I can write |
+| 🎒 3rd grade | all 28 letters in 4 lessons of 7, each with a Talk Time pack (greetings · polite words · about me · count to five). **Phase 2 Harakat Station:** fatha · kasra · damma · mix, with Talk Time (colors · family · food · feelings). **Phase 3:** sukoon · shadda · tanween · mix, with Talk Time (school · my body · weather · count to ten) | Letters hold hands · Word market · Sentence oasis |
 
 Letter lessons go **👋 Meet the Letters** → **🎮 Letter Game** → **✍️ Trace It**. The 3rd-grade path adds **🗣️ Talk Time**.
 - The Letter Game rounds are: hear the letter's name, then tap it. Picture word, then pick its first letter. **Dot Detective**: find the letter with "two dots on top". On the 3rd-grade path, also name the letter.
@@ -22,6 +22,7 @@ Harakat lessons (`kind:"harakat"`) go **👋 Meet the Mark** → **🎮 Sound Ga
 - The Sound Game's wrong answers are the same letter with an earlier mark (ba vs bi vs bu) once 2+ marks are known.
 - Read Words splits a word into syllables (`wordParts`: letter + its mark). The child taps them right to left, taps "I read it!", then plays a "which word did Jamal say?" quiz.
 - Trace It traces letters WITH their mark. The mark is its own piece, so it must be traced too.
+- Phase 3 marks live in `HARAKAT` too. Sukoon and shadda can't be said alone, so syllables ride on a carrier alif: أَبْ "ab", أَبَّ "abba" (Trace It drops the carrier). Inside words `wordParts` doubles a shadda consonant (دُبٌّ du·bbun) and leaves a sukoon one bare (كَلْبٌ ka·l·bun). Each new mark has a `pair` (dammatan ↔ damma, sukoon ↔ fatha…) that the Sound Game always offers as a wrong answer.
 
 ## Speech
 

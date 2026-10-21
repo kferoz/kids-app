@@ -496,7 +496,125 @@ const PHASES = [
       ]
     }
   },
-  { id: "p5", n: 5, title: "Root Planet", sub: "Word roots & vocabulary (4th-grade words)", goal: 110, color: "#f06595", accent: "#c2255c", badge: { emoji: "🌍", name: "Root Planet Badge" } },
+  {
+    id: "p5", n: 5, title: "Root Planet", sub: "Word roots & vocabulary (4th-grade words)", goal: 110,
+    color: "#f06595", accent: "#c2255c", badge: { emoji: "🌍", name: "Root Planet Badge" },
+    lessons: [
+      {
+        id: "p5l1", title: "Grandma's Pizza Rocket", skill: "Root port = carry",
+        tip: "A root is the heart of a word. Port means carry. A porter carries bags. Portable means easy to carry. Transport means carry across. Find the root, and you can guess what the word means!",
+        focus: ["portable", "transport", "airport", "porter", "report", "imported"],
+        chunks: { portable: "port·a·ble", transport: "trans·port", airport: "air·port", porter: "port·er", report: "re·port", imported: "im·port·ed" },
+        passage: [
+          "Grandma Rosa loves pizza more than anything in the world. So for her birthday, our family bought her a portable pizza oven. It was small enough to carry in one hand, but it could bake a pizza in ninety seconds. Grandma called it her pizza rocket.",
+          "That summer, we flew to visit Uncle Teo. Grandma refused to leave her oven at home. She carried it through the whole airport like a baby. A porter offered to help with her bags. “Thank you,” said Grandma, “but nobody carries the pizza rocket except me.”",
+          "At security, the oven went through the scanner, and a guard frowned at the screen. “Ma'am, what is this?” he asked. “It is my portable pizza oven,” Grandma said proudly. “I transport it everywhere. Would you like a slice when we land?” The guard tried very hard not to smile.",
+          "When we arrived, Uncle Teo had a surprise. He had imported fancy cheese from Italy just for her. Grandma baked twelve pizzas in the backyard. Later, I wrote a report for school called “How to Transport a Pizza Oven.” My teacher gave me an A and asked for Grandma's recipe."
+        ],
+        vocab: [{ w: "portable", def: "easy to carry from place to place" }, { w: "import", def: "to bring something in from another country" }],
+        quiz: [
+          { q: "What does the root port mean?", choices: ["carry", "see", "write"], answer: 0, why: "Port means carry. Portable means easy to carry, and a porter carries bags." },
+          { q: "Why did Grandma carry the oven through the airport herself?", choices: ["Nobody carries the pizza rocket except her", "It was too big for the plane", "She was trying to sell it"], answer: 0, why: "Grandma said, “Nobody carries the pizza rocket except me.”" },
+          { q: "What does transport mean in “I transport it everywhere”?", choices: ["carry it from place to place", "bake it", "hide it"], answer: 0, why: "Trans means across and port means carry. She carries it everywhere she goes." },
+          { q: "What did Uncle Teo import for Grandma?", choices: ["fancy cheese from Italy", "a new oven", "a pizza box"], answer: 0, why: "He imported fancy cheese from Italy just for her." }
+        ],
+        write: [
+          { emoji: "🍕", p: "Why did the guard frown at the screen? Answer in a complete sentence.", model: "The guard saw a strange machine in Grandma's bag and did not know it was a pizza oven.", need: { min: 8 } },
+          { emoji: "🧳", p: "What would you love to have a portable one of? Use a port word, like portable, transport or airport.", ideas: ["I wish I had a portable", "because", "transport", "carry"], model: "I wish I had a portable swimming pool so I could transport it to school.", need: { min: 8, team: ["port"], teamHint: "Use a word with the root port in it, like portable, transport or airport." } }
+        ],
+        sticker: { emoji: "🍕", name: "Pizza Rocket" }
+      },
+      {
+        id: "p5l2", title: "The Telescope Mix-Up", skill: "Roots tele = far, scope = look",
+        tip: "Tele means far away. Scope means a tool for looking. So a telescope is a tool for looking at things far away! A microscope looks at tiny things, and a telephone sends your voice far away. Roots fit together like puzzle pieces.",
+        focus: ["telescope", "microscope", "telephone", "periscope"],
+        chunks: { telescope: "tel·e·scope", microscope: "mi·cro·scope", telephone: "tel·e·phone", periscope: "per·i·scope" },
+        passage: [
+          "Maya got a telescope for her birthday. It was long and shiny, and it could see things very far away. On the first clear night, she pointed it out her bedroom window. She was hoping to spot the rings of Saturn, or maybe even an alien waving hello.",
+          "Instead, she saw something strange. A huge, hairy eyeball was staring right back at her! Maya screamed and dropped the telescope on her bed. She grabbed the telephone and called her best friend Leo. “There is a giant eyeball in the sky!” she whispered.",
+          "Leo came over with his periscope, the one he made from a cereal box and two mirrors. They peeked out the window together. Leo looked. Maya looked. Then they both started laughing so hard they fell off the bed. The giant eyeball belonged to Mr. Patel's cat.",
+          "The cat was sitting on the fence, pressing its face against the end of the telescope. Through the lens, its eye had looked enormous. “Next time,” said Leo, “point it at the sky. For cat hair up close, use a microscope!” That night Maya found the Moon, and it was even better than an alien."
+        ],
+        vocab: [{ w: "lens", def: "a curved piece of glass that makes things look bigger or clearer" }, { w: "periscope", def: "a tube with mirrors that lets you see over or around things" }],
+        quiz: [
+          { q: "Tele means far. What does a telescope help you do?", choices: ["see things far away", "hear tiny sounds", "write faster"], answer: 0, why: "Tele means far and scope means a tool for looking." },
+          { q: "What was the giant eyeball, really?", choices: ["Mr. Patel's cat", "an alien", "the Moon"], answer: 0, why: "The giant eyeball belonged to Mr. Patel's cat, sitting on the fence." },
+          { q: "Why did the cat's eye look so huge?", choices: ["It was pressed against the end of the telescope", "The cat was a giant", "Maya was dreaming"], answer: 0, why: "Through the lens, the cat's eye looked enormous." },
+          { q: "A microscope helps you look at things that are…", choices: ["very tiny", "very far away", "very loud"], answer: 0, why: "Micro means small and scope means a tool for looking." }
+        ],
+        write: [
+          { emoji: "🔭", p: "What did Maya find when she finally pointed the telescope at the sky? Answer in a complete sentence.", model: "Maya found the Moon, and it was even better than an alien.", need: { min: 7 } },
+          { emoji: "🔬", p: "If you had a microscope or a telescope, what would you look at? Use a tele or scope word.", ideas: ["I would use my", "telescope", "microscope", "to look at", "because"], model: "I would use my microscope to look at a drop of pond water.", need: { min: 8, team: ["tele", "scope"], teamHint: "Use a word with tele or scope in it, like telescope, microscope or telephone." } }
+        ],
+        sticker: { emoji: "🔭", name: "Star Spotter" }
+      },
+      {
+        id: "p5l3", title: "The Autograph Oops", skill: "Root graph = write or draw",
+        tip: "Graph means write or draw. An autograph is your own name, written by you. A photograph is a picture drawn with light. A paragraph is a group of written sentences. When you spot graph, think: writing or drawing!",
+        focus: ["autograph", "photograph", "photographer", "paragraph", "biography", "autobiography"],
+        chunks: { autograph: "au·to·graph", photograph: "pho·to·graph", photographer: "pho·tog·ra·pher", paragraph: "par·a·graph", biography: "bi·og·ra·phy", autobiography: "au·to·bi·og·ra·phy" },
+        passage: [
+          "Famous soccer star Zoe Ramos was coming to our library to sign her new book, a biography about her life. I had read every paragraph of it twice. I practised what I would say to her in the mirror. “Hello, Ms. Ramos. You are my hero. May I please have your autograph?”",
+          "The line was long, and I was so nervous my knees wobbled like jelly. A photographer was snapping pictures of every kid. When it was finally my turn, I opened my mouth, and out came, “Hello, Ms. Hero. You are my autograph.” Everyone heard. My face turned the color of ketchup.",
+          "Zoe Ramos laughed, but it was a kind laugh. “That is the best thing anyone has said all day,” she said. She signed my book with a big, swoopy autograph. Then she drew a tiny soccer ball next to it and wrote, “To my number one fan. Keep kicking!”",
+          "The photographer took a photograph of us together, both making silly faces. Now it hangs on my bedroom wall. For class, I wrote a paragraph about that day. My teacher said it was so funny that someday I should write my own autobiography. I already know the first line."
+        ],
+        vocab: [{ w: "biography", def: "a true story about someone's life, written by another person" }, { w: "autograph", def: "a person's name, signed in their own handwriting" }],
+        quiz: [
+          { q: "What does the root graph mean?", choices: ["write or draw", "carry", "look"], answer: 0, why: "Graph means write or draw: autograph, photograph, paragraph." },
+          { q: "What did the narrator say by accident?", choices: ["“Hello, Ms. Hero. You are my autograph.”", "“I do not like soccer.”", "“Can I have your shoes?”"], answer: 0, why: "Nervous words got mixed up: “Hello, Ms. Hero. You are my autograph.”" },
+          { q: "How did Zoe Ramos make the narrator feel better?", choices: ["She laughed kindly and said it was the best thing anyone said", "She left quickly", "She took the book back"], answer: 0, why: "It was a kind laugh, and she said it was the best thing anyone had said all day." },
+          { q: "An autobiography is a life story written by…", choices: ["the person themselves", "a teacher", "a photographer"], answer: 0, why: "Auto means self, bio means life, and graph means write: your own life, written by you!" }
+        ],
+        write: [
+          { emoji: "⚽", p: "What did Zoe Ramos write in the book? Answer in a complete sentence.", model: "She wrote, To my number one fan, keep kicking!", need: { min: 7 } },
+          { emoji: "📸", p: "Whose autograph would you want, and why? Use a graph word like autograph, photograph or paragraph.", ideas: ["I would want the autograph of", "because", "photograph", "famous"], model: "I would want the autograph of a real astronaut because I want to fly to space.", need: { min: 9, team: ["graph"], teamHint: "Use a word with graph in it, like autograph, photograph or paragraph." } }
+        ],
+        sticker: { emoji: "✍️", name: "Super Fan" }
+      },
+      {
+        id: "p5l4", title: "Bookshelf Chaos", skill: "Root struct = build",
+        tip: "Struct means build. To construct something is to build it. A structure is something that was built, like a bridge or a fort. Instructions tell you how to build it. And destruction? That is when it all falls down!",
+        focus: ["construct", "structure", "instructions", "destruction", "instructor", "reconstructed"],
+        chunks: { construct: "con·struct", structure: "struc·ture", instructions: "in·struc·tions", destruction: "de·struc·tion", instructor: "in·struc·tor", reconstructed: "re·con·struct·ed" },
+        passage: [
+          "Dad and I decided to construct a bookshelf for my room. The box said, “Easy to build! Only thirty minutes!” We spread all the pieces across the floor. There were boards, screws, little wooden pegs, and one tiny metal key that looked very important.",
+          "Dad said, “Who needs instructions?” and tossed the paper over his shoulder. Two hours later, our structure looked less like a bookshelf and more like a strange sculpture. One shelf was upside down. Another pointed at the ceiling. The cat crawled inside and refused to come out.",
+          "Then I put one book on the top shelf. Creak. Wobble. Crash! The whole thing collapsed into a pile of boards, with the cat sitting on top like a king. Mom peeked in the door. “Wow,” she said. “I have never seen such fast destruction.”",
+          "So I picked up the instructions and read them out loud, step by step. Dad followed along, and this time we read every word. Together, we reconstructed the bookshelf in twenty minutes. It was strong and straight. Dad looked at me and said, “From now on, you are the instructor.”"
+        ],
+        vocab: [{ w: "collapsed", def: "fell down all at once" }, { w: "sculpture", def: "art made by shaping clay, wood, metal or stone" }],
+        quiz: [
+          { q: "What does the root struct mean?", choices: ["build", "break", "see"], answer: 0, why: "Struct means build: construct, structure, instructions." },
+          { q: "Why did the first bookshelf fall apart?", choices: ["Dad did not follow the instructions", "The cat chewed it", "The books were too light"], answer: 0, why: "Dad tossed the instructions over his shoulder, so the shelves went in wrong." },
+          { q: "What does reconstruct mean?", choices: ["build it again", "break it", "paint it"], answer: 0, why: "Re means again and struct means build, so reconstruct means build it again." },
+          { q: "Who became the instructor at the end?", choices: ["the narrator", "Dad", "the cat"], answer: 0, why: "Dad said, “From now on, you are the instructor.”" }
+        ],
+        write: [
+          { emoji: "📚", p: "How did they finally build a strong bookshelf? Answer in a complete sentence.", model: "They read the instructions step by step and built it again.", need: { min: 8 } },
+          { emoji: "🏰", p: "What structure would you love to construct? Use a struct word like construct, structure or instructions.", ideas: ["I would construct", "a giant", "structure", "with", "instructions"], model: "I would construct a giant pillow fort with a secret tunnel.", need: { min: 8, team: ["struct"], teamHint: "Use a word with struct in it, like construct, structure or instructions." } }
+        ],
+        sticker: { emoji: "🛠️", name: "Master Builder" }
+      }
+    ],
+    check: {
+      title: "The Space Camp Report",
+      passage: [
+        "This summer, I went to Space Camp, and my teacher asked me to write a report about it. Here it is. On the first day, a bus transported us to a building shaped like a rocket. Our instructor, Captain Lee, gave each of us a portable radio and a name tag.",
+        "Our first mission was to construct a model rocket from cardboard, tape and straws. My team read the instructions carefully, but our rocket still had a strange structure. It leaned to one side like it was tired. Captain Lee said, “Leaning rockets are very fashionable this year.”",
+        "That night, we looked through a giant telescope. I saw the craters on the Moon so clearly that I gasped. A photographer took a photograph of me with my mouth wide open. It looks like I am trying to eat the Moon. Captain Lee says it is my best picture.",
+        "On the last day, we launched our rockets. Ours wobbled, spun in a circle, and landed in a bush, but it flew! Captain Lee signed my certificate with a big autograph. I learned that word roots are like rocket parts. Put them together the right way, and your reading takes off."
+      ],
+      quiz: [
+        { q: "How did the campers get to the building?", choices: ["A bus transported them", "They walked", "They flew in a rocket"], answer: 0, why: "On the first day, a bus transported them to a building shaped like a rocket." },
+        { q: "What was strange about the team's rocket?", choices: ["It leaned to one side", "It was invisible", "It was made of cheese"], answer: 0, why: "It leaned to one side like it was tired." },
+        { q: "What does the root scope tell you about a telescope?", choices: ["It is a tool for looking", "It is for carrying", "It is for writing"], answer: 0, why: "Scope means a tool for looking. Tele means far." },
+        { q: "Why does the photograph look funny?", choices: ["The narrator's mouth was wide open, like eating the Moon", "Captain Lee was upside down", "The camera was broken"], answer: 0, why: "It looks like the narrator is trying to eat the Moon!" },
+        { q: "Which word means “to build”?", choices: ["construct", "transport", "autograph"], answer: 0, why: "Struct means build, so construct means to build." },
+        { q: "What did the narrator learn about word roots?", choices: ["They fit together like rocket parts to help you read", "They are only for science", "They are too hard to learn"], answer: 0, why: "Put roots together the right way, and your reading takes off." }
+      ]
+    }
+  },
   { id: "p6", n: 6, title: "4th-Grade Star", sub: "Longer passages, main idea & inference", goal: 120, color: "#fcc419", accent: "#e67700", badge: { emoji: "⭐", name: "4th-Grade Star Badge" } }
 ];
 

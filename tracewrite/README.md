@@ -10,7 +10,7 @@ Open `index.html`. No build step, works offline.
 |---|---|---|---|
 | 1 | Warm-up & First Letters | Wiggle Warm-up (lines, slant, circle, zig-zag, bunny hops) · s a t · p i n · My First Words | ✅ built |
 | 2 | Round Letters | c · o · d · g · m · k (magic-c family) · Round Words · Silly Words | ✅ built |
-| 3 | Tall Letters | e u r h b f | coming soon |
+| 3 | Tall Letters | e · u · r · h · b · f · Tall Words · Funny Words | ✅ built |
 | 4 | Tricky Letters | l j v w x y z q | coming soon |
 | 5 | Capitals & My Name | | coming soon |
 | 6 | My First Sentences | capital, finger spaces, period | coming soon |
