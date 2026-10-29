@@ -305,7 +305,7 @@ body {
 }
 .ava-cell:hover { transform: scale(1.1); }
 .ava-cell.sel { border-color: var(--purple); background: #ece4ff; }
-.grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
 .grade-btn {
   font-family: var(--font-round);
   font-weight: 700;
@@ -314,12 +314,13 @@ body {
   background: #f6f2ff;
   border: 3px solid transparent;
   border-radius: 18px;
-  padding: 16px 8px;
+  padding: 8px 4px;
+  min-height: 64px;
   cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   transition: transform 0.15s ease;
 }
-.grade-btn span { font-size: 2rem; }
+.grade-btn span { font-size: 1.6rem; }
 .grade-btn:hover { transform: translateY(-3px); }
 .grade-btn.sel { border-color: var(--purple); background: #ece4ff; }
 .new-actions {

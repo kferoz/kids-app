@@ -1,3 +1,11 @@
+## FEATURE — Phase 0: PreK–5 grades, subject catalog, Hub settings · 2026-10-29
+- Grades pk, kg, g1–g5 (`KidsDB.GRADE_ORDER`). Apps only know "kg"/"g3", so each grade has a `band` (pk→kg, g1–g5→g3); use `KidsDB.band()` wherever code asks "KG or G3?". Profiles keep the real grade.
+- Apps that read `hub_kids` raw (Arabic Oasis, Reading Adventures `src/base.html` → `node build.js`) carry their own small grade→band map; keep them in step with KidsDB.
+- `js/catalog.js`: every activity by subject/lang/section/grades; one app can appear in several places via #hash deep links. The test checks hrefs exist, each #hash is read by its app, and every Hub `data-app` is listed.
+- `js/settings.js` (`hub_settings`, global): stores only what a grown-up changed on top of DEFAULTS; arrays replace, objects merge. Money = device switch AND per-learner switch; currency USD | INR; levels small/big/huge = $0.25/$1/$5, ₹25/₹100/₹500. Gifts forced virtual-only.
+- Nothing reads settings or the catalog yet (Phases 1 and 3), so behaviour is unchanged.
+- Login grade grid uses `minmax(88px,1fr)` so all 7 grades show in 3 rows on a 375px phone.
+
 ## FEATURE — Sticker Quest tab 4: Unit 2 Test Prep · 2026-10-29
 - Tabs show/hide from each `.tab`'s `data-tab` now; the old hard-coded id list hid any new tab.
 - A new round avoids the last round's ids (`save.unit2.last[mode]`). The mixed split must fit the UNUSED easy ones, or 5 easy last time forces a repeat (test caught it).

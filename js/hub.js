@@ -204,10 +204,10 @@
       '<label class="new-label">Pick a buddy</label>' +
       '<div class="ava-grid" id="avaGrid"></div>' +
       '<label class="new-label">I am a…</label>' +
-      '<div class="grade-grid">' +
-        '<button class="grade-btn" data-grade="kg"><span>🐣</span>Kindergartener</button>' +
-        '<button class="grade-btn" data-grade="g3"><span>🎒</span>3rd Grader</button>' +
-      '</div>' +
+      '<div class="grade-grid">' + DB.GRADE_ORDER.map(function (code) {
+        var g = DB.GRADES[code];
+        return '<button class="grade-btn" data-grade="' + code + '" aria-label="' + g.label + '"><span>' + g.emoji + '</span>' + g.short + '</button>';
+      }).join("") + '</div>' +
       '<div class="new-actions">' +
         '<button class="kid-btn ghost" id="backPick">← Back</button>' +
         '<button class="big-start" id="startBtn" disabled>Start Learning! 🚀</button>' +

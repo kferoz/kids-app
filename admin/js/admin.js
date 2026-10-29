@@ -33,7 +33,7 @@
         var md = Object.keys(l).filter(function (k) { return /^me/.test(k) && l[k] && l[k].done; }).length;
         return { done: d + ld + sd + td + bd + md, total: 25, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + bd + " of 4 blend lessons · " + md + " of 4 magic e lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
-      progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[kid.grade + "-math"] || []).length, e = (d[kid.grade + "-english"] || []).length;
+      progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[DB.band(kid.grade) + "-math"] || []).length, e = (d[DB.band(kid.grade) + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
     { id: "funfacts", name: "Fun Facts Explorer", emoji: "🔍", grades: ["kg", "g3"], subject: "Discovery",
       progress: function (r) { return { label: r.num("ff_stars") + " ⭐ · " + r.arr("ff_trophies").length + " trophies" }; } },
@@ -63,15 +63,15 @@
         return { done: d, total: 12, label: d + " of 12 handwriting lessons · " + r.num("tw_clean") + " perfect traces · " + r.num("tw_built") + " words spelled" }; } },
     { id: "arabic", name: "Arabic Oasis", emoji: "🐪", grades: ["kg", "g3"], subject: "Arabic",
       // lessons ak* = KG path, ag* = 3rd-grade path (ar_lessons); Phases 1–3 = 12 lessons each, raise as phases are added
-      progress: function (r, kid) { var l = r.obj("ar_lessons"), pre = kid.grade === "kg" ? /^ak/ : /^ag/;
+      progress: function (r, kid) { var l = r.obj("ar_lessons"), pre = DB.band(kid.grade) === "kg" ? /^ak/ : /^ag/;
         var d = Object.keys(l).filter(function (k) { return pre.test(k) && l[k] && l[k].done; }).length;
         return { done: d, total: 12, label: d + " of 12 lessons · " + r.arr("ar_met").length + " of 28 letters met · " + r.num("ar_traced") + " letters traced · " + r.num("ar_said") + " words said" }; } },
     { id: "detectives", name: "Reading Detectives", emoji: "🦝", grades: ["g3"], subject: "Reading",
       progress: function (r) { var d = r.num("rc_solved"); return { done: d, total: 15, label: d + " of 15 cases solved" }; } },
     { id: "readingadventures", name: "Reading Adventures", emoji: "📖", grades: ["kg", "g3"], subject: "Reading",
-      progress: function (r, kid) { var p = r.obj("readingAdventuresProgress_v2"), g = p[kid.grade === "kg" ? "kinder" : "grade3"] || {};
+      progress: function (r, kid) { var p = r.obj("readingAdventuresProgress_v2"), g = p[DB.band(kid.grade) === "kg" ? "kinder" : "grade3"] || {};
         var d = Object.keys(g).filter(function (k) { return g[k] && g[k].completed; }).length, label = d + " of 15 stories";
-        if (kid.grade !== "kg") { var sp = r.obj("readingAdventuresScience_v1"), ss = sp.stories || {};
+        if (DB.band(kid.grade) !== "kg") { var sp = r.obj("readingAdventuresScience_v1"), ss = sp.stories || {};
           var sd = Object.keys(ss).filter(function (k) { return ss[k] && ss[k].done; }).length, tb = (sp.test || {}).best || 0;
           if (sd || tb) label += " · science " + sd + "/10 stories" + (tb ? ", test best " + tb + "%" : ""); }
         return { done: d, total: 15, label: label }; } },
@@ -94,6 +94,9 @@
     { id: "hub", name: "Learning Hub", emoji: "🎒", grades: ["kg", "g3"], subject: "Hub", progress: null, internal: true },
     { id: "admin", name: "Admin", emoji: "🛡️", grades: [], subject: "Hub", progress: null, internal: true }
   ];
+  function gradeOptions() {
+    return DB.GRADE_ORDER.map(function (c) { var g = DB.GRADES[c]; return '<option value="' + c + '"' + (c === "kg" ? " selected" : "") + ">" + g.emoji + " " + g.short + "</option>"; }).join("");
+  }
   function appById(id) { for (var i = 0; i < APPS.length; i++) if (APPS[i].id === id) return APPS[i]; return { id: id, name: id, emoji: "📦", subject: "Other", grades: [] }; }
 
   // Categorical slots, assigned in a FIXED order to subjects (colour follows the entity).
@@ -370,7 +373,7 @@
     var form = document.createElement("form"); form.className = "add-form";
     form.innerHTML =
       '<label>Name<input id="nsName" maxlength="24" required placeholder="e.g. Maya"></label>' +
-      '<label>Grade<select id="nsGrade"><option value="kg">🐣 Kindergarten</option><option value="g3">🎒 3rd Grade</option></select></label>' +
+      '<label>Grade<select id="nsGrade">' + gradeOptions() + '</select></label>' +
       '<div class="ava-pick" id="nsAva" role="radiogroup" aria-label="Avatar"></div>' +
       '<button class="btn primary" type="submit">Add student</button>';
     addSec.appendChild(form);
@@ -431,7 +434,7 @@
     var dlg = $("dialog");
     dlg.innerHTML = '<form method="dialog" class="dlg"><h3>Edit ' + esc(k.name) + '</h3>' +
       '<label>Name<input id="edName" maxlength="24" value="' + esc(k.name) + '"></label>' +
-      '<label>Grade<select id="edGrade"><option value="kg">🐣 Kindergarten</option><option value="g3">🎒 3rd Grade</option></select></label>' +
+      '<label>Grade<select id="edGrade">' + gradeOptions() + '</select></label>' +
       '<div class="ava-pick" id="edAva"></div>' +
       '<div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="edSave" value="ok">Save</button></div></form>';
     $("edGrade").value = k.grade;
@@ -458,7 +461,7 @@
       var r = reader(k.id), A = analyze(S.events.filter(function (e) { return e.kid === k.id; }), b.since, b.until);
       var sec = section(host, k.avatar + " " + esc(k.name) + " — app by app",
         "Completion comes from each app's saved progress; time, answers and accuracy from the last " + S.days + " days.");
-      var rows = APPS.filter(function (a) { return !a.internal && a.grades.indexOf(k.grade) >= 0; }).map(function (a) {
+      var rows = APPS.filter(function (a) { return !a.internal && a.grades.indexOf(DB.band(k.grade)) >= 0; }).map(function (a) {
         var p = a.progress ? a.progress(r, k) : null, s = A.apps[a.id] || {};
         return { a: a, p: p, s: s };
       });
@@ -510,13 +513,13 @@
         text: pct(s.correct, s.answers) + "% accuracy over " + s.answers + " answers — move on to the next level or a harder app." });
     });
     var used = {}; Object.keys(all.apps).forEach(function (k) { used[k] = 1; });
-    var untried = APPS.filter(function (a) { return !a.internal && a.id !== "rewards" && a.grades.indexOf(kid.grade) >= 0 && !used[a.id]; });
+    var untried = APPS.filter(function (a) { return !a.internal && a.id !== "rewards" && a.grades.indexOf(DB.band(kid.grade)) >= 0 && !used[a.id]; });
     if (untried.length) out.push({ icon: "🧭", tone: "", title: "Apps " + name + " hasn't tried",
       text: untried.slice(0, 5).map(function (a) { return a.emoji + " " + esc(a.name); }).join(", ") + (untried.length > 5 ? " and " + (untried.length - 5) + " more" : "") + "." });
     if (all.last && Date.now() - all.last > 3 * DAY) out.push({ icon: "⏰", tone: "warning", title: "It's been " + timeAgo(all.last).replace(" ago", ""),
       text: "No learning since " + fullTime(all.last) + ". A 10-minute session today keeps the habit going." });
     APPS.forEach(function (a) {
-      if (!a.progress || a.grades.indexOf(kid.grade) < 0) return;
+      if (!a.progress || a.grades.indexOf(DB.band(kid.grade)) < 0) return;
       var p = a.progress(r, kid);
       if (p.total && p.done / p.total >= 0.75 && p.done < p.total) out.push({ icon: "🏁", tone: "good", title: "Almost done with " + esc(a.name),
         text: p.label + " — just " + (p.total - p.done) + " to go. Great moment for a finishing push!" });
@@ -555,7 +558,7 @@
     DB.kids().forEach(function (k) {
       var r = reader(k.id);
       APPS.forEach(function (a) {
-        if (!a.progress || a.grades.indexOf(k.grade) < 0) return;
+        if (!a.progress || a.grades.indexOf(DB.band(k.grade)) < 0) return;
         var p = a.progress(r, k);
         if (p.total && p.done >= p.total) out.push({ icon: "📚", tone: "", title: esc(k.name) + " finished all of " + a.name, text: "Add new content (" + p.label + ") so there's something fresh to do." });
       });
@@ -642,7 +645,7 @@
     kids.forEach(function (k) {
       var r = reader(k.id), recent = analyze(S.events.filter(function (e) { return e.kid === k.id; }), now - 28 * DAY, now);
       APPS.forEach(function (a) {
-        if (!a.progress || a.grades.indexOf(k.grade) < 0) return;
+        if (!a.progress || a.grades.indexOf(DB.band(k.grade)) < 0) return;
         var p = a.progress(r, k); if (!p.total) return;
         var rate = ((recent.apps[a.id] || {}).completes || 0) / 4; // per week
         if (!p.done && !rate) return;

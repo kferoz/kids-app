@@ -13,8 +13,11 @@
    localStorage, so this module (and the Insights page) can see the
    whole family's activity and every app's saved progress.
 
-   Grades are the two the Hub logs in as:
-     "kg" = Kindergartener   ·   "g3" = 3rd Grader
+   Grades run PreK to 5th: pk, kg, g1, g2, g3, g4, g5 (GRADE_ORDER).
+   Most apps were built for "kg" or "g3" only, so each grade has a
+   `band`: the app level it uses until it has content of its own
+   (pk → kg, g1–g5 → g3). Use KidsDB.band(grade) wherever an app or
+   page asks "KG or 3rd grade?". Profiles keep their real grade.
    ============================================================ */
 window.KidsDB = (function () {
   "use strict";
@@ -24,11 +27,24 @@ window.KidsDB = (function () {
 
   /* Grade metadata: label, mascot, and which Hub category it filters to. */
   var GRADES = {
-    kg: { code: "kg", label: "Kindergartener", short: "Kindergarten",
-          emoji: "🐣", cat: "kinder", color: "#ff6f91" },
-    g3: { code: "g3", label: "3rd Grader",     short: "3rd Grade",
-          emoji: "🎒", cat: "elementary", color: "#8a7dff" }
+    pk: { code: "pk", n: -1, label: "Pre-K Learner",  short: "Pre-K",
+          emoji: "🧸", cat: "kinder", band: "kg", color: "#ff9f43" },
+    kg: { code: "kg", n: 0, label: "Kindergartener", short: "Kindergarten",
+          emoji: "🐣", cat: "kinder", band: "kg", color: "#ff6f91" },
+    g1: { code: "g1", n: 1, label: "1st Grader",     short: "1st Grade",
+          emoji: "✏️", cat: "elementary", band: "g3", color: "#20c997" },
+    g2: { code: "g2", n: 2, label: "2nd Grader",     short: "2nd Grade",
+          emoji: "📒", cat: "elementary", band: "g3", color: "#339af0" },
+    g3: { code: "g3", n: 3, label: "3rd Grader",     short: "3rd Grade",
+          emoji: "🎒", cat: "elementary", band: "g3", color: "#8a7dff" },
+    g4: { code: "g4", n: 4, label: "4th Grader",     short: "4th Grade",
+          emoji: "🔭", cat: "elementary", band: "g3", color: "#e64980" },
+    g5: { code: "g5", n: 5, label: "5th Grader",     short: "5th Grade",
+          emoji: "🚀", cat: "elementary", band: "g3", color: "#f08c00" }
   };
+  var GRADE_ORDER = ["pk", "kg", "g1", "g2", "g3", "g4", "g5"];
+  // The app level ("kg" | "g3") a grade uses until it has its own content.
+  function band(grade) { return (GRADES[grade] || GRADES.kg).band; }
 
   /* Friendly avatar choices for the login picker. */
   var AVATARS = ["🦄", "🦖", "🐬", "🦊", "🐼", "🐯", "🐸", "🦉",
@@ -153,6 +169,8 @@ window.KidsDB = (function () {
 
   return {
     GRADES: GRADES,
+    GRADE_ORDER: GRADE_ORDER,
+    band: band,
     AVATARS: AVATARS,
     kids: kids,
     active: active,

@@ -1811,7 +1811,8 @@ function hubGradeId(){
   try{
     const id = localStorage.getItem('hub_activeKid');
     const kid = id && JSON.parse(localStorage.getItem('hub_kids') || '[]').find(k => k.id === id);
-    return kid ? ({ kg:'kinder', g3:'grade3' })[kid.grade] || null : null;
+    // Pre-K reads the KG books, grades 1–5 the grade-3 books (KidsDB grade bands).
+    return kid ? ({ pk:'kinder', kg:'kinder', g1:'grade3', g2:'grade3', g3:'grade3', g4:'grade3', g5:'grade3' })[kid.grade] || null : null;
   }catch(e){ return null; }
 }
 

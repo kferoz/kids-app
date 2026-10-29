@@ -30,7 +30,8 @@
     try {
       var id = localStorage.getItem("hub_activeKid");
       var kid = id && JSON.parse(localStorage.getItem("hub_kids") || "[]").filter(function (k) { return k.id === id; })[0];
-      return kid && (kid.grade === "kg" || kid.grade === "g3") ? kid.grade : "";
+      // Pre-K uses the KG path, grades 1–5 the 3rd-grade path (KidsDB grade bands).
+      return kid ? ({ pk: "kg", kg: "kg", g1: "g3", g2: "g3", g3: "g3", g4: "g3", g5: "g3" })[kid.grade] || "" : "";
     } catch (e) { return ""; }
   }
   var LOCKED = hubGrade();
