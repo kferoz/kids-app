@@ -1,0 +1,129 @@
+/* Unit 2 Test Prep tab. Uses index.html's tokens. Body text is 20px here, buttons are 56px+,
+   and coloured cards keep text contrast at 5:1 or better. index.html's reduced-motion rule
+   turns every animation below off. */
+.u2{font-size:20px;line-height:1.5;scroll-margin-top:64px}   /* clear of kidbar's floating 🏠 */
+.u2 .btn{font-size:20px;min-height:56px;background:#0E7C70}
+.u2 .btn.ghost{background:#fff;color:var(--ink)}
+.u2 .say{min-height:52px;min-width:52px;font-size:22px}
+.no-tts .tts{display:none!important}
+
+.u2-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.u2-bar #u2ReadToMe{margin-left:auto}
+.u2-bar #u2ReadToMe[aria-pressed="true"]{background:var(--sun)}
+.u2-streak{font:700 20px "Fredoka","Trebuchet MS",sans-serif;background:#F5F2FF;border:3px solid var(--ink);border-radius:999px;padding:6px 14px}
+.u2-streak.hot{background:var(--sun);animation:pop .45s ease-out}
+
+/* Hoot the owl */
+.u2-mascot{display:flex;align-items:center;gap:14px}
+.u2-owl{width:84px;flex:none}
+.u2-owl svg{width:84px;height:auto;display:block;transform-origin:50% 90%}
+.u2-owl .owl-happy,.u2-owl .owl-cheek{display:none}
+.u2-owl.mood-happy .owl-happy,.u2-owl.mood-happy .owl-cheek{display:inline}
+.u2-owl.mood-happy .owl-open{display:none}
+.u2-owl.mood-happy svg{animation:u2hop .7s ease-out}
+.u2-owl.mood-think .owl-pupils{transform:translate(3px,-4px)}
+.u2-owl.mood-think svg{animation:u2tilt .7s ease-in-out}
+.u2-bubble{position:relative;flex:1;margin:0;background:#F5F2FF;border:3px solid var(--ink);border-radius:18px;padding:10px 16px;font-weight:700}
+.u2-bubble::before{content:"";position:absolute;left:-13px;top:50%;margin-top:-9px;border-style:solid;border-width:9px 13px 9px 0;border-color:transparent var(--ink) transparent transparent}
+
+/* Screens */
+.u2-screen{display:flex;flex-direction:column;gap:16px;animation:u2in .35s ease-out}
+.u2-h{font-size:26px}
+.u2-h:focus{outline:none}
+.u2-lead{margin:0;font-weight:700}
+.u2-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.u2-mode{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px;
+  border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);color:var(--ink);cursor:pointer;font-family:inherit;transition:transform .15s}
+.u2-mode:hover{transform:translateY(-3px)}
+.u2-mode:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.u2-mode.sun{background:var(--sun)}
+.u2-mode.teal{background:#0E7C70;color:#fff}
+.u2-mode.grape{background:var(--grape);color:#fff}
+.u2-mode.coral{background:var(--coral)}
+.u2-mode-icon{font-size:46px;line-height:1}
+.u2-mode-title{font:700 25px "Fredoka","Trebuchet MS",sans-serif}
+.u2-mode-sub{font-size:20px;font-weight:700}
+
+/* Learn */
+.u2-topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.u2-topic{display:flex;flex-direction:column;gap:10px;border:3px solid var(--ink);border-radius:20px;padding:14px;background:#FFFDF5;animation:u2in .4s ease-out both}
+.u2-topic h4{margin:0;font:700 23px "Fredoka","Trebuchet MS",sans-serif}
+.u2-topic ul{margin:0;padding-left:24px;flex:1}
+.u2-topic li+li{margin-top:6px}
+.u2-pic{border:2px solid var(--ink);border-radius:16px;overflow:hidden;background:#fff;aspect-ratio:4/3;display:grid;place-items:center}
+.u2-pic svg{width:100%;height:100%;display:block}
+.u2-emoji{font-size:64px;line-height:1}
+.u2-pic.sm{width:120px;flex:none}
+.u2-pic.sm .u2-emoji{font-size:54px}
+
+/* Question */
+.u2-progress{display:flex;gap:6px}
+.u2-progress span{flex:1;height:14px;border-radius:999px;background:#E6E1F7;border:2px solid var(--ink)}
+.u2-progress .done{background:var(--teal)}
+.u2-progress .now{background:var(--sun)}
+.u2-countrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.u2-count{margin:0;font-weight:700;color:var(--muted)}
+.u2-q{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.u2-prompt{flex:1 1 180px}
+.u2-sentence{flex-basis:100%;margin:0;background:#FFFDF5;border:3px dashed var(--grape);border-radius:16px;padding:12px 16px;font-size:22px;font-weight:700}
+.u2-hint{margin:0;align-self:flex-start;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font-weight:800}
+.u2-choices{display:flex;flex-direction:column;gap:12px}
+.u2-choices.tf{flex-direction:row;flex-wrap:wrap}
+.u2-choices.tf .u2-choice{flex:1 1 140px;justify-content:center;font-size:22px}
+.u2-choice,.u2-mi{display:flex;gap:12px;align-items:center;min-height:60px;padding:12px 16px;text-align:left;cursor:pointer;
+  font:700 20px/1.35 "Nunito","Trebuchet MS","Segoe UI",sans-serif;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:16px}
+.u2-choice:hover:not(:disabled),.u2-mi:hover:not(:disabled){background:#F5F2FF}
+.u2-choice:disabled,.u2-mi:disabled{cursor:default}
+.u2-choice[aria-pressed]::before{content:"";flex:none;width:28px;height:28px;border:3px solid var(--ink);border-radius:8px;background:#fff;display:grid;place-items:center;color:#fff;font-size:18px}
+.u2-choice[aria-pressed="true"]{background:#EDE8FF;border-color:var(--grape)}
+.u2-choice[aria-pressed="true"]::before{content:"✓";background:var(--grape)}
+.u2-choice.right{background:#E6F8EE;border-color:var(--good)}
+.u2-choice.right::after{content:"✅";margin-left:auto}
+.u2-choice.wrong{background:#FDE8EA;border-color:var(--bad)}
+.u2-choice.wrong::after{content:"✗";margin-left:auto;color:var(--bad);font-weight:900}
+
+/* Matching */
+.u2-match{position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:36px}
+.u2-col{display:flex;flex-direction:column;justify-content:space-around;gap:12px;min-width:0}
+.u2-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.u2-mi{position:relative;padding:10px 12px;overflow-wrap:anywhere}
+.u2-mi.sel,.u2-mi.sel:hover{background:var(--sun)}
+.u2-mi.paired{border-color:var(--pc);box-shadow:inset 0 0 0 3px var(--pc)}
+.u2-mi.locked{background:#E6F8EE}
+.u2-badge{position:absolute;top:-12px;right:-12px;width:30px;height:30px;border-radius:50%;background:var(--pc);color:#fff;border:2px solid var(--ink);display:grid;place-items:center;font:700 17px "Fredoka","Trebuchet MS",sans-serif}
+.u2-col + .u2-col .u2-badge{right:auto;left:-12px}
+.u2-badge:empty{display:none}
+
+/* Feedback */
+.u2-feedback:empty{display:none}
+.u2-fb{display:flex;flex-direction:column;gap:10px;border:3px solid var(--ink);border-radius:18px;padding:14px 16px}
+.u2-fb.good{background:#E6F8EE}
+.u2-fb.try{background:#FFF4D6}
+.u2-fb.show{background:#EEF2FF}
+.u2-msg{margin:0;font:700 24px "Fredoka","Trebuchet MS",sans-serif}
+.u2-expl{margin:0}
+
+/* End of round */
+.u2-stars{display:flex;justify-content:center;gap:12px;font-size:76px;line-height:1}
+.u2-stars span{color:#E6E1F7;-webkit-text-stroke:3px var(--ink)}
+.u2-stars .on{color:var(--sun);animation:u2star .6s var(--d) ease-out both}
+.u2-did,.u2-prize{margin:0}
+.u2-prize-s{display:inline-grid;place-items:center;width:52px;height:52px;border:3px solid var(--ink);border-radius:14px;background:var(--sun);font-size:30px;vertical-align:middle;animation:pop .5s ease-out}
+
+/* Motion */
+.u2-bounce{animation:u2bounce .5s ease-out}
+.u2-wiggle{animation:u2wiggle .4s ease-in-out}
+.u2-spin{transform-origin:60px 30px;animation:u2spin 3s linear infinite}
+.u2-swirl{transform-origin:60px 45px;animation:u2spin 9s linear infinite reverse}
+.u2-sway{transform-origin:60px 80px;animation:u2sway 2.4s ease-in-out infinite}
+.u2-confetti{position:fixed;left:50%;top:35%;width:0;height:0;pointer-events:none;z-index:50}
+.u2-confetti i{position:absolute;width:10px;height:14px;border-radius:3px;animation:u2conf 1.1s ease-out forwards}
+@keyframes u2in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes u2hop{0%,100%{transform:translateY(0)}30%{transform:translateY(-14px)}55%{transform:translateY(0)}75%{transform:translateY(-5px)}}
+@keyframes u2tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg)}70%{transform:rotate(6deg)}}
+@keyframes u2bounce{0%,100%{transform:scale(1)}40%{transform:scale(1.06)}70%{transform:scale(.98)}}
+@keyframes u2wiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes u2spin{to{transform:rotate(360deg)}}
+@keyframes u2sway{0%,100%{transform:skewX(-4deg)}50%{transform:skewX(4deg)}}
+@keyframes u2star{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes u2conf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 170px)) rotate(var(--r));opacity:0}}

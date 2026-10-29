@@ -56,13 +56,14 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
 .bookline{display:flex;flex-wrap:wrap;gap:6px;min-height:44px}
 .sticker-slot{width:46px;height:46px;border-radius:14px;border:2px dashed #CFC6EE;display:grid;place-items:center;font-size:26px;background:#FBFAFF}
 .sticker-slot.got{border-style:solid;border-color:var(--ink);background:var(--sun);animation:pop .45s ease-out}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:12px 22px;font:600 18px "Fredoka","Trebuchet MS",sans-serif;box-shadow:0 6px 0 rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:12px 22px;font:600 18px "Fredoka","Trebuchet MS",sans-serif;box-shadow:0 6px 0 rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s;pointer-events:none}
 .toast.off{opacity:0;pointer-events:none}
 @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 .say{border:3px solid var(--ink);background:#fff;border-radius:999px;font-size:20px;min-height:44px;padding:4px 14px;cursor:pointer}
 .say.sm{min-height:36px;font-size:17px;padding:2px 10px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="src/unit2.css">
 <script src="../../js/profile-store.js"></script>
 <script src="../../js/voice.js"></script>
 <script src="../../js/activitydb.js"></script>
@@ -81,6 +82,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
     <button class="tab" role="tab" data-tab="facts" aria-selected="true">1. Fact Families</button>
     <button class="tab" role="tab" data-tab="groups" aria-selected="false">2. Equal Groups</button>
     <button class="tab" role="tab" data-tab="reading" aria-selected="false">3. Reading</button>
+    <button class="tab" role="tab" data-tab="unit2" aria-selected="false">4. Unit 2 Test Prep</button>
   </nav>
 
   <!-- ACTIVITY 1: fact families -->
@@ -99,7 +101,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
   <!-- ACTIVITY 2: equal groups -->
   <section id="groups" class="card" role="tabpanel" hidden>
     <h2>Equal Groups</h2>
-    <p class="prompt"><span id="grpPrompt"></span> <button class="say sm" id="grpSay" aria-label="Read the problem to me">🔊</button></p>
+    <p class="prompt"><span id="grpPrompt"></span> <button class="say sm tts" id="grpSay" aria-label="Read the problem to me">🔊</button></p>
     <p class="muted">Type how many equal groups you want. Each group needs the same amount. Try a new number each time!</p>
     <div class="row">
       <input type="number" id="grpInput" min="1" inputmode="numeric" aria-label="Number of groups">
@@ -113,7 +115,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
 
   <!-- ACTIVITY 3: reading -->
   <section id="reading" class="card" role="tabpanel" hidden>
-    <div class="row" style="justify-content:space-between"><h2>Joseph Bruchac</h2><button class="say" id="passSay" aria-label="Read the story to me">🔊 Read to me</button></div>
+    <div class="row" style="justify-content:space-between"><h2>Joseph Bruchac</h2><button class="say tts" id="passSay" aria-label="Read the story to me">🔊 Read to me</button></div>
     <div class="passage" id="passage">
       <h3 style="margin:0 0 8px">Growing Up Near Mountains</h3>
       <p style="margin:0 0 10px">Joseph Bruchac was born in 1942 and grew up in the mountains of New York. He lived in Greenfield Center with his grandmother and grandfather. Joseph loved to go everywhere with his grandfather. His grandfather showed him how to walk softly through the woods and taught him how to fish in the lakes and rivers.</p>
@@ -161,6 +163,16 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
       <button class="btn alt" id="scoreBtn">Score it</button>
     </div>
     <p class="feedback" id="fluFeedback" aria-live="polite"></p>
+  </section>
+
+  <!-- ACTIVITY 4: Unit 2 Test Prep (src/unit2.js draws the screens into #u2View) -->
+  <section id="unit2" class="card u2" role="tabpanel" aria-label="Unit 2 Test Prep" hidden>
+    <div class="u2-bar">
+      <button class="btn ghost" id="u2Back" aria-label="Back to the Unit 2 menu" hidden>&#9664; Menu</button>
+      <button class="btn ghost tts" id="u2ReadToMe" aria-pressed="false">🔊 Read to me: Off</button>
+    </div>
+    <div class="u2-mascot"><div class="u2-owl" id="u2Owl"></div><p class="u2-bubble" id="u2Bubble"></p></div>
+    <div id="u2View"></div>
   </section>
 
   <!-- STICKER BOOK -->
@@ -224,9 +236,14 @@ function say(text){
 
 /* Tabs */
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b === btn));
-  ["facts","groups","reading"].forEach(id => $("#"+id).hidden = id !== btn.dataset.tab);
+  document.querySelectorAll(".tab").forEach(b => {
+    b.setAttribute("aria-selected", b === btn);
+    $("#"+b.dataset.tab).hidden = b !== btn;
+  });
+  try { speechSynthesis.cancel(); } catch (e) {}
 }));
+// index.html#unit2 opens straight onto Unit 2 Test Prep.
+if (location.hash === "#unit2") document.querySelector('[data-tab="unit2"]').click();
 
 /* ---------- 1. Fact families ---------- */
 // The first three are from the worksheet; the rest are extra practice.
@@ -421,5 +438,10 @@ renderFamily();
 renderGroupProblem();
 renderBook();
 </script>
+<script src="src/data/unit2Questions.js"></script>
+<script src="src/data/unit2Topics.js"></script>
+<script src="src/unit2Logic.js"></script>
+<script src="src/unit2Art.js"></script>
+<script src="src/unit2.js"></script>
 </body>
 </html>

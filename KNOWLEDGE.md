@@ -1,3 +1,12 @@
+## FEATURE — Sticker Quest tab 4: Unit 2 Test Prep · 2026-10-29
+- Tabs show/hide from each `.tab`'s `data-tab` now; the old hard-coded id list hid any new tab.
+- A new round avoids the last round's ids (`save.unit2.last[mode]`). The mixed split must fit the UNUSED easy ones, or 5 easy last time forces a repeat (test caught it).
+- Scoring: right first try = 1, fixed on the retry = ½; 3 stars ≥ 85%, 2 ≥ 60%, else 1. Retry-right keeps but doesn't grow the streak.
+- 🔊 reads the choices in the SHOWN (shuffled) order via `U2Logic.readText`, not the bank's `audioText`.
+- `.toast` is now `pointer-events:none`: it sat over the Next button and swallowed taps for 1.8 s.
+- Python on Windows writes CRLF in text mode; use `newline=''` (the last commit flipped KNOWLEDGE.md to CRLF; fixed back to LF).
+- Headless check: `playwright-core` + the cached `ms-playwright/chromium-1223` exe, served on a spare port; drives every question type.
+
 ## FEATURE — Sticker Quest Unit 2 question bank · 2026-10-29
 - `adventurepack/stickerquest/src/data/unit2Questions.js` is a classic script (global `UNIT2_QUESTIONS` + `module.exports`): ES modules don't load from file://.
 - Answers are option ids, never text: `correctAnswer` (MC, T/F), `correctAnswers` array (choose_two) or `{itemId: optionId}` map (matching).

@@ -9,7 +9,7 @@ own **Adventure Pack** section. Each keeps its original look and runs standalone
 | 🏴‍☠️ Pirate Math Quest | `piratemath/` | G3 | Chapter 1: Rounding, Addition, Mental Addition, Science, Communities islands. Chapter 2: Captain's Grand Review exam (Addition within 10,000). Switch chapters with the floating bar. |
 | 📓 Subtraction Notebook Quest | `subtraction/` | G3 | 7 notebook sections (mental math, 3/4-digit regrouping, phrasing, word problems, multi-part). Printable worksheets PDF + `make_pdf.py` (needs reportlab). |
 | 🦉 Times Table Quest | `timesquest/` | G3 | From `docs/times-table-quest.zip` (2026-10-28): Chapter 4 ×/÷ test prep with Practice, Challenge and a timed Exam Mode. See its README. |
-| 🧩 Sticker Quest | `stickerquest/` | G3 | From `docs/sticker-quest-app.zip` (2026-10-28): fact families, equal groups, reading + 1-minute read-aloud; a sticker per task. See its README. |
+| 🧩 Sticker Quest | `stickerquest/` | G3 | From `docs/sticker-quest-app.zip` (2026-10-28): fact families, equal groups, reading + 1-minute read-aloud, and a Unit 2 Test Prep tab (social studies/science study guide); a sticker per task. See its README. |
 | 📜 Why We Have the Bill of Rights | `billofrights/` | G3 | Guided reading with Ms. Compass — author's purpose, compare & contrast, cause & effect, quick check, build-your-answer. Pictures load from Wikimedia (online only). |
 
 ## Hub integration
