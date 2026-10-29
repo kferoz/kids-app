@@ -5,7 +5,7 @@
 (() => {
   const panel = $("#unit2"), view = $("#u2View"), owl = $("#u2Owl"), bubble = $("#u2Bubble");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const TTS = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  const TTS = !!(window.speechSynthesis && window.SpeechSynthesisUtterance && speechSynthesis.speak);
   if (!TTS) document.body.classList.add("no-tts");
 
   const u2 = save.unit2 = Object.assign({readToMe:false, last:{}, rounds:[], ends:0}, save.unit2);
@@ -26,13 +26,13 @@
   const topicName = n => (UNIT2_TOPICS.find(t => t.n === n) || {}).title || "Unit 2";
 
   /* ---------- read aloud ---------- */
-  // A local (on-device) English voice, a friendly one if we can find it. voice.js swaps in the
-  // learner's own chosen voice when there is one.
+  // An on-device English voice only, a friendly one if we can find it. Network voices (e.g. Chrome's
+  // "Google US English") send the text to a server, so with no local voice we leave the browser default.
+  // voice.js still swaps in the learner's own chosen voice when there is one.
   let voice = null;
   function findVoice(){
-    const en = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang));
-    const pool = en.filter(v => v.localService).length ? en.filter(v => v.localService) : en;
-    voice = pool.find(v => /samantha|zira|aria|jenny|karen|moira|tessa|female/i.test(v.name)) || pool[0] || null;
+    const local = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang) && v.localService);
+    voice = local.find(v => /samantha|zira|aria|jenny|karen|moira|tessa|female/i.test(v.name)) || local[0] || null;
   }
   if (TTS){
     try { findVoice(); if (speechSynthesis.addEventListener) speechSynthesis.addEventListener("voiceschanged", findVoice); } catch (e) {}
@@ -212,14 +212,14 @@
     feedback("good", "✅ " + cheer + (first && state.streak >= 3 ? ` 🔥 ${state.streak} in a row!` : ""), q.explanation);
   }
 
-  // Returns true when the child gets another try.
+  // Returns true when the child gets another try. True/false has none: only the answer would be left.
   function wrong(els){
     const q = cur();
     state.tries++;
     track(false);
     state.streak = 0; setStreak(0);
     els.forEach(b => animate(b, "u2-wiggle"));
-    if (state.tries < 2){
+    if (state.tries < 2 && q.type !== "true_false_sentence"){
       mood("think", "Hmm… let's look again!");
       feedback("try", "🤔 Almost! Let's look again.", q.explanation + " Try one more time!");
       return true;

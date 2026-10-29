@@ -41,6 +41,17 @@ QS.forEach(q => {
   }
 });
 
+// Reading level: no sentence a child sees or hears is longer than 12 words.
+const TOPICS = require(path.join(__dirname, '../adventurepack/stickerquest/src/data/unit2Topics.js'));
+const kidText = QS.flatMap(q => [[q.id, q.prompt], [q.id, q.explanation],
+  ...q.options.map(o => [q.id, o.text]), ...(q.items || []).map(o => [q.id, o.text])])
+  .concat(TOPICS.flatMap(t => [...t.facts, t.story].map(s => ['topic' + t.n, s])));
+kidText.forEach(([w, t]) => t.split(/(?<=[.!?])\s+/).forEach(s => {
+  const n = s.split(/\s+/).filter(x => /[A-Za-z0-9]/.test(x)).length;
+  if (n > 12) err(`${w}: ${n}-word sentence: ${s}`);
+}));
+TOPICS.forEach(t => { const n = t.story.split(/(?<=[.!?])\s+/).length; if (n < 2 || n > 4) err(`topic${t.n}: story has ${n} sentences (want 2–4)`); });
+
 const extra = QS.filter(q => !q.id.startsWith('sg')).length;
 if (QS.length - extra !== 8) err(`expected the 8 study guide questions, found ${QS.length - extra}`);
 if (extra < 10 || extra > 15) err(`expected 10–15 extra questions, found ${extra}`);

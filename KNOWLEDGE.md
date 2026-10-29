@@ -5,6 +5,10 @@
 - 🔊 reads the choices in the SHOWN (shuffled) order via `U2Logic.readText`, not the bank's `audioText`.
 - `.toast` is now `pointer-events:none`: it sat over the Next button and swallowed taps for 1.8 s.
 - Python on Windows writes CRLF in text mode; use `newline=''` (the last commit flipped KNOWLEDGE.md to CRLF; fixed back to LF).
+- `"speechSynthesis" in window` is true even when it's undefined; test the objects themselves before hiding 🔊 buttons.
+- True/false has no retry: after one wrong pick only the answer is left, so a miss shows the answer (scores 0, not ½).
+- Unit 2 speech uses on-device voices only (`localService`); network voices send the text to a server. voice.js can still apply a network voice a parent picks on the Hub.
+- `test/unit2-questions.js` fails any Unit 2 sentence over 12 words or a story outside 2–4 sentences. The study guide's own Q/option wording stays as given.
 - Headless check: `playwright-core` + the cached `ms-playwright/chromium-1223` exe, served on a spare port; drives every question type.
 
 ## FEATURE — Sticker Quest Unit 2 question bank · 2026-10-29
