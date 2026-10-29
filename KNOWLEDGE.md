@@ -1,3 +1,9 @@
+## FEATURE — Sticker Quest Unit 2 question bank · 2026-10-29
+- `adventurepack/stickerquest/src/data/unit2Questions.js` is a classic script (global `UNIT2_QUESTIONS` + `module.exports`): ES modules don't load from file://.
+- Answers are option ids, never text: `correctAnswer` (MC, T/F), `correctAnswers` array (choose_two) or `{itemId: optionId}` map (matching).
+- `audioText` has no A/B/C letters, so the page may shuffle options without the read-aloud going wrong.
+- APK `SKIP_DIRS` only skips ROOT folders, so a nested `src/` ships in the APK; `test/` doesn't. Test: `node test/unit2-questions.js`.
+
 ## FEATURE — Adventure Pack: Times Table Quest + Sticker Quest (from docs/ zips) · 2026-10-28
 - Save keys kept from the zips (`timesTableQuest_v2`, `stickerQuest_v1`) so upstream saves stay compatible.
 - Sticker Quest stickers key off item ids in `save.got`; the prototype re-awarded per click and never saved.
