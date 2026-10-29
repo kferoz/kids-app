@@ -125,6 +125,22 @@
       var s = obj(obj(g("numberExplorersProgress_v1")).stars);
       return Object.keys(s).filter(function (k) { return s[k] >= 2; }).length;
     }),
+    { app: "timesquest", id: "timesquest:exam18", title: "Score 18 or more of 20 in Exam Mode",
+      items: function (g) { return (obj(g("timesTableQuest_v2")).examBest || 0) >= 18 ? [{ id: "timesquest:exam18", title: "18+ of 20 in Exam Mode" }] : []; },
+      progress: function (g) { return { have: Math.min(18, obj(g("timesTableQuest_v2")).examBest || 0), need: 18 }; } },
+    { app: "timesquest", id: "timesquest:exam20", title: "Get all 20 right in Exam Mode",
+      items: function (g) { return (obj(g("timesTableQuest_v2")).examBest || 0) >= 20 ? [{ id: "timesquest:exam20", title: "A perfect 20 in Exam Mode" }] : []; },
+      progress: function (g) { return { have: obj(g("timesTableQuest_v2")).examBest || 0, need: 20 }; } },
+    { app: "stickerquest", id: "stickerquest:all", title: "Finish the whole quest: every fact family, 3 ways for every equal-groups problem, and the reading",
+      items: function (g) {
+        var c = obj(obj(g("stickerQuest_v1")).completed), gr = obj(c.groups);
+        var n = arr(c.facts).length + Object.keys(gr).filter(function (k) { return arr(gr[k]).length >= 3; }).length + (c.reading ? 1 : 0);
+        return n >= 15 ? [{ id: "stickerquest:all", title: "Finished all of Sticker Quest" }] : [];
+      },
+      progress: function (g) {
+        var c = obj(obj(g("stickerQuest_v1")).completed), gr = obj(c.groups);
+        return { have: arr(c.facts).length + Object.keys(gr).filter(function (k) { return arr(gr[k]).length >= 3; }).length + (c.reading ? 1 : 0), need: 15 };
+      } },
     { app: "billofrights", id: "billofrights:perfect", title: "Build the whole answer with every check right",
       items: function (g) { return (obj(g(PERFECT)).billofrights || 0) >= 1 ? [{ id: "billofrights:perfect", title: "Built the whole answer" }] : []; },
       progress: function (g) { return { have: Math.min(1, obj(g(PERFECT)).billofrights || 0), need: 1 }; } },

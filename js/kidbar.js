@@ -35,6 +35,7 @@
     clueisland: ["Clue Island", "🧭"], grandprix: ["Turbo Grand Prix", "🏁"], multiply: ["Times Table Takeoff", "✖️"],
     grammar: ["Grammar Galaxy", "🌌"], funfacts: ["Fun Facts Explorer", "🔭"], treasure: ["Grammar Treasure Hunt", "🗺️"],
     subtraction: ["Subtraction Notebook", "📓"], billofrights: ["Bill of Rights", "📜"], piratemath: ["Pirate Math Quest", "🏴‍☠️"],
+    timesquest: ["Times Table Quest", "🦉"], stickerquest: ["Sticker Quest", "🧩"],
     arcade: ["Free Games Arcade", "🎮"]
   };
   function appName(id) { return (APPS[id] || [id])[0]; }
@@ -80,6 +81,11 @@
     phonics: function () { return fromIds("ph_stickers", ["BOOKS", "FUN_STICKERS", "PHASES"]); },
     homeschool: function () { return arr(get("hs_stickers")).map(function (e) { return { e: e, n: "" }; }); },
     detectives: function () { return arr(get("rc_stickers")).map(function (e) { return { e: e, n: "" }; }); },
+    stickerquest: function () { return arr((get("stickerQuest_v1") || {}).stickers).map(function (e) { return { e: e, n: "" }; }); },
+    timesquest: function () {
+      var B = arr(glob("BADGES")), mine = arr((get("timesTableQuest_v2") || {}).badges);
+      return B.filter(function (b) { return mine.indexOf(b.id) >= 0; }).map(function (b) { return { e: b.icon, n: b.name }; });
+    },
     reading: function () {
       var st = arr(glob("READING_STAGES")), done = arr(get("rd_done"));
       return st.filter(function (s) { return done.indexOf(s.id) >= 0 && s.sticker; }).map(function (s) { return { e: s.sticker.emoji, n: s.sticker.name }; });

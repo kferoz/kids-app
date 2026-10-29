@@ -78,6 +78,16 @@
     { id: "piratemath", name: "Pirate Math Quest", emoji: "🏴‍☠️", grades: ["g3"], subject: "Math", progress: null },
     { id: "subtraction", name: "Subtraction Notebook Quest", emoji: "📓", grades: ["g3"], subject: "Math",
       progress: function (r) { var d = Object.keys(r.obj("numberExplorersProgress_v1").completed || {}).length; return { done: d, total: 40, label: d + " of 40 problems" }; } },
+    { id: "timesquest", name: "Times Table Quest", emoji: "🦉", grades: ["g3"], subject: "Math",
+      // 17 badges (5 + a Table Champ for each of 1–12) in timesTableQuest_v2
+      progress: function (r) { var s = r.obj("timesTableQuest_v2"), b = (s.badges || []).length;
+        return { done: b, total: 17, label: b + " of 17 badges · " + (s.points || 0) + " points · exam best " + (s.examBest || 0) + "/20" }; } },
+    { id: "stickerquest", name: "Sticker Quest", emoji: "🧩", grades: ["g3"], subject: "Math & English",
+      // 8 fact families + 6 equal-groups problems (3 ways each) + the reading quiz
+      progress: function (r) { var s = r.obj("stickerQuest_v1"), c = s.completed || {}, g = c.groups || {};
+        var f = (c.facts || []).length, gd = Object.keys(g).filter(function (k) { return (g[k] || []).length >= 3; }).length, d = f + gd + (c.reading ? 1 : 0);
+        var best = (s.fluency || []).reduce(function (m, x) { return Math.max(m, x.score || 0); }, 0);
+        return { done: d, total: 15, label: f + "/8 fact families · " + gd + "/6 equal groups · reading " + (c.reading ? "✅" : "—") + (best ? " · best read " + best + " words" : "") }; } },
     { id: "billofrights", name: "Bill of Rights Adventure", emoji: "📜", grades: ["g3"], subject: "History", progress: null },
     { id: "arcade", name: "Free Games Arcade", emoji: "🎮", grades: ["kg", "g3"], subject: "Games", progress: null },
     { id: "rewards", name: "Rewards Center", emoji: "🎁", grades: ["kg", "g3"], subject: "Rewards", progress: null },

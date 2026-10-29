@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Times Table Quest</title>
+<style>
+:root{--pink:#ff5fa2;--blue:#3aa0ff;--yellow:#ffd23f;--green:#33c46b;--purple:#8b5cf6;--ink:#2d1b4e;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Comic Sans MS","Trebuchet MS",system-ui,sans-serif;background:linear-gradient(160deg,#a7e8ff,#ffd6f0 60%,#fff3b0);color:var(--ink);display:flex;justify-content:center;padding:16px}
+#app{width:100%;max-width:560px;padding-top:52px} /* room for the floating 🏠 Home button */
+.card{background:var(--card);border-radius:24px;padding:20px;box-shadow:0 8px 0 rgba(45,27,78,.15);margin-bottom:16px}
+h1{font-size:2rem;margin:4px 0;text-align:center}
+h3{margin:0 0 10px;text-align:center}
+.btn{display:inline-block;border:none;border-radius:18px;padding:14px 20px;font-size:1.15rem;font-weight:bold;font-family:inherit;color:#fff;background:var(--blue);box-shadow:0 6px 0 #1f6fc0;cursor:pointer;margin:6px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1f6fc0}
+.btn.pink{background:var(--pink);box-shadow:0 6px 0 #c23c79}
+.btn.green{background:var(--green);box-shadow:0 6px 0 #1f8d4a}
+.btn.yellow{background:var(--yellow);color:var(--ink);box-shadow:0 6px 0 #c9a100}
+.btn.grey{background:#aaa;box-shadow:0 6px 0 #777}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hud{display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:1.05rem;margin-bottom:8px;gap:6px;flex-wrap:wrap}
+.pill{background:#fff;border-radius:999px;padding:6px 12px;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.bar{height:16px;background:#e6e0f5;border-radius:999px;overflow:hidden}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--green),var(--yellow));width:0;transition:width .4s}
+.question{font-size:3rem;text-align:center;font-weight:bold;margin:14px 0;letter-spacing:2px}
+.question.small-q{font-size:1.4rem;letter-spacing:0;line-height:1.5}
+.blank{color:var(--purple);border-bottom:4px dashed var(--purple);padding:0 8px}
+.entry{font-size:2.6rem;text-align:center;min-height:64px;border-bottom:4px dashed var(--purple);width:200px;margin:0 auto 10px;color:var(--purple);font-weight:bold}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:8px auto}
+.pad button{font-size:1.6rem;padding:12px;border-radius:14px;border:none;background:#eef6ff;font-weight:bold;cursor:pointer;font-family:inherit;color:var(--ink);box-shadow:0 4px 0 #bcd7f5}
+.pad button:active{transform:translateY(3px);box-shadow:none}
+.pad button.ok{background:var(--green);color:#fff;box-shadow:0 4px 0 #1f8d4a}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.choice{font-size:1.2rem;padding:16px;border-radius:16px;border:3px solid #cbbff0;background:#faf8ff;cursor:pointer;font-family:inherit;font-weight:bold;color:var(--ink)}
+.choice.right{background:#d8f8e4;border-color:var(--green)}
+.choice.wrong{background:#ffe0e0;border-color:#ff5c5c}
+.feedback{text-align:center;font-size:1.25rem;font-weight:bold;min-height:44px;margin-top:10px}
+.mascot{font-size:4.5rem;text-align:center;animation:bob 1.6s infinite ease-in-out}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.pop{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.15)}}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.tables{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tbl{padding:10px 14px;border-radius:14px;border:3px solid #cbbff0;background:#fff;cursor:pointer;font-weight:bold;font-size:1.1rem;font-family:inherit;color:var(--ink)}
+.tbl.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:2rem}
+.badge{opacity:.25;filter:grayscale(1)}
+.badge.got{opacity:1;filter:none}
+.confetti{position:fixed;top:-10%;font-size:26px;animation:fall 2.8s linear forwards;pointer-events:none;z-index:99}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.hint{font-size:1.05rem;background:#fff7d6;border-radius:12px;padding:10px;margin-top:10px;text-align:center}
+.small{font-size:.95rem;opacity:.85;text-align:center}
+.stars{font-size:2.8rem;text-align:center}
+.say{border:none;background:#eef6ff;border-radius:999px;font-size:1.3rem;padding:6px 12px;cursor:pointer;box-shadow:0 3px 0 #bcd7f5;vertical-align:middle}
+</style>
+<script src="../../js/profile-store.js"></script>
+<script src="../../js/voice.js"></script>
+<script src="../../js/activitydb.js"></script>
+<script src="../../js/tracker.js" data-app="timesquest"></script>
+<script src="../../js/dollars.js"></script>
+<script src="../../js/kidbar.js"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------- constants & save data ---------- */
+const EXAM_SEC = 25;
+const WS = [6,7,8,9,11,12];          // tables on the Chapter 4 worksheet
+const ALL = [1,2,3,4,5,6,7,8,9,10,11,12];
+const KEY = 'timesTableQuest_v2';
+const SIZE = {practice:10, challenge:12, exam:20};
+const POOLS = {
+  practice:['mult','mult','missF','div','divM','divD'],
+  challenge:['mult','missF','div','divM','divD','word','evenodd','choice'],
+  exam:['mult','missF','div','divM','divD','word','evenodd','choice']
+};
+const GOOD = ['Awesome!','Super job!','You got it!','Brilliant!','Math star!','Amazing!','Wow, so fast!'];
+const TRY  = ['Keep going, you can do it!','Almost! Try the next one.','Practice makes perfect!','Mistakes help us learn!'];
+const LEVELS = ['Number Rookie','Times Table Explorer','Multiplication Ninja','Division Hero','Math Champion','Grand Master'];
+
+function loadSave(){
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return s; }catch(e){}
+  return {points:0,name:'',badges:[],tableWins:{},bestStreak:0,examBest:0,perfect:false};
+}
+let save = loadSave();
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(save)); }catch(e){} }
+
+const BADGES = [
+  {id:'first', icon:'⭐', name:'First Star', ok:()=>save.points>0},
+  {id:'hot',   icon:'🔥', name:'On Fire: 5 in a row', ok:()=>save.bestStreak>=5},
+  {id:'hund',  icon:'💯', name:'100 points', ok:()=>save.points>=100},
+  {id:'perfect',icon:'🏆', name:'Perfect Round', ok:()=>save.perfect},
+  {id:'exam',  icon:'🎓', name:'Exam Ready (18+ of 20)', ok:()=>save.examBest>=18},
+  ...ALL.map(t=>({id:'t'+t, icon:'🥇', name:`Table ${t} Champ (15 right)`, ok:()=>(save.tableWins[t]||0)>=15}))
+];
+function checkBadges(){
+  const got=[];
+  for(const b of BADGES){ if(!save.badges.includes(b.id) && b.ok()){ save.badges.push(b.id); got.push(b); } }
+  return got;
+}
+function level(){ return Math.floor(save.points/100)+1; }
+function levelTitle(){ return LEVELS[Math.min(level()-1, LEVELS.length-1)]; }
+
+/* ---------- state ---------- */
+let chosen = new Set(WS);
+let screen='home', mode='practice', queue=[], idx=0, cur=null, baseN=10, entry='',
+    locked=false, streak=0, roundPts=0, correctFirst=0, misses={}, timer=null, qStart=0, hinted=false;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function ri(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function shuffle(a){ return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]); }
+function tablesArr(){ return chosen.size ? [...chosen].sort((a,b)=>a-b) : WS; }
+// the Hub's logged-in learner (hub_* keys are not per-learner)
+function kidName(){
+  try{ const id=localStorage.getItem('hub_activeKid'); const k=(JSON.parse(localStorage.getItem('hub_kids'))||[]).find(x=>x.id===id); if(k) return k.name; }catch(e){}
+  return save.name||'';
+}
+function plain(h){ return String(h).replace(/<span class="blank">\?<\/span>/g,' blank ').replace(/<[^>]+>/g,'').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/=/g,' equals '); }
+function say(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.rate=.9; speechSynthesis.speak(u); }catch(e){} }
+function sayQ(){ if(cur) say(plain(cur.prompt) + (cur.kind==='choice' && cur.opts.length>2 ? '. ' + cur.opts.map(plain).join('. Or. ') : '')); }
+
+/* ---------- sound & confetti ---------- */
+let ac=null;
+function beep(freq,dur=.15,type='sine',vol=.15,delay=0){
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    const t=ac.currentTime+delay;
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sfxOK(){ beep(660,.12); beep(880,.18,'sine',.15,.12); }
+function sfxBad(){ beep(220,.25,'sawtooth',.07); }
+function sfxWin(){ [523,659,784,1046].forEach((f,i)=>beep(f,.22,'triangle',.15,i*.12)); }
+function confetti(n=30){
+  const em=['🎉','⭐','🌟','🎊','💖','🏅','🦄'];
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div'); d.className='confetti';
+    d.textContent=pick(em); d.style.left=(Math.random()*100)+'vw';
+    d.style.animationDelay=(Math.random()*.4)+'s';
+    document.body.appendChild(d); setTimeout(()=>d.remove(),3500);
+  }
+}
+
+/* ---------- question generator ---------- */
+function makeQ(pool){
+  const T = pick(tablesArr()), o = ri(1,12), p = T*o;
+  const B = '<span class="blank">?</span>';
+  const k = pick(pool);
+  const base = {table:T, first:true, kind:'num', hint:''};
+  switch(k){
+    case 'mult':
+      return {...base, prompt:`${T} × ${o} = ${B}`, ans:p,
+              hint:`Count by ${T}s: ` + Array.from({length:o},(_,i)=>T*(i+1)).join(', ')};
+    case 'missF':
+      return Math.random()<.5
+        ? {...base, prompt:`${B} × ${T} = ${p}`, ans:o, hint:`Count by ${T}s until you reach ${p}!`}
+        : {...base, prompt:`${T} × ${B} = ${p}`, ans:o, hint:`Count by ${T}s until you reach ${p}!`};
+    case 'div':
+      return {...base, prompt:`${p} ÷ ${T} = ${B}`, ans:o, hint:`How many ${T}s fit into ${p}?`};
+    case 'divM':
+      return {...base, prompt:`${p} ÷ ${B} = ${o}`, ans:T, hint:`Think: ${o} × ? = ${p}`};
+    case 'divD':
+      return {...base, prompt:`${B} ÷ ${T} = ${o}`, ans:p, hint:`Think: ${T} × ${o} = ?`};
+    case 'word': {
+      const it=pick(['fruit bars','crackers','cookies','stickers','crayons']);
+      const nm=pick(['Alexa','Sam','Mia','Ravi','Leena']);
+      return {...base, small:true, prompt:`${nm} bought ${p} ${it} that came in packs of ${T}. How many packs did ${nm} buy?`,
+              ans:o, hint:`Divide: ${p} ÷ ${T} = ?`};
+    }
+    case 'evenodd': {
+      const x=ri(1,12), y=ri(1,12);
+      return {...base, kind:'choice', prompt:`Is ${x} × ${y} even or odd?`, opts:['even','odd'],
+              ans:(x*y)%2===0?'even':'odd', hint:'Even × anything = even. Odd × odd = odd.'};
+    }
+    case 'choice': {
+      const correct=`${T} × ${o} = ${p}`;
+      const wrongs=[];
+      for(const d of shuffle([T,-T,1,-1,2,-2])){
+        const v=p+d;
+        if(v>0 && v!==p && wrongs.length<3) wrongs.push(`${T} × ${o} = ${v}`);
+      }
+      return {...base, kind:'choice', prompt:'Which equation is correct?',
+              opts:shuffle([correct,...wrongs]), ans:correct, hint:`Count by ${T}s to check!`};
+    }
+  }
+}
+
+/* ---------- screens ---------- */
+function renderHome(){
+  screen='home';
+  $('#app').innerHTML = `
+  <div class="card" style="text-align:center">
+    <div class="mascot">🦉</div>
+    <h1>Times Table Quest</h1>
+    <div class="small">Level ${level()}: ${levelTitle()} · ⭐ ${save.points} points</div>
+    ${kidName() ? `<div style="margin-top:6px;font-size:1.2rem"><b>Hi, ${kidName().replace(/[<>&]/g,'')}!</b></div>` : ''}
+  </div>
+
+  <div class="card">
+    <h3>Pick your tables</h3>
+    <div class="tables">${ALL.map(t=>`<button class="tbl ${chosen.has(t)?'on':''}" onclick="toggleT(${t})">${t}</button>`).join('')}</div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn yellow" onclick="pickWS()">📝 Worksheet tables (6,7,8,9,11,12)</button>
+      <button class="btn grey" onclick="pickAll()">All</button>
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h3>Choose a game</h3>
+    <button class="btn green" onclick="startRound('practice')">🎮 Practice · 10 Qs · hints</button>
+    <button class="btn" onclick="startRound('challenge')">🧩 Challenge · 12 Qs · mixed</button>
+    <button class="btn pink" onclick="startRound('exam')">🎓 Exam Mode · 20 Qs · timed</button>
+    <div class="small" style="margin-top:6px">Every correct answer earns points. Get 5 in a row for a fire bonus 🔥!</div>
+  </div>
+
+  <div class="card">
+    <h3>Your Badges</h3>
+    <div class="badges">${BADGES.map(b=>`<span class="badge ${save.badges.includes(b.id)?'got':''}" title="${b.name}">${b.icon}</span>`).join('')}</div>
+    <div class="small" style="margin-top:10px">Best streak: 🔥 ${save.bestStreak}</div>
+  </div>
+`;
+}
+function renderQuestion(){
+  hinted=false; locked=false; entry=''; qStart=Date.now();
+  const shown=Math.min(idx+1,baseN);
+  const pct=Math.min(idx/queue.length,1)*100;
+  const answerHTML = cur.kind==='choice'
+    ? `<div class="choices">${cur.opts.map((o,i)=>`<button class="choice" onclick="pickChoice(${i})">${o}</button>`).join('')}</div>`
+    : `<div class="entry" id="entry">_</div>
+       <div class="pad">${['1','2','3','4','5','6','7','8','9','del','0','ok'].map(v=>{
+          const label = v==='del'?'⌫':v==='ok'?'✔':v;
+          const cls = v==='ok'?'ok':'';
+          return `<button class="${cls}" onclick="pressKey('${v}')">${label}</button>`;
+        }).join('')}</div>`;
+  $('#app').innerHTML = `
+  <div class="card">
+    <div class="hud">
+      <span class="pill">⭐ <b id="hudPts">${roundPts}</b></span>
+      <span class="pill">Q ${shown}/${baseN}</span>
+      <span class="pill">🔥 <b id="hudStreak">${streak}</b></span>
+    </div>
+    <div class="bar"><div id="progFill" style="width:${pct}%"></div></div>
+    ${mode==='exam' ? `<div class="bar" style="margin-top:8px;background:#ffd6ea"><div id="tbar" style="width:100%;background:var(--pink)"></div></div><div class="small" id="tnum">⏱ ${EXAM_SEC} s</div>` : ''}
+    <div class="mascot" id="masc">🦉</div>
+    <div class="question ${cur.small?'small-q':''}">${cur.prompt} <button class="say" onclick="sayQ()" aria-label="Read the question to me">🔊</button></div>
+    ${answerHTML}
+    <div class="feedback" id="fb"></div>
+    <div class="hint" id="hintBox" style="display:none"></div>
+    <div id="actions" style="text-align:center;margin-top:10px">
+      ${mode!=='exam' ? '<button class="btn yellow" onclick="showHint()">💡 Hint (-2 pts)</button>' : ''}
+      <button class="btn grey" onclick="showHome()">🏠 Quit</button>
+    </div>
+  </div>`;
+}
+function updateHUD(){
+  const h1=$('#hudPts'), h2=$('#hudStreak'), pf=$('#progFill');
+  if(h1) h1.textContent=roundPts;
+  if(h2) h2.textContent=streak;
+  if(pf) pf.style.width=Math.min(idx/queue.length,1)*100+'%';
+}
+function renderResults(got, weak){
+  const pct=correctFirst/baseN;
+  const stars = pct>=.9?3:pct>=.7?2:1;
+  const title = stars===3?'Superstar!':stars===2?'Great work!':'Keep practicing!';
+  const advice = mode==='exam'
+    ? (pct>=.9
+        ? `<p><b>🎓 You are ready for your test!</b></p>`
+        : `<p>Practice these tables for 10 minutes, then try Exam Mode again: <b>${weak.length?weak.join(', '):'all of them'}</b></p>`)
+    : (weak.length ? `<p>Extra practice on: <b>${weak.join(', ')}</b> tables</p>` : '');
+  $('#app').innerHTML = `
+  <div class="card" style="text-align:center">
+    <div class="mascot">${stars===3?'🏆':stars===2?'🥈':'💪'}</div>
+    <h1>${title}</h1>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    <p style="font-size:1.3rem"><b>${correctFirst}</b> of <b>${baseN}</b> right on the first try</p>
+    <p>You earned <b>+${roundPts}</b> points! Total: ${save.points} (Level ${level()}: ${levelTitle()})</p>
+    ${got.length ? `<div class="card" style="background:#fff7d6;margin-top:10px"><b>🎉 New badges!</b><div class="badges" style="margin-top:6px">${got.map(b=>`<span title="${b.name}">${b.icon}</span>`).join('')}</div><div class="small">${got.map(b=>b.name).join(' · ')}</div></div>` : ''}
+    ${advice}
+    <button class="btn green" onclick="startRound('${mode}')">🔁 Play again</button>
+    <button class="btn" onclick="renderHome()">🏠 Home</button>
+  </div>`;
+}
+
+/* ---------- game flow ---------- */
+function startRound(m){
+  mode=m; baseN=SIZE[m]; screen='play';
+  queue=[]; for(let i=0;i<baseN;i++) queue.push(makeQ(POOLS[m]));
+  idx=0; cur=queue[0]; streak=0; roundPts=0; correctFirst=0; misses={};
+  renderQuestion(); startTimer();
+}
+function startTimer(){
+  clearInterval(timer);
+  if(mode!=='exam') return;
+  const q=cur, end=Date.now()+EXAM_SEC*1000;
+  timer=setInterval(()=>{
+    const left=Math.max(0,end-Date.now());
+    const tb=$('#tbar'); if(tb) tb.style.width=(left/(EXAM_SEC*1000)*100)+'%';
+    const tn=$('#tnum'); if(tn) tn.textContent='⏱ '+Math.ceil(left/1000)+' s';
+    if(left<=0){ clearInterval(timer); if(!locked && cur===q) judge(false,true); }
+  },200);
+}
+function pressKey(k){
+  if(locked||!cur||cur.kind!=='num') return;
+  if(k==='del'){ entry=entry.slice(0,-1); }
+  else if(k==='ok'){
+    if(entry===''){ const b=$('#app .entry'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } return; }
+    judge(Number(entry)===cur.ans,false); return;
+  }
+  else if(entry.length<4){ entry+=k; }
+  const e=$('#entry'); if(e) e.textContent=entry||'_';
+}
+function pickChoice(i){
+  if(locked||!cur) return;
+  const sel=cur.opts[i];
+  const btns=document.querySelectorAll('.choice');
+  if(sel!==cur.ans) btns[i].classList.add('wrong');
+  judge(sel===cur.ans,false);
+}
+function judge(isRight, timedOut){
+  if(locked) return;
+  locked=true; clearInterval(timer);
+  const el=(Date.now()-qStart)/1000;
+  const masc=$('#masc'), fb=$('#fb');
+  if(cur.kind==='choice') document.querySelectorAll('.choice').forEach(b=>{ if(b.textContent===cur.ans) b.classList.add('right'); });
+
+  if(isRight){
+    let gain=10;
+    if(!hinted && el<5) gain+=5;          // quick-thinker bonus
+    streak++;
+    if(streak%5===0) gain+=20;            // fire bonus every 5 in a row
+    roundPts+=gain; save.points+=gain;
+    save.bestStreak=Math.max(save.bestStreak,streak);
+    save.tableWins[cur.table]=(save.tableWins[cur.table]||0)+1;
+    if(cur.first) correctFirst++;
+    if(window.Tracker) Tracker.answer(true, 'Times tables: ' + cur.table);
+    sfxOK();
+    masc.textContent=pick(['🤩','🥳','😎']); masc.classList.add('pop');
+    fb.innerHTML=`<span style="color:#1f8d4a">✅ ${pick(GOOD)} +${gain}</span>${streak%5===0?' 🔥 Fire bonus!':''}`;
+    if(streak%5===0) confetti(40);
+    persist(); updateHUD();
+    const q=cur;
+    setTimeout(()=>{ if(screen==='play' && cur===q) nextQ(); }, 1100);
+  } else {
+    streak=0;
+    misses[cur.table]=(misses[cur.table]||0)+1;
+    if(mode!=='exam' && !cur.retry) queue.push({...cur, retry:true, first:false}); // try again later
+    if(window.Tracker && cur.first) Tracker.answer(false, 'Times tables: ' + cur.table);
+    cur.first=false;
+    sfxBad();
+    masc.textContent='🤔'; masc.classList.add('shake');
+    fb.innerHTML=`<span style="color:#d6336c">${timedOut?"⏰ Time's up!":'❌ Not quite.'} The answer is <b>${cur.ans}</b>. ${pick(TRY)}</span>`;
+    $('#actions').innerHTML=`<button class="btn green" onclick="nextQ()">Next ➜</button>`;
+    persist(); updateHUD();
+  }
+}
+function showHint(){
+  if(hinted||locked||!cur) return;
+  hinted=true;
+  const b=$('#hintBox'); b.style.display='block'; b.textContent='💡 '+cur.hint;
+  const hb=document.querySelector('#actions .yellow'); if(hb) hb.remove();
+  roundPts=Math.max(0,roundPts-2); save.points=Math.max(0,save.points-2);
+  persist(); updateHUD();
+}
+function nextQ(){
+  clearInterval(timer);
+  idx++;
+  if(idx>=queue.length){ finish(); return; }
+  cur=queue[idx];
+  renderQuestion(); startTimer();
+}
+function finish(){
+  clearInterval(timer); screen='results';
+  if(mode==='exam') save.examBest=Math.max(save.examBest,correctFirst);
+  if(correctFirst===baseN) save.perfect=true;
+  const got=checkBadges(); persist();
+  if(window.Tracker) Tracker.complete(mode, correctFirst, baseN, {tables:tablesArr().join(',')});
+  const weak=Object.entries(misses).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t])=>t);
+  sfxWin(); confetti(60);
+  renderResults(got, weak);
+}
+
+/* ---------- home actions ---------- */
+function toggleT(t){ if(chosen.has(t)) chosen.delete(t); else chosen.add(t); renderHome(); }
+function pickWS(){ chosen=new Set(WS); renderHome(); }
+function pickAll(){ chosen=new Set(ALL); renderHome(); }
+function showHome(){ clearInterval(timer); renderHome(); }
+
+document.addEventListener('keydown', e=>{
+  if(screen!=='play') return;
+  if(/^[0-9]$/.test(e.key)) pressKey(e.key);
+  else if(e.key==='Backspace') pressKey('del');
+  else if(e.key==='Enter'){ if(!locked && cur && cur.kind==='num') pressKey('ok'); else if(locked && document.querySelector('#actions .green')) nextQ(); }
+});
+
+renderHome();
+</script>
+</body>
+</html>

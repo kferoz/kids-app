@@ -1,3 +1,11 @@
+## FEATURE — Adventure Pack: Times Table Quest + Sticker Quest (from docs/ zips) · 2026-10-28
+- Both were single-file G3 prototypes; they live in `adventurepack/timesquest` + `adventurepack/stickerquest` with their PRDs. Keys `timesTableQuest_v2` / `stickerQuest_v1` (kept the zip's key so upstream saves stay compatible).
+- Kid-side "Reset progress" was removed from Times Table Quest: a kid could wipe their own record. Resets stay in Admin only.
+- Sticker Quest prototype bugs fixed: progress was memory-only; Q1 asked "What does the map show?" with no map; Q3 named a heading the passage lacked; "Score it" gave a sticker per click. Stickers now key off item ids in `save.got`.
+- kidbar can read top-level `const` arrays (Times Table Quest's `BADGES`) because `glob()` uses `new Function("typeof X")`, which sees global lexical bindings.
+- Pages without their own Hub link get the floating 🏠 at top-left. These two pad their header/top so it doesn't cover the title or HUD on phones.
+- Test on a spare `python -m http.server` port when the Chrome extension is off: a new origin keeps the kids' real file:// data untouched.
+
 ## FEATURE — Rocket Phase 5, Phonics Magic e, Arabic Phase 3, Write & Trace Phase 3 · 2026-10-21
 - Magic e sounding out says the vowel's NAME (`MAGIC_E[v].name`) and keeps the e silent. Avoid soft-c words (dice): `LETTER_SOUNDS.c` is "kuh".
 - Arabic sukoon/shadda can't be voiced alone: syllables ride on a carrier alif (أَبْ "ab", أَبَّ "abba"); Trace It drops the carrier (`traceSyl`).

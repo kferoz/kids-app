@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sticker Quest Grade 3</title>
+<style>
+/* Layout: a single column of play cards with a tab bar on top and a sticker book at the bottom.
+   Palette: sunny cream ground, grape ink, coral and teal accents, sunshine for rewards. */
+:root{
+  --bg:#FFF6E0; --ink:#2E2650; --card:#FFFFFF; --coral:#FF6B6B; --teal:#1FA596;
+  --sun:#FFC93C; --grape:#6C4CF1; --good:#23A35C; --bad:#E0424E; --muted:#6B6590;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:400 17px/1.5 "Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+h1,h2,h3{font-family:"Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.1}
+h2{font-size:24px}
+h3{font-size:19px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{padding-left:56px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.score{background:var(--sun);color:var(--ink);border-radius:999px;padding:8px 16px;font-family:"Fredoka","Trebuchet MS",sans-serif;font-weight:600}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{flex:1 1 150px;min-height:52px;border:3px solid var(--ink);background:var(--card);color:var(--ink);border-radius:18px;font:600 17px "Fredoka","Trebuchet MS",sans-serif;cursor:pointer;padding:8px 10px}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 6px 0 var(--ink)}
+.prompt{font-size:18px;margin:0}
+.muted{color:var(--muted);margin:0;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.eq{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 22px "Fredoka","Trebuchet MS",sans-serif;background:#F5F2FF;border-radius:16px;padding:12px 14px}
+input[type=number],input[type=text]{width:96px;min-height:50px;font:700 22px "Fredoka","Trebuchet MS",sans-serif;text-align:center;border:3px solid var(--ink);border-radius:14px;color:var(--ink);background:#fff}
+input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun);outline-offset:2px}
+.btn{min-height:50px;padding:10px 20px;border:3px solid var(--ink);border-radius:16px;background:var(--teal);color:#fff;font:600 18px "Fredoka","Trebuchet MS",sans-serif;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:var(--coral)}
+.btn.ghost{background:#fff;color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.feedback{min-height:24px;font-weight:800;margin:0}
+.feedback.good{color:var(--good)}
+.feedback.bad{color:var(--bad)}
+.groups{display:flex;flex-wrap:wrap;gap:10px;min-height:20px}
+.group{border:3px dashed var(--teal);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:4px;max-width:100%;min-width:0;background:#F0FBF9}
+.dot{width:16px;height:16px;border-radius:50%;background:var(--coral);border:2px solid var(--ink)}
+.dot.t{background:var(--sun)}
+.dot.g{background:var(--teal)}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;gap:12px;align-items:center;border:3px solid var(--ink);border-radius:16px;padding:12px 14px;background:#fff;cursor:pointer;min-height:52px}
+.choice input{width:22px;height:22px;accent-color:var(--grape);margin:0;flex:none}
+.choice.right{background:#E6F8EE;border-color:var(--good)}
+.choice.wrong{background:#FDE8EA;border-color:var(--bad)}
+.timer{font:700 54px "Fredoka","Trebuchet MS",sans-serif;color:var(--grape);text-align:center;font-variant-numeric:tabular-nums}
+.passage{background:#FFFDF5;border:3px solid var(--ink);border-radius:16px;padding:16px;line-height:1.7;font-size:17px}
+.bookline{display:flex;flex-wrap:wrap;gap:6px;min-height:44px}
+.sticker-slot{width:46px;height:46px;border-radius:14px;border:2px dashed #CFC6EE;display:grid;place-items:center;font-size:26px;background:#FBFAFF}
+.sticker-slot.got{border-style:solid;border-color:var(--ink);background:var(--sun);animation:pop .45s ease-out}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:12px 22px;font:600 18px "Fredoka","Trebuchet MS",sans-serif;box-shadow:0 6px 0 rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s}
+.toast.off{opacity:0;pointer-events:none}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.say{border:3px solid var(--ink);background:#fff;border-radius:999px;font-size:20px;min-height:44px;padding:4px 14px;cursor:pointer}
+.say.sm{min-height:36px;font-size:17px;padding:2px 10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script src="../../js/profile-store.js"></script>
+<script src="../../js/voice.js"></script>
+<script src="../../js/activitydb.js"></script>
+<script src="../../js/tracker.js" data-app="stickerquest"></script>
+<script src="../../js/dollars.js"></script>
+<script src="../../js/kidbar.js"></script>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Sticker Quest</h1>
+    <div class="score" aria-live="polite">Stickers: <span id="count">0</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Activities">
+    <button class="tab" role="tab" data-tab="facts" aria-selected="true">1. Fact Families</button>
+    <button class="tab" role="tab" data-tab="groups" aria-selected="false">2. Equal Groups</button>
+    <button class="tab" role="tab" data-tab="reading" aria-selected="false">3. Reading</button>
+  </nav>
+
+  <!-- ACTIVITY 1: fact families -->
+  <section id="facts" class="card" role="tabpanel">
+    <h2>Fact Families</h2>
+    <p class="muted">Use the three numbers to fill in all four equations. Two multiply, two divide!</p>
+    <div class="row"><span class="muted">Family:</span><strong id="famNums" class="prompt"></strong></div>
+    <div id="famEqs" class="card" style="box-shadow:none;border-width:2px;gap:10px;padding:14px"></div>
+    <div class="row">
+      <button class="btn" id="famCheck">Check my answers</button>
+      <button class="btn ghost" id="famNext" hidden>Next family &rarr;</button>
+    </div>
+    <p class="feedback" id="famFeedback" aria-live="polite"></p>
+  </section>
+
+  <!-- ACTIVITY 2: equal groups -->
+  <section id="groups" class="card" role="tabpanel" hidden>
+    <h2>Equal Groups</h2>
+    <p class="prompt"><span id="grpPrompt"></span> <button class="say sm" id="grpSay" aria-label="Read the problem to me">🔊</button></p>
+    <p class="muted">Type how many equal groups you want. Each group needs the same amount. Try a new number each time!</p>
+    <div class="row">
+      <input type="number" id="grpInput" min="1" inputmode="numeric" aria-label="Number of groups">
+      <button class="btn" id="grpCheck">Make groups</button>
+      <button class="btn ghost" id="grpNext" hidden>Next problem &rarr;</button>
+    </div>
+    <div id="grpDraw" class="groups" aria-label="Drawing of equal groups"></div>
+    <p class="feedback" id="grpFeedback" aria-live="polite"></p>
+    <p class="muted" id="grpWays"></p>
+  </section>
+
+  <!-- ACTIVITY 3: reading -->
+  <section id="reading" class="card" role="tabpanel" hidden>
+    <div class="row" style="justify-content:space-between"><h2>Joseph Bruchac</h2><button class="say" id="passSay" aria-label="Read the story to me">🔊 Read to me</button></div>
+    <div class="passage" id="passage">
+      <h3 style="margin:0 0 8px">Growing Up Near Mountains</h3>
+      <p style="margin:0 0 10px">Joseph Bruchac was born in 1942 and grew up in the mountains of New York. He lived in Greenfield Center with his grandmother and grandfather. Joseph loved to go everywhere with his grandfather. His grandfather showed him how to walk softly through the woods and taught him how to fish in the lakes and rivers.</p>
+      <p style="margin:0 0 10px">As a child, Joseph worked in his grandparents' store. When he made mistakes, his grandfather talked with him about what happened, so Joseph learned how to do better the next time. In the winter, farmers would come to the store, sit around the stove, and tell stories about the mountains.</p>
+      <p style="margin:0">Joseph loved to read and write. His grandmother kept bookshelves filled with books, and he liked storybooks about animals.</p>
+    </div>
+
+    <h3>Question 1: Where did Joseph grow up?</h3>
+    <div class="choices" id="q1" data-answer="1">
+      <label class="choice"><input type="radio" name="q1" value="0">In a big city by the sea</label>
+      <label class="choice"><input type="radio" name="q1" value="1">In the mountains of New York</label>
+      <label class="choice"><input type="radio" name="q1" value="2">On a farm in Texas</label>
+    </div>
+
+    <h3>Question 2: Who taught Joseph how to fish?</h3>
+    <div class="choices" id="q2" data-answer="0">
+      <label class="choice"><input type="radio" name="q2" value="0">His grandfather</label>
+      <label class="choice"><input type="radio" name="q2" value="1">His friend from school</label>
+      <label class="choice"><input type="radio" name="q2" value="2">His teacher</label>
+    </div>
+
+    <h3>Question 3: Why does the author use the heading "Growing Up Near Mountains"?</h3>
+    <div class="choices" id="q3" data-answer="1">
+      <label class="choice"><input type="radio" name="q3" value="0">It tells a joke</label>
+      <label class="choice"><input type="radio" name="q3" value="1">It tells what the part is about</label>
+      <label class="choice"><input type="radio" name="q3" value="2">It names the book he wrote</label>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="readCheck">Check answers</button>
+    </div>
+    <p class="feedback" id="readFeedback" aria-live="polite"></p>
+
+    <h3>Read Aloud Challenge</h3>
+    <p class="muted">Read the passage out loud to a partner for one minute. Stop when the timer ends.</p>
+    <div class="timer" id="timer">1:00</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="startTimer">Start</button>
+    </div>
+    <div class="row">
+      <label class="muted" for="wordsRead">Words read:</label>
+      <input type="number" id="wordsRead" min="0" inputmode="numeric">
+      <label class="muted" for="errs">Mistakes:</label>
+      <input type="number" id="errs" min="0" inputmode="numeric">
+      <button class="btn alt" id="scoreBtn">Score it</button>
+    </div>
+    <p class="feedback" id="fluFeedback" aria-live="polite"></p>
+  </section>
+
+  <!-- STICKER BOOK -->
+  <section class="card" aria-labelledby="bookTitle">
+    <h2 id="bookTitle">My Sticker Book</h2>
+    <p class="muted">Every finished task earns a sticker! Stickers stay in your book.</p>
+    <div id="book" class="bookline"></div>
+  </section>
+</main>
+<div id="toast" class="toast off" role="status" aria-live="polite"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const STICKERS = ["⭐","🌟","🦄","🚀","🐢","🌈","🦋","🎉","🍎","🐬","🌸","🏆","🎈","🧩","🐸","🍀"];
+
+/* ---------- saved progress (per learner via profile-store.js) ---------- */
+const KEY = "stickerQuest_v1";
+function load(){
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  s = s && typeof s === "object" ? s : {};
+  s.stickers = Array.isArray(s.stickers) ? s.stickers : [];
+  s.got = Array.isArray(s.got) ? s.got : [];          // item ids that already earned a sticker
+  s.completed = s.completed || {};
+  s.completed.facts = Array.isArray(s.completed.facts) ? s.completed.facts : [];
+  s.completed.groups = s.completed.groups || {};      // problem index → [group counts found]
+  s.completed.reading = !!s.completed.reading;
+  s.fluency = Array.isArray(s.fluency) ? s.fluency : [];
+  return s;
+}
+let save = load();
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} }
+
+// One sticker per item id, never twice (FR-4).
+function earn(msg, id){
+  if (save.got.indexOf(id) >= 0) return;
+  save.got.push(id);
+  save.stickers.push(STICKERS[save.stickers.length % STICKERS.length]);
+  persist();
+  renderBook();
+  toast(save.stickers[save.stickers.length-1] + " " + msg);
+}
+function renderBook(){
+  const earned = save.stickers;
+  $("#count").textContent = earned.length;
+  const slots = Math.max(16, Math.ceil((earned.length+1)/8)*8);
+  $("#book").innerHTML = Array.from({length: slots}, (_,i) =>
+    i < earned.length ? `<span class="sticker-slot got" aria-label="sticker">${earned[i]}</span>`
+                      : `<span class="sticker-slot" aria-hidden="true"></span>`).join("");
+}
+let toastTimer;
+function toast(text){
+  const t = $("#toast");
+  t.textContent = text; t.classList.remove("off");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add("off"), 1800);
+}
+function say(text){
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = .9; speechSynthesis.speak(u); } catch (e) {}
+}
+
+/* Tabs */
+document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b === btn));
+  ["facts","groups","reading"].forEach(id => $("#"+id).hidden = id !== btn.dataset.tab);
+}));
+
+/* ---------- 1. Fact families ---------- */
+// The first three are from the worksheet; the rest are extra practice.
+const FAMILIES = [[7,6,42],[8,9,72],[9,10,90],[6,8,48],[7,9,63],[4,12,48],[8,7,56],[6,9,54]];
+let famIdx = 0, famDone = false;
+function renderFamily(){
+  const [a,b,p] = FAMILIES[famIdx];
+  famDone = save.completed.facts.indexOf(famIdx) >= 0;
+  $("#famNums").textContent = `${a}, ${b}, ${p}  (family ${famIdx+1} of ${FAMILIES.length}${famDone ? " ✅" : ""})`;
+  const items = [
+    {left:`${a} × ${b} =`, ans:p},
+    {left:`${b} × ${a} =`, ans:p},
+    {left:`${p} ÷ ${a} =`, ans:b},
+    {left:`${p} ÷ ${b} =`, ans:a},
+  ];
+  $("#famEqs").innerHTML = items.map((it,i) =>
+    `<div class="eq"><span>${it.left}</span><input type="number" inputmode="numeric" id="fa${i}" aria-label="Answer for ${it.left}"></div>`).join("");
+  $("#famFeedback").textContent = "";
+  $("#famFeedback").className = "feedback";
+  $("#famNext").hidden = !famDone;
+  $("#famCheck").disabled = false;
+  window._famItems = items;
+}
+$("#famCheck").addEventListener("click", () => {
+  const items = window._famItems;
+  let right = 0;
+  items.forEach((it,i) => {
+    const input = $("#fa"+i);
+    const ok = input.value !== "" && Number(input.value) === it.ans;
+    input.style.borderColor = ok ? "var(--good)" : "var(--bad)";
+    if (ok) right++;
+  });
+  if (window.Tracker) Tracker.answer(right === items.length, "Fact families");
+  if (right === items.length){
+    $("#famFeedback").textContent = "✅ Amazing! You know the whole fact family!";
+    $("#famFeedback").className = "feedback good";
+    if (save.completed.facts.indexOf(famIdx) < 0){
+      save.completed.facts.push(famIdx); persist();
+      if (window.Tracker) Tracker.complete("fact-family " + FAMILIES[famIdx].join(","), 4, 4);
+    }
+    earn("Fact family complete!", "fam:" + famIdx);
+    famDone = true;
+    $("#famCheck").disabled = true;
+    $("#famNext").hidden = false;
+  } else {
+    $("#famFeedback").textContent = `✏️ ${right} of ${items.length} right. Look at the numbers again, then try the red ones.`;
+    $("#famFeedback").className = "feedback bad";
+  }
+});
+$("#famNext").addEventListener("click", () => {
+  famIdx = (famIdx + 1) % FAMILIES.length;
+  renderFamily();
+});
+
+/* ---------- 2. Equal groups ---------- */
+// The first three are from the worksheet; the rest are extra practice.
+const GROUP_PROBLEMS = [
+  {total:24, prompt:"Sara has 24 hair clips. How many gift bags can she fill with the same number of clips in each bag?", unit:"clips", container:"bags", one:"bag"},
+  {total:56, prompt:"Zane has 56 stickers. How many greeting cards can he decorate with the same number of stickers on each card?", unit:"stickers", container:"cards", one:"card"},
+  {total:72, prompt:"Ms. Cooper has 72 desks. How many equal rows can she make in the classroom?", unit:"desks", container:"rows", one:"row"},
+  {total:36, prompt:"Leo has 36 toy cars. How many shelves can he fill with the same number of cars on each shelf?", unit:"cars", container:"shelves", one:"shelf"},
+  {total:48, prompt:"The baker made 48 muffins. How many boxes can she fill with the same number of muffins in each box?", unit:"muffins", container:"boxes", one:"box"},
+  {total:30, prompt:"Coach Kim has 30 players. How many equal teams can she make?", unit:"players", container:"teams", one:"team"},
+];
+let grpIdx = 0, grpWays = new Set();
+function waysText(){
+  return `Ways found so far: ${[...grpWays].sort((a,b)=>a-b).map(x => `${x} groups`).join(", ")}.` + (grpWays.size < 3 ? " Can you find another?" : " ✅ You found 3 ways!");
+}
+function renderGroupProblem(){
+  const p = GROUP_PROBLEMS[grpIdx];
+  $("#grpPrompt").textContent = `(${grpIdx+1} of ${GROUP_PROBLEMS.length}) ` + p.prompt;
+  $("#grpInput").value = "";
+  $("#grpDraw").innerHTML = "";
+  $("#grpFeedback").textContent = "";
+  $("#grpFeedback").className = "feedback";
+  grpWays = new Set(save.completed.groups[grpIdx] || []);
+  $("#grpWays").textContent = grpWays.size ? waysText() : "";
+  $("#grpNext").hidden = grpWays.size < 3;
+  $("#grpInput").max = p.total;
+}
+$("#grpSay").addEventListener("click", () => say(GROUP_PROBLEMS[grpIdx].prompt));
+$("#grpCheck").addEventListener("click", () => {
+  const p = GROUP_PROBLEMS[grpIdx];
+  const n = Math.floor(Number($("#grpInput").value));
+  const fb = $("#grpFeedback");
+  if (!n || n < 1){ fb.textContent = "Type a number of groups, like 4."; fb.className = "feedback bad"; return; }
+  if (p.total % n !== 0){
+    fb.textContent = `✏️ ${n} groups won't share ${p.total} evenly. Try a number that fits exactly!`;
+    fb.className = "feedback bad";
+    $("#grpDraw").innerHTML = "";
+    if (window.Tracker) Tracker.answer(false, "Equal groups");
+    return;
+  }
+  if (window.Tracker) Tracker.answer(true, "Equal groups");
+  const per = p.total / n;
+  const cls = ["dot","dot t","dot g"];
+  let html = "";
+  for (let g = 0; g < n; g++){
+    html += `<div class="group" role="img" aria-label="Group ${g+1} with ${per} ${p.unit}">` +
+      Array.from({length: per}, (_,k) => `<span class="${cls[k%3]}"></span>`).join("") + `</div>`;
+  }
+  $("#grpDraw").innerHTML = html;
+  fb.textContent = `✅ ${p.total} ÷ ${n} = ${per}. Each ${p.one} gets ${per} ${p.unit}!`;
+  fb.className = "feedback good";
+  if (!grpWays.has(n)){
+    grpWays.add(n);
+    save.completed.groups[grpIdx] = [...grpWays]; persist();
+    earn("Equal groups found!", "grp:" + grpIdx + ":" + n);
+    if (grpWays.size === 3 && window.Tracker) Tracker.complete("equal-groups " + p.total, 3, 3);
+  }
+  $("#grpWays").textContent = waysText();
+  $("#grpNext").hidden = grpWays.size < 3;
+});
+$("#grpInput").addEventListener("keydown", e => { if (e.key === "Enter") $("#grpCheck").click(); });
+$("#grpNext").addEventListener("click", () => {
+  grpIdx = (grpIdx + 1) % GROUP_PROBLEMS.length;
+  renderGroupProblem();
+});
+
+/* ---------- 3. Reading ---------- */
+$("#passSay").addEventListener("click", () => say($("#passage").innerText));
+function checkReading(){
+  const answers = {q1:1, q2:0, q3:1};
+  let right = 0, picked = 0;
+  Object.entries(answers).forEach(([q, ans]) => {
+    const box = document.getElementById(q);
+    const pick = box.querySelector("input:checked");
+    box.querySelectorAll(".choice").forEach(c => c.classList.remove("right","wrong"));
+    if (!pick){ return; }
+    picked++;
+    const choice = pick.closest(".choice");
+    const ok = Number(pick.value) === ans;
+    if (window.Tracker) Tracker.answer(ok, "Reading: Joseph Bruchac");
+    if (ok){ choice.classList.add("right"); right++; }
+    else {
+      choice.classList.add("wrong");
+      box.querySelector(`input[value="${ans}"]`).closest(".choice").classList.add("right");
+    }
+  });
+  const fb = $("#readFeedback");
+  if (picked === 3 && window.Tracker) Tracker.complete("reading", right, 3);
+  if (right === 3){
+    fb.textContent = "✅ Super reader! All three right!";
+    fb.className = "feedback good";
+    if (!save.completed.reading){ save.completed.reading = true; persist(); }
+    earn("Reading detective!", "read");
+  } else {
+    fb.textContent = `✏️ ${right} of 3 right. Look back at the passage for proof, then try again.`;
+    fb.className = "feedback bad";
+  }
+}
+$("#readCheck").addEventListener("click", checkReading);
+
+// A fluency sticker once per timed read (start the timer, then score it).
+let secs = 60, tid = null, fluArmed = false;
+$("#startTimer").addEventListener("click", () => {
+  clearInterval(tid); secs = 60; $("#timer").textContent = "1:00";
+  $("#startTimer").disabled = true;
+  fluArmed = true;
+  tid = setInterval(() => {
+    secs--;
+    $("#timer").textContent = `0:${String(secs).padStart(2,"0")}`;
+    if (secs <= 0){
+      clearInterval(tid);
+      $("#timer").textContent = "Time!";
+      $("#startTimer").disabled = false;
+      toast("Time! Count your words.");
+    }
+  }, 1000);
+});
+$("#scoreBtn").addEventListener("click", () => {
+  const read = Number($("#wordsRead").value);
+  const errs = Math.max(0, Number($("#errs").value) || 0);
+  const fb = $("#fluFeedback");
+  if (!read){ fb.textContent = "Type how many words you read."; fb.className = "feedback bad"; return; }
+  const score = Math.max(0, read - errs);
+  const best = save.fluency.reduce((m, f) => Math.max(m, f.score), 0);
+  fb.textContent = `Words correct: ${read} − ${errs} = ${score}. ` + (best && score > best ? `🎉 New best (was ${best})!` : "Nice work! Try to beat it next time.");
+  fb.className = "feedback good";
+  if (fluArmed){
+    fluArmed = false;
+    save.fluency.push({score, read, errs, ts: Date.now()}); persist();
+    if (window.Tracker) Tracker.complete("fluency", score, read, {wcpm: score});
+    earn("Fluency star!", "flu:" + save.fluency.length);
+  }
+});
+
+/* Start where the learner left off */
+famIdx = Math.max(0, FAMILIES.findIndex((f,i) => save.completed.facts.indexOf(i) < 0));
+grpIdx = Math.max(0, GROUP_PROBLEMS.findIndex((g,i) => (save.completed.groups[i] || []).length < 3));
+renderFamily();
+renderGroupProblem();
+renderBook();
+</script>
+</body>
+</html>
