@@ -63,6 +63,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
 .say.sm{min-height:36px;font-size:17px;padding:2px 10px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="../../js/quizkit/quizkit.css">
 <link rel="stylesheet" href="src/unit2.css">
 <script src="../../js/profile-store.js"></script>
 <script src="../../js/voice.js"></script>
@@ -167,15 +168,8 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
     <p class="feedback" id="fluFeedback" aria-live="polite"></p>
   </section>
 
-  <!-- ACTIVITY 4: Unit 2 Test Prep (src/unit2.js draws the screens into #u2View) -->
-  <section id="unit2" class="card u2" role="tabpanel" aria-label="Unit 2 Test Prep" hidden>
-    <div class="u2-bar">
-      <button class="btn ghost" id="u2Back" aria-label="Back to the Unit 2 menu" hidden>&#9664; Menu</button>
-      <button class="btn ghost tts" id="u2ReadToMe" aria-pressed="false">🔊 Read to me: Off</button>
-    </div>
-    <div class="u2-mascot"><div class="u2-owl" id="u2Owl"></div><p class="u2-bubble" id="u2Bubble"></p></div>
-    <div id="u2View"></div>
-  </section>
+  <!-- ACTIVITY 4: Unit 2 Test Prep (the shared Quiz Kit draws everything here, see src/unit2.js) -->
+  <section id="unit2" class="card u2" role="tabpanel" aria-label="Unit 2 Test Prep" hidden></section>
 
   <!-- STICKER BOOK -->
   <section class="card" aria-labelledby="bookTitle">
@@ -442,7 +436,9 @@ renderBook();
 </script>
 <script src="src/data/unit2Questions.js"></script>
 <script src="src/data/unit2Topics.js"></script>
+<script src="../../js/quizkit/logic.js"></script>
 <script src="src/unit2Logic.js"></script>
+<script src="../../js/quizkit/quizkit.js"></script>
 <script src="src/unit2Art.js"></script>
 <script src="src/unit2.js"></script>
 </body>

@@ -77,6 +77,13 @@ function browser(seed = {}){
     '#ch1': 'adventurepack/piratemath/js/app.js', '#ch2': 'adventurepack/piratemath/js/app.js' };
   C.ITEMS.filter(it => it.href.includes('#')).forEach(it => {
     const h = '#' + it.href.split('#')[1], src = hashes[h];
+    // Quiz Corner: #<pack> needs quiz/packs/<pack>.js with that id, loaded by quiz/index.html.
+    if (it.href.startsWith('quiz/index.html#')) {
+      const id = h.slice(1), pf = path.join(ROOT, 'quiz/packs', id + '.js');
+      if (!fs.existsSync(pf) || !fs.readFileSync(pf, 'utf8').includes(`id: "${id}"`)) return err(`${it.id}: no quiz pack "${id}"`);
+      if (!fs.readFileSync(path.join(ROOT, 'quiz/index.html'), 'utf8').includes(`packs/${id}.js`)) err(`${it.id}: quiz/index.html doesn't load packs/${id}.js`);
+      return;
+    }
     if (!src) return err(`${it.id}: no known handler for ${h}`);
     if (!fs.readFileSync(path.join(ROOT, src), 'utf8').includes(h.slice(1))) err(`${it.id}: ${src} never reads ${h}`);
   });

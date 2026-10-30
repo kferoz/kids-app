@@ -1,0 +1,144 @@
+/* ============================================================
+   quizkit/quizkit.css — styles for QuizKit (js/quizkit/quizkit.js)
+   ------------------------------------------------------------
+   Grew out of Sticker Quest's Unit 2 tab. Everything is under .qk
+   with qk- class names. Colours use the host page's --ink, --sun,
+   --teal, --grape, --coral, --good, --bad, --muted when it has
+   them, else the Sticker Quest palette. Body text is 20px, buttons
+   are 56px+, and coloured cards keep text contrast at 5:1 or better.
+   ============================================================ */
+.qk{color:var(--ink,#2E2650);display:flex;flex-direction:column;gap:14px}
+.qk *{box-sizing:border-box}
+.qk h3,.qk h4{font-family:"Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;margin:0}
+.qk .qk-btn{min-height:56px;padding:10px 20px;border:3px solid var(--ink,#2E2650);border-radius:16px;color:#fff;font:600 20px "Fredoka","Trebuchet MS",sans-serif;cursor:pointer;box-shadow:0 4px 0 var(--ink,#2E2650)}
+.qk .qk-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink,#2E2650)}
+.qk .qk-btn:disabled{opacity:.5;cursor:not-allowed}
+.qk .qk-say{border:3px solid var(--ink,#2E2650);background:#fff;border-radius:999px;cursor:pointer;padding:4px 14px;color:var(--ink,#2E2650)}
+.qk .qk-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.qk [hidden]{display:none!important}
+.qk-buddy-emoji{display:block;font-size:68px;line-height:1;text-align:center}
+@keyframes qkpop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.qk *,.qk-confetti *{animation:none!important;transition:none!important}}
+@media (max-width:520px){.qk-match{column-gap:20px}.qk-mi{font-size:17px}.qk-home{grid-template-columns:1fr 1fr}.qk-mode{min-height:120px}}
+
+.qk{font-size:20px;line-height:1.5;scroll-margin-top:64px}   /* clear of kidbar's floating 🏠 */
+.qk .qk-btn{font-size:20px;min-height:56px;background:#0E7C70}
+.qk .qk-btn.ghost{background:#fff;color:var(--ink,#2E2650)}
+.qk .qk-say{min-height:52px;min-width:52px;font-size:22px}
+.qk-no-tts .qk-tts{display:none!important}
+
+.qk-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.qk-bar [data-qk="read"]{margin-left:auto}
+.qk-bar [data-qk="read"][aria-pressed="true"]{background:var(--sun,#FFC93C)}
+.qk-streak{font:700 20px "Fredoka","Trebuchet MS",sans-serif;background:#F5F2FF;border:3px solid var(--ink,#2E2650);border-radius:999px;padding:6px 14px}
+.qk-streak.hot{background:var(--sun,#FFC93C);animation:qkpop .45s ease-out}
+
+/* Hoot the owl */
+.qk-mascot{display:flex;align-items:center;gap:14px}
+.qk-buddy{width:84px;flex:none}
+.qk-buddy svg{width:84px;height:auto;display:block;transform-origin:50% 90%}
+.qk-buddy .owl-happy,.qk-buddy .owl-cheek{display:none}
+.qk-buddy.mood-happy .owl-happy,.qk-buddy.mood-happy .owl-cheek{display:inline}
+.qk-buddy.mood-happy .owl-open{display:none}
+.qk-buddy.mood-happy svg{animation:qkhop .7s ease-out}
+.qk-buddy.mood-think .owl-pupils{transform:translate(3px,-4px)}
+.qk-buddy.mood-think svg{animation:qktilt .7s ease-in-out}
+.qk-bubble{position:relative;flex:1;margin:0;background:#F5F2FF;border:3px solid var(--ink,#2E2650);border-radius:18px;padding:10px 16px;font-weight:700}
+.qk-bubble::before{content:"";position:absolute;left:-13px;top:50%;margin-top:-9px;border-style:solid;border-width:9px 13px 9px 0;border-color:transparent var(--ink,#2E2650) transparent transparent}
+
+/* Screens */
+.qk-screen{display:flex;flex-direction:column;gap:16px;animation:qkin .35s ease-out}
+.qk-h{font-size:26px}
+.qk-h:focus{outline:none}
+.qk-lead{margin:0;font-weight:700}
+.qk-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.qk-mode{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px;
+  border:3px solid var(--ink,#2E2650);border-radius:22px;box-shadow:0 6px 0 var(--ink,#2E2650);color:var(--ink,#2E2650);cursor:pointer;font-family:inherit;transition:transform .15s}
+.qk-mode:hover{transform:translateY(-3px)}
+.qk-mode:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink,#2E2650)}
+.qk-mode.sun{background:var(--sun,#FFC93C)}
+.qk-mode.teal{background:#0E7C70;color:#fff}
+.qk-mode.grape{background:var(--grape,#6C4CF1);color:#fff}
+.qk-mode.coral{background:var(--coral,#FF6B6B)}
+.qk-mode-icon{font-size:46px;line-height:1}
+.qk-mode-title{font:700 25px "Fredoka","Trebuchet MS",sans-serif}
+.qk-mode-sub{font-size:20px;font-weight:700}
+
+/* Learn */
+.qk-topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.qk-topic{display:flex;flex-direction:column;gap:10px;border:3px solid var(--ink,#2E2650);border-radius:20px;padding:14px;background:#FFFDF5;animation:qkin .4s ease-out both}
+.qk-topic h4{margin:0;font:700 23px "Fredoka","Trebuchet MS",sans-serif}
+.qk-topic ul{margin:0;padding-left:24px;flex:1}
+.qk-topic li+li{margin-top:6px}
+.qk-pic{border:2px solid var(--ink,#2E2650);border-radius:16px;overflow:hidden;background:#fff;aspect-ratio:4/3;display:grid;place-items:center}
+.qk-pic svg{width:100%;height:100%;display:block}
+.qk-emoji{font-size:64px;line-height:1}
+.qk-pic.sm{width:120px;flex:none}
+.qk-pic.sm .qk-emoji{font-size:54px}
+
+/* Question */
+.qk-progress{display:flex;gap:6px}
+.qk-progress span{flex:1;height:14px;border-radius:999px;background:#E6E1F7;border:2px solid var(--ink,#2E2650)}
+.qk-progress .done{background:var(--teal,#1FA596)}
+.qk-progress .now{background:var(--sun,#FFC93C)}
+.qk-countrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.qk-count{margin:0;font-weight:700;color:var(--muted,#6B6590)}
+.qk-q{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.qk-prompt{flex:1 1 180px}
+.qk-sentence{flex-basis:100%;margin:0;background:#FFFDF5;border:3px dashed var(--grape,#6C4CF1);border-radius:16px;padding:12px 16px;font-size:22px;font-weight:700}
+.qk-hint{margin:0;align-self:flex-start;background:var(--sun,#FFC93C);border:3px solid var(--ink,#2E2650);border-radius:999px;padding:4px 14px;font-weight:800}
+.qk-choices{display:flex;flex-direction:column;gap:12px}
+.qk-choices.tf{flex-direction:row;flex-wrap:wrap}
+.qk-choices.tf .qk-choice{flex:1 1 140px;justify-content:center;font-size:22px}
+.qk-choice,.qk-mi{display:flex;gap:12px;align-items:center;min-height:60px;padding:12px 16px;text-align:left;cursor:pointer;
+  font:700 20px/1.35 "Nunito","Trebuchet MS","Segoe UI",sans-serif;color:var(--ink,#2E2650);background:#fff;border:3px solid var(--ink,#2E2650);border-radius:16px}
+.qk-choice:hover:not(:disabled),.qk-mi:hover:not(:disabled){background:#F5F2FF}
+.qk-choice:disabled,.qk-mi:disabled{cursor:default}
+.qk-choice[aria-pressed]::before{content:"";flex:none;width:28px;height:28px;border:3px solid var(--ink,#2E2650);border-radius:8px;background:#fff;display:grid;place-items:center;color:#fff;font-size:18px}
+.qk-choice[aria-pressed="true"]{background:#EDE8FF;border-color:var(--grape,#6C4CF1)}
+.qk-choice[aria-pressed="true"]::before{content:"✓";background:var(--grape,#6C4CF1)}
+.qk-choice.right{background:#E6F8EE;border-color:var(--good,#23A35C)}
+.qk-choice.right::after{content:"✅";margin-left:auto}
+.qk-choice.wrong{background:#FDE8EA;border-color:var(--bad,#E0424E)}
+.qk-choice.wrong::after{content:"✗";margin-left:auto;color:var(--bad,#E0424E);font-weight:900}
+
+/* Matching */
+.qk-match{position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:36px}
+.qk-col{display:flex;flex-direction:column;justify-content:space-around;gap:12px;min-width:0}
+.qk-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.qk-mi{position:relative;padding:10px 12px;overflow-wrap:anywhere}
+.qk-mi.sel,.qk-mi.sel:hover{background:var(--sun,#FFC93C)}
+.qk-mi.paired{border-color:var(--pc);box-shadow:inset 0 0 0 3px var(--pc)}
+.qk-mi.locked{background:#E6F8EE}
+.qk-badge{position:absolute;top:-12px;right:-12px;width:30px;height:30px;border-radius:50%;background:var(--pc);color:#fff;border:2px solid var(--ink,#2E2650);display:grid;place-items:center;font:700 17px "Fredoka","Trebuchet MS",sans-serif}
+.qk-col + .qk-col .qk-badge{right:auto;left:-12px}
+.qk-badge:empty{display:none}
+
+/* Feedback */
+.qk-feedback:empty{display:none}
+.qk-fb{display:flex;flex-direction:column;gap:10px;border:3px solid var(--ink,#2E2650);border-radius:18px;padding:14px 16px}
+.qk-fb.good{background:#E6F8EE}
+.qk-fb.try{background:#FFF4D6}
+.qk-fb.show{background:#EEF2FF}
+.qk-msg{margin:0;font:700 24px "Fredoka","Trebuchet MS",sans-serif}
+.qk-expl{margin:0}
+
+/* End of round */
+.qk-stars{display:flex;justify-content:center;gap:12px;font-size:76px;line-height:1}
+.qk-stars span{color:#E6E1F7;-webkit-text-stroke:3px var(--ink,#2E2650)}
+.qk-stars .on{color:var(--sun,#FFC93C);animation:qkstar .6s var(--d) ease-out both}
+.qk-did,.qk-prize{margin:0}
+.qk-prize-s{display:inline-grid;place-items:center;width:52px;height:52px;border:3px solid var(--ink,#2E2650);border-radius:14px;background:var(--sun,#FFC93C);font-size:30px;vertical-align:middle;animation:qkpop .5s ease-out}
+
+/* Motion */
+.qk-bounce{animation:qkbounce .5s ease-out}
+.qk-wiggle{animation:qkwiggle .4s ease-in-out}
+.qk-confetti{position:fixed;left:50%;top:35%;width:0;height:0;pointer-events:none;z-index:50}
+.qk-confetti i{position:absolute;width:10px;height:14px;border-radius:3px;animation:qkconf 1.1s ease-out forwards}
+@keyframes qkin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes qkhop{0%,100%{transform:translateY(0)}30%{transform:translateY(-14px)}55%{transform:translateY(0)}75%{transform:translateY(-5px)}}
+@keyframes qktilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg)}70%{transform:rotate(6deg)}}
+@keyframes qkbounce{0%,100%{transform:scale(1)}40%{transform:scale(1.06)}70%{transform:scale(.98)}}
+@keyframes qkwiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes qkstar{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes qkconf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 170px)) rotate(var(--r));opacity:0}}

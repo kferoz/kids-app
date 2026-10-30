@@ -1,3 +1,12 @@
+## FEATURE — Phase 4: shared Quiz Kit + Quiz Corner · 2026-10-30
+- `js/quizkit/logic.js` (QuizLogic) is Unit 2's tested rules, with per-pack `sizes`. Mixed now caps at the pool size and works with no medium questions. Sticker Quest's `unit2Logic.js` returns QuizLogic (`require` in Node, the global on the page), so `test/unit2-logic.js` still checks it.
+- `QuizKit.mount(host, pack, hooks)` draws everything inside `host` with `qk-` classes. Sticker Quest passes `store: save.unit2`, `prefix "u2"` and `complete "unit2"`, so old saves, sticker ids (`u2:<id>`) and Tracker names didn't change.
+- `quizkit.css` was generated from unit2.css (u2→qk), and its colours fall back to the Sticker Quest palette. Picture motion classes (`u2-spin`…) stay in each pack's own CSS.
+- Quiz Corner (`quiz/index.html#<pack>`, Tracker app `quiz`): packs are classic scripts calling `QuizPacks.add`. Adding one means a file, a script tag and a catalog line (`quiz/packs/README.md`). Saves go to `qk_<pack>` and `qk_stickers`.
+- `test/phase4-quizkit.js` checks every listed pack: answer ids, ≤12-word sentences, enough easy/medium for a round, catalog entry, KG packs readToMe. Phase 0's hash check knows `quiz/index.html#<pack>` = a pack file with that id.
+- Test gotcha: RewardKit's level-up card (`.kb-party`) covers the page after a round, so puppeteer clicks land on it. Tap `.kb-party .kb-ok` first. `host.__qk.state()` exposes the current question.
+- A 🔊 emoji as a question picture looks like the read-aloud button; avoid it.
+
 ## FEATURE — Phase 3: money settings in Admin (USD/INR, Bronze/Silver/Gold) · 2026-10-30
 - Admin's tab id stays `dollars` (saved in sessionStorage `adm_view`); the label is now 💰 Money. It holds the settings card, the ledgers and a level picker per challenge (`money.levelOf[challengeId]`).
 - Rows store `lv`, `amt`, `cur` at earn time; changing settings never rewrites them. Old rows without `cur` are USD, so an INR switch shows "$4 + ₹…" and never converts.

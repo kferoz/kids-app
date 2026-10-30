@@ -1,0 +1,30 @@
+/* Quiz Corner page shell. The quiz itself is styled by ../js/quizkit/quizkit.css. */
+:root{
+  --bg:#FFF6E0; --ink:#2E2650; --card:#FFFFFF; --coral:#FF6B6B; --teal:#1FA596;
+  --sun:#FFC93C; --grape:#6C4CF1; --good:#23A35C; --bad:#E0424E; --muted:#6B6590;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:500 18px/1.5 "Nunito","Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;min-height:100vh;
+  background:radial-gradient(circle at 15% 10%,#FFE3A3 0,transparent 40%),radial-gradient(circle at 90% 80%,#D9F2EC 0,transparent 45%),var(--bg)}
+.top{display:flex;align-items:center;gap:14px;padding:14px 16px;max-width:980px;margin:0 auto}
+.top h1{flex:1;margin:0;font:700 clamp(24px,5vw,34px)/1.1 "Fredoka","Trebuchet MS",sans-serif;text-wrap:balance}
+.home{flex:none;width:52px;height:52px;display:grid;place-items:center;font-size:26px;text-decoration:none;background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink)}
+.packs-link{flex:none;display:inline-flex;align-items:center;min-height:48px;padding:6px 16px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:999px;font:600 17px "Fredoka",sans-serif;text-decoration:none}
+.packs-link[hidden]{display:none}
+#stage{max-width:980px;margin:0 auto;padding:0 16px 96px}
+.lead{font-weight:700;font-size:20px;margin:4px 0 16px}
+.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pack{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:20px 14px;text-decoration:none;color:var(--ink);
+  background:var(--card);border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);transition:transform .15s}
+.pack:hover,.pack:focus-visible{transform:translateY(-3px)}
+.pack:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.pack-icon{font-size:56px;line-height:1}
+.pack-name{font:700 23px "Fredoka",sans-serif}
+.pack-sub{font-size:17px;color:var(--muted)}
+.quiz-card{background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:20px;box-shadow:0 6px 0 var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;
+  padding:12px 22px;font:600 18px "Fredoka",sans-serif;box-shadow:0 6px 0 rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s;pointer-events:none;z-index:60}
+.toast.off{opacity:0}
+@media (max-width:520px){.quiz-card{padding:14px}.top{padding:12px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

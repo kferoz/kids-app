@@ -35,6 +35,9 @@
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
       progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[DB.band(kid.grade) + "-math"] || []).length, e = (d[DB.band(kid.grade) + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
+    { id: "quiz", name: "Quiz Corner", emoji: "🧠", grades: ["kg"], subject: "Discovery",
+      progress: function (r) { var s = r.obj("qk_senses"), rounds = (s.rounds || []).length, best = (s.rounds || []).reduce(function (m, x) { return Math.max(m, x.stars || 0); }, 0);
+        return { label: rounds ? "Five Senses: " + rounds + (rounds === 1 ? " round" : " rounds") + " · best " + "⭐".repeat(best) : "No quizzes yet" }; } },
     { id: "funfacts", name: "Fun Facts Explorer", emoji: "🔍", grades: ["kg", "g3"], subject: "Discovery",
       progress: function (r) { return { label: r.num("ff_stars") + " ⭐ · " + r.arr("ff_trophies").length + " trophies" }; } },
     { id: "grammar", name: "Grammar Galaxy", emoji: "🪐", grades: ["g3"], subject: "Grammar & Writing",
