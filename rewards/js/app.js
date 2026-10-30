@@ -192,6 +192,16 @@
   }
 
   // ---------- Sticker album + Dollar Bank (shared js/kidbar.js + js/dollars.js) ----------
+  // ⭐ Level, streak, dress-up items and surprise gifts (js/rewardkit.js, drawn by KidBar.starsHtml).
+  function buildLevel() {
+    var box = $("levelPanel");
+    if (!window.RewardKit || !window.KidBar || !KidBar.starsHtml) return;
+    box.hidden = false;
+    box.innerHTML = KidBar.starsHtml();
+    box.querySelectorAll("[data-wear]").forEach(function (b) {
+      b.addEventListener("click", function () { RewardKit.wear(b.getAttribute("data-wear")); buildLevel(); });
+    });
+  }
   function buildStickers() {
     var html = window.KidBar ? KidBar.albumHtml() : "";
     $("stickerAlbum").innerHTML = html || '<p class="kb-empty">No stickers yet. Finish lessons in the learning apps and they all show up here!</p>';
@@ -228,6 +238,7 @@
     if (localStorage.getItem("rw_tickets") === null) localStorage.setItem("rw_tickets", "5"); // starter tickets
 
     updateTicketBadge();
+    buildLevel();
     buildProgress();
     buildWheel();
     buildCritters();
@@ -235,7 +246,7 @@
     Array.prototype.forEach.call(el.tabBar.children, function (b) {
       b.addEventListener("click", function () {
         showTab(b.dataset.tab);
-        if (b.dataset.tab === "progress") buildProgress();
+        if (b.dataset.tab === "progress") { buildLevel(); buildProgress(); }
         if (b.dataset.tab === "stickers") buildStickers();
         if (b.dataset.tab === "dollars") buildDollars();
       });

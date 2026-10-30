@@ -579,3 +579,12 @@ a.subj-card:focus-visible { outline: 4px solid var(--sc); outline-offset: 3px; }
   .subj-card, .act-card { transition: none; }
   .subj-empty-emoji { animation: none; }
 }
+
+/* ---------- RewardKit pills + dress-up item in the greeting bar (renderGreeting) ---------- */
+.kid-pills { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.rk-pill { white-space: nowrap; }
+.kid-ava { position: relative; }
+.kid-wear {
+  position: absolute; right: -8px; top: -10px; font-size: 1.5rem; line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25)); transform: rotate(12deg);
+}

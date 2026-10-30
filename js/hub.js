@@ -165,12 +165,18 @@
     var kid = DB.active();
     if (!kid) { bar.hidden = true; return; }
     var g = DB.GRADES[kid.grade] || DB.GRADES.kg;
+    // Stars, level and streak from RewardKit (js/rewardkit.js), read from this learner's raw keys.
+    var rk = window.RewardKit ? RewardKit.forKid(kid.id) : null;
     bar.hidden = false;
     bar.innerHTML =
       '<span class="kid-hello">' +
-        '<span class="kid-ava">' + kid.avatar + '</span>' +
+        '<span class="kid-ava">' + kid.avatar + (rk && rk.wear ? '<span class="kid-wear" title="' + escapeHtml(rk.wear.n) + '">' + rk.wear.e + "</span>" : "") + '</span>' +
         '<span class="kid-text"><span>Hi, <b>' + escapeHtml(kid.name) + '</b>!</span>' +
-          '<span class="kid-grade">' + g.emoji + " " + g.short + '</span>' +
+          '<span class="kid-pills"><span class="kid-grade">' + g.emoji + " " + g.short + '</span>' +
+          (rk ? '<span class="kid-grade rk-pill" title="Stars">⭐ ' + rk.stars + '</span>' +
+                '<span class="kid-grade rk-pill" title="' + escapeHtml(rk.level.name) + '">' + rk.level.emoji + " Level " + rk.level.n + '</span>' +
+                (rk.streak ? '<span class="kid-grade rk-pill" title="Days in a row">🔥 ' + rk.streak + '</span>' : "") : "") +
+          '</span>' +
         '</span>' +
       '</span>' +
       '<span class="kid-actions">' +

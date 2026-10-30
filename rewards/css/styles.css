@@ -123,3 +123,5 @@ body {
 /* Sticker album + Dollar Bank tabs (cards styled by js/kidbar.js) */
 .rw-panel { background: #fffdf7; color: #2b2540; border-radius: 22px; padding: 14px; box-shadow: 0 6px 0 rgba(60,40,100,0.12); }
 .rw-panel .kb-grp { margin: 10px 0; }
+.rk-panel { margin-bottom: 16px; }
+.rk-panel[hidden] { display: none; }

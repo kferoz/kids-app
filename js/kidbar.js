@@ -12,6 +12,10 @@
          you've earned). data-pocket="off" hides it (Rewards Center).
    • 💵  When a $1 challenge is won (DollarBank.sync finds a new
          dollar), a big celebration pops up on whatever page it is.
+   • ⭐  RewardKit (js/rewardkit.js): a star chip above the pocket, a
+         Stars tab, and a level-up / streak / gift card that waits for
+         the end of a lesson (or the next page) so it never interrupts
+         a question.
 
    Stickers live in each app's own keys and many store only ids, so
    the pictures come from the app's data. On an app's page its
@@ -36,7 +40,7 @@
     grammar: ["Grammar Galaxy", "🌌"], funfacts: ["Fun Facts Explorer", "🔭"], treasure: ["Grammar Treasure Hunt", "🗺️"],
     subtraction: ["Subtraction Notebook", "📓"], billofrights: ["Bill of Rights", "📜"], piratemath: ["Pirate Math Quest", "🏴‍☠️"],
     timesquest: ["Times Table Quest", "🦉"], stickerquest: ["Sticker Quest", "🧩"],
-    arcade: ["Free Games Arcade", "🎮"]
+    arcade: ["Free Games Arcade", "🎮"], surprise: ["Surprise Gifts", "🎁"]
   };
   function appName(id) { return (APPS[id] || [id])[0]; }
   function appEmoji(id) { return (APPS[id] || [0, "📦"])[1]; }
@@ -172,6 +176,15 @@
     ".kb-rain{position:fixed;inset:0;pointer-events:none;z-index:10001;overflow:hidden}.kb-rain span{position:absolute;top:-60px;font-size:34px;animation:kbFall linear forwards}" +
     "@keyframes kbBounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}" +
     "@keyframes kbFall{to{transform:translateY(115vh) rotate(540deg)}}" +
+    ".kb-stars{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:calc(max(10px,env(safe-area-inset-bottom)) + 58px);z-index:9990;min-height:34px;border:2px solid #fff;border-radius:999px;background:#fff3bf;color:#5c3d00;font:800 15px/1 'Fredoka',system-ui,sans-serif;padding:6px 10px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer;opacity:.95}" +
+    ".kb-stars.bump{animation:kbBump .6s ease}.kb-plus{position:fixed;z-index:9991;font:800 18px 'Fredoka',system-ui,sans-serif;color:#e67700;pointer-events:none;animation:kbUp 1s ease forwards;text-shadow:0 1px 0 #fff}" +
+    ".kb-lv{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fff9db,#ffe8cc);border-radius:18px;padding:12px;margin-bottom:10px}.kb-lv .kb-lve{font-size:46px}.kb-lv b{font-size:20px}.kb-lv small{display:block;color:#6b6585;font-size:14px}" +
+    ".kb-lv .kb-bar{height:12px;background:#fff}.kb-lv .kb-bar i{background:linear-gradient(90deg,#fcc419,#f08c00)}" +
+    ".kb-row{display:flex;gap:8px;margin-bottom:10px}.kb-row div{flex:1;background:#fff4e6;border-radius:16px;padding:8px;text-align:center}.kb-row b{display:block;font-size:24px;color:#d9480f}.kb-row small{color:#6b5a4d}" +
+    ".kb-items{display:flex;flex-wrap:wrap;gap:6px}.kb-items button{min-width:48px;min-height:48px;border-radius:14px;border:3px solid #eee6ff;background:#fff;font-size:26px;cursor:pointer}.kb-items button.on{border-color:#7950f2;background:#f3f0ff}" +
+    ".kb-news{list-style:none;padding:0;margin:8px 0}.kb-news li{background:#fff9db;border-radius:14px;padding:8px 10px;margin:6px 0;font-size:18px;text-align:left}.kb-news li span{font-size:30px;vertical-align:middle;margin-right:6px}" +
+    ".kb-party.kb-gold h2{color:#e67700}.kb-gold .kb-ok{background:linear-gradient(135deg,#fcc419,#f08c00);box-shadow:0 5px 0 #c26100}" +
+    "@keyframes kbBump{40%{transform:scale(1.25)}}@keyframes kbUp{to{transform:translateY(-46px);opacity:0}}" +
     "@media (max-width:520px){.kb-home{width:44px;height:44px;font-size:22px;border-radius:14px}.kb-pocket{width:44px;height:44px;font-size:21px}.kb-party .kb-big{font-size:70px}}";
 
   /* ---------- 🏠 floating Home ---------- */
@@ -202,13 +215,18 @@
     veil = el("div", "kb-veil");
     var card = el("div", "kb-card");
     card.innerHTML = '<button class="kb-x" title="Close">✖</button><h3>🎒 My Pocket</h3>' +
-      '<div class="kb-tabs"><button data-t="stk">🎟️ Stickers</button><button data-t="bank">💵 Dollar Bank</button></div><div class="kb-body"></div>';
+      '<div class="kb-tabs">' + (window.RewardKit ? '<button data-t="stars">⭐ Stars</button>' : "") +
+      '<button data-t="stk">🎟️ Stickers</button><button data-t="bank">💵 Dollar Bank</button></div><div class="kb-body"></div>';
     veil.appendChild(card); document.body.appendChild(veil);
     veil.addEventListener("click", function (e) { if (e.target === veil || e.target.closest(".kb-x")) closeVeil(); });
     card.querySelectorAll(".kb-tabs button").forEach(function (b) { b.addEventListener("click", function () { show(b.getAttribute("data-t")); }); });
     function show(t) {
       card.querySelectorAll(".kb-tabs button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); });
-      card.querySelector(".kb-body").innerHTML = t === "stk" ? stickersHtml() : bankHtml();
+      var body = card.querySelector(".kb-body");
+      body.innerHTML = t === "stars" ? starsHtml() : t === "stk" ? stickersHtml() : bankHtml();
+      body.querySelectorAll("[data-wear]").forEach(function (b) {
+        b.addEventListener("click", function () { RewardKit.wear(b.getAttribute("data-wear")); show("stars"); });
+      });
     }
     show(tab || "stk");
   }
@@ -224,6 +242,81 @@
       : (mine ? "" : '<p class="kb-empty">No stickers yet. Every lesson you finish in the learning apps adds one here!</p>');
     return html;
   }
+  // Level, streak, dress-up items and recent gifts. sum = RewardKit summary (another learner's in Admin).
+  function starsHtml(sum, readOnly) {
+    if (!window.RewardKit) return "";
+    sum = sum || RewardKit.summary();
+    var lv = sum.level, html = "";
+    html += '<div class="kb-lv"><span class="kb-lve">' + lv.emoji + "</span><span style=\"flex:1\"><b>Level " + lv.n + " · " + esc(lv.name) + "</b>" +
+      "<small>⭐ " + lv.have + " of " + lv.need + " stars to Level " + (lv.n + 1) + "</small>" +
+      '<div class="kb-bar"><i style="width:' + Math.round(100 * lv.have / lv.need) + '%"></i></div></span></div>';
+    html += '<div class="kb-row"><div><b>⭐ ' + sum.stars + "</b><small>stars</small></div><div><b>🔥 " + sum.streak + "</b><small>" + (sum.streak === 1 ? "day" : "days") + " in a row</small></div>" +
+      "<div><b>🏆 " + sum.best + "</b><small>best streak</small></div></div>";
+    html += '<p class="kb-note">💡 Right answers give ⭐, finished lessons give ⭐⭐⭐⭐⭐. Learn every day to grow your 🔥 streak!</p>';
+    if (sum.items.length) {
+      html += '<h4 style="margin:12px 4px 6px">🎩 Dress up my buddy</h4><div class="kb-items">' +
+        (readOnly ? "" : '<button data-wear="" class="' + (sum.wear ? "" : "on") + '" title="Nothing">🚫</button>') +
+        sum.items.map(function (it) {
+          return readOnly ? '<span title="' + esc(it.n) + '" style="font-size:30px">' + it.e + "</span>"
+            : '<button data-wear="' + it.id + '" class="' + (sum.wear && sum.wear.id === it.id ? "on" : "") + '" title="' + esc(it.n) + '">' + it.e + "</button>";
+        }).join("") + "</div>";
+    }
+    var gifts = sum.gifts.slice(-12).reverse();
+    html += '<h4 style="margin:12px 4px 2px">🎁 Surprise gifts</h4>' + (gifts.length ? gifts.map(function (g) {
+      return '<div class="kb-ch got"><span class="kb-ic">' + g.e + '</span><span class="kb-t">' + esc(g.n) + "<small>" + esc(g.why) + " · " + new Date(g.ts).toLocaleDateString() + "</small></span></div>";
+    }).join("") : '<p class="kb-note">Finish lessons and level up to unwrap surprises!</p>');
+    return html;
+  }
+
+  /* ---------- ⭐ star chip ---------- */
+  var starBtn = null;
+  function updateStars(added) {
+    if (!starBtn || !window.RewardKit) return;
+    starBtn.textContent = "⭐ " + RewardKit.summary().stars;
+    if (added) {
+      starBtn.classList.remove("bump"); void starBtn.offsetWidth; starBtn.classList.add("bump");
+      var r = starBtn.getBoundingClientRect(), plus = el("div", "kb-plus", "+" + added);
+      plus.style.left = (r.left + 8) + "px"; plus.style.top = (r.top - 6) + "px";
+      document.body.appendChild(plus); setTimeout(function () { plus.remove(); }, 1000);
+    }
+  }
+
+  /* ---------- 🎉 level-up, streak and gift celebrations ---------- */
+  var newsTimer = 0;
+  function showNewsSoon(ms) { clearTimeout(newsTimer); newsTimer = setTimeout(showNews, ms); }
+  function showNews() {
+    if (!window.RewardKit) return;
+    var news = RewardKit.news();
+    if (!news.length) return;
+    if (partyOpen || veil) return showNewsSoon(2500);   // dollars or the pocket first
+    partyOpen = true;
+    var lv = news.filter(function (n) { return n.type === "level"; }).pop();
+    var st = news.filter(function (n) { return n.type === "streak"; }).pop();
+    var gifts = news.filter(function (n) { return n.type === "gift"; }).map(function (n) { return n.gift; });
+    var big = lv ? lv.emoji : st ? "🔥" : gifts.length ? "🎁" : "⭐";
+    var title = lv ? "Level " + lv.n + "!" : st ? st.days + " days in a row!" : "A surprise!";
+    var JOKES = ["You're on fire! (Not really. Stay cool! 😎)", "Wowza! 🤩", "Look at you go! 🚀", "High five! ✋", "Super-duper! 🌟"];
+    var lines = "";
+    if (lv) lines += "<li><span>" + lv.emoji + "</span> You are now a <b>" + esc(lv.name) + "</b>!</li>";
+    if (st) lines += "<li><span>🔥</span> You learned <b>" + st.days + " days</b> in a row!</li>";
+    gifts.forEach(function (g) {
+      var where = g.kind === "tickets" ? " · spin the Prize Wheel!" : g.kind === "critter" ? " · a new critter friend!" : g.kind === "item" ? " · your buddy is wearing it!" : " · in your sticker album";
+      lines += "<li><span>" + g.e + "</span> <b>" + esc(g.n) + "</b>" + where + "</li>";
+    });
+    veil = el("div", "kb-veil");
+    var card = el("div", "kb-card kb-party kb-gold");
+    card.innerHTML = '<div class="kb-big">' + big + "</div><h2>" + title + "</h2><p><b>" + JOKES[Math.floor(Math.random() * JOKES.length)] + "</b></p>" +
+      '<ul class="kb-news">' + lines + '</ul><button class="kb-ok">Yay! 🎉</button>';
+    veil.appendChild(card); document.body.appendChild(veil);
+    say(lv ? "Level up! You are now a " + lv.name + "!" : st ? st.days + " days in a row! Amazing!" : "Surprise! You got a gift!");
+    try { window.Tracker && Tracker.log("reward", "celebrate", { level: lv ? lv.n : null, streak: st ? st.days : null, gifts: gifts.length }); } catch (e) {}
+    card.querySelector(".kb-ok").addEventListener("click", function () {
+      RewardKit.seen(news.length);
+      partyOpen = false; closeVeil(); updateStars();
+      showNewsSoon(400);
+    });
+  }
+
   function chRow(c) {
     var p = c.progress, got = c.dollars > 0, bar = "", sub = "";
     if (c.repeat) {
@@ -283,7 +376,7 @@
     try { window.Tracker && Tracker.log("reward", "dollar", { amount: sum, items: news.map(function (e) { return e.id; }) }); } catch (e) {}
     card.querySelector(".kb-ok").addEventListener("click", function () {
       DollarBank.markSeen(news.map(function (e) { return e.id; }));
-      partyOpen = false; closeVeil(); updateBadge();
+      partyOpen = false; closeVeil(); updateBadge(); showNewsSoon(600);
     });
   }
 
@@ -312,15 +405,27 @@
       pocketBtn = el("button", "kb-pocket", "🎒<b></b>"); pocketBtn.title = "My Pocket: stickers & dollars";
       pocketBtn.addEventListener("click", function () { openPocket(); });
       document.body.appendChild(pocketBtn);
+      if (window.RewardKit) {
+        starBtn = el("button", "kb-stars"); starBtn.title = "My stars and level";
+        starBtn.addEventListener("click", function () { openPocket("stars"); });
+        document.body.appendChild(starBtn);
+      }
+    }
+    if (window.RewardKit) {
+      RewardKit.onChange(function (info) {
+        updateStars(info.added);
+        if (info.ev.type === "complete") showNewsSoon(2200);   // after the app's own "well done"
+      });
+      if (RewardKit.news().length) showNewsSoon(1500);          // only what was won on the last page
     }
     var t = 0, again = function () { clearTimeout(t); t = setTimeout(checkHome, 120); };
     ["scroll", "resize", "click", "hashchange"].forEach(function (ev) { window.addEventListener(ev, again, { passive: true, capture: true }); });
     setInterval(checkHome, 1500);
     setTimeout(checkHome, 300);
-    updateBadge(); check();
+    updateBadge(); updateStars(); check();
   }
   if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount);
 
   window.KidBar = { apps: APPS, appName: appName, appEmoji: appEmoji, album: album, albumHtml: albumHtml,
-    unseenCounts: unseenCounts, openPocket: openPocket, check: check, mirror: mirror, chRow: chRow };
+    unseenCounts: unseenCounts, openPocket: openPocket, check: check, mirror: mirror, chRow: chRow, starsHtml: starsHtml };
 })();

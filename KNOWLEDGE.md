@@ -1,3 +1,12 @@
+## FEATURE — Phase 2: RewardKit (stars, levels, streaks, virtual gifts) · 2026-10-30
+- `js/rewardkit.js` wraps `Tracker.answer`/`Tracker.complete`, so no app changed. +1 per correct answer, +5 per complete (+5 at ≥90%), capped at 300/day. Pages load tracker → settings → rewardkit → dollars → kidbar (the test checks the order).
+- State is `kb_rewards`, per learner. A `kb_` key is skipped by tracker progress events and by kidbar's DollarBank re-check. The Hub reads it raw via `RewardKit.forKid(id)`.
+- Gifts are virtual only. Tickets and critters go to the SHARED `rw_` Prize Wheel pot; stickers go to `kb_album.surprise` (KidBar APPS has a `surprise` entry). `RewardKit.CRITTERS` must match `rewards/js/data.js`.
+- Level-ups and streak milestones always give a gift. Random surprises come only after `complete`, capped by `HubSettings.gifts.perDay`.
+- Popups wait for a `complete` or the next page so a question is never interrupted. Gotcha: KidBar's mount timer once fired mid-quiz; it now runs only when news already exists at load.
+- Streaks use calendar days (`daysBetween` via Date.UTC), so they are midnight- and DST-safe. A missed day shows 0 until the next star.
+- Gotcha: Git Bash `sed -i` turned the mixed-CRLF adventurepack pages (`.gitattributes -text`) into all-LF, a whole-file diff. Edit those with byte-safe Python (`rb`/`wb`).
+
 ## FEATURE — Phase 1: subject Hub from the catalog · 2026-10-30
 - Logged-in learners start on subject cards (`renderSubjectHome` in `js/hub.js`); the old grade grid is one tap away as All My Apps (`#apps`). Logged out = old grid + age filter, unchanged.
 - Routes are in the hash (`""`, `#apps`, `#s=math`, `#s=language&l=arabic`) so browser/Android Back and returning from an app restore the page.
