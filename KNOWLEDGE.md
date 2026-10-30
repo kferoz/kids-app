@@ -1,3 +1,8 @@
+## FEATURE — Phase 6a: KG Social Studies, Community Helpers pack · 2026-10-30
+- `quiz/packs/helpers.js` (pk, kg, Benny the Bus) fills the last "Coming soon" KG subject. A new pack needs: the file, a script tag, a catalog line, a Hub tile (its own look/tip) and Admin's hand-kept pack list.
+- Safety answers say "tell a grown-up", never an emergency number: the family uses both US (911) and India (112).
+- A random e2e round may skip a question type (here: no true/false in 3 rounds). Use `__qk.start()` until the type you need comes up instead of counting on coverage.
+
 ## FEATURE — Phase 5: Tamil Starter (Quiz Kit native words, two-voice read-aloud) · 2026-10-30
 - Pack text marks foreign words `{{வணக்கம்|vanakkam}}` and sets `native: {lang}`. `QuizLogic.segments`/`plain` parse them. The kit shows `<span lang="ta">` + `(spelling)`, and ARIA labels use `plain()`.
 - `speak()` queues one utterance per part: English parts get the English voice, native parts the first on-device voice whose lang matches. With no such voice, the English voice says the spelling. Native script never reaches an English voice (same rule as Arabic Oasis). Parts with no letters/digits are skipped (`/[\p{L}\p{N}]/u`).

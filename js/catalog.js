@@ -65,6 +65,7 @@
     A("stickerquest", "Sticker Quest", "🧩", "adventurepack/stickerquest/index.html", "stickerquest", "math", "practice", ["g3"]),
 
     /* ---- Social Studies ---- */
+    A("quiz-helpers", "Community Helpers", "🚒", "quiz/index.html#helpers", "quiz", "social", "learn", ["pk", "kg"]),
     A("sq-unit2-soc", "Unit 2 Test Prep", "🏛️", "adventurepack/stickerquest/index.html#unit2", "stickerquest", "social", "tests", ["g3"]),
     A("billofrights", "Why We Have the Bill of Rights", "📜", "adventurepack/billofrights/index.html", "billofrights", "social", "stories", ["g3"]),
     A("piratemath-communities", "Pirate Math: Communities Island", "🏝️", "adventurepack/piratemath/index.html#ch1", "piratemath", "social", "practice", ["g3"]),

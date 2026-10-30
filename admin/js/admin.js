@@ -39,7 +39,7 @@
       // one save per pack (qk_<pack id>); add a pack here when quiz/packs/ gains one
       progress: function (r) {
         var out = [];
-        [["senses", "Five Senses"], ["tamil", "Tamil"]].forEach(function (p) {
+        [["senses", "Five Senses"], ["tamil", "Tamil"], ["helpers", "Community Helpers"]].forEach(function (p) {
           var rs = r.obj("qk_" + p[0]).rounds || [], best = rs.reduce(function (m, x) { return Math.max(m, x.stars || 0); }, 0);
           if (rs.length) out.push(p[1] + ": " + rs.length + (rs.length === 1 ? " round" : " rounds") + " · best " + "⭐".repeat(best));
         });
