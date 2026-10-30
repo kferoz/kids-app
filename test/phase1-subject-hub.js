@@ -39,6 +39,7 @@ if (!ids('g5', 'math').includes('homeschool-g3-math') || ids('g5', 'math').inclu
 if (!ids('pk', 'language', 'arabic').includes('arabic-kg')) err('pk Arabic');
 if (!ids('kg', 'social').includes('quiz-helpers') || !ids('pk', 'social').includes('quiz-helpers')) err('Pre-K/KG Social Studies: Community Helpers');
 if (ids('g3', 'social').includes('quiz-helpers')) err('Community Helpers is for Pre-K/KG only');
+if (!ids('g1', 'math').includes('quiz-numbers') || !ids('g2', 'math').includes('quiz-numbers') || ids('g3', 'math').includes('quiz-numbers') || ids('kg', 'math').includes('quiz-numbers')) err('Number Fun is for grades 1–2 only');
 if (!C.forLearner('g3', 'g3', 'language', 'tamil').length || !C.forLearner('pk', 'kg', 'language', 'tamil').length) err('Tamil Starter for every grade');
 
 console.log(fail ? `${fail} failure(s)` : 'phase1 subject hub: all checks passed');

@@ -81,6 +81,30 @@ packs.forEach(p => {
     }
     if (typeof L.readText(c) !== 'string' || !L.readText(c)) err(`${Q}: nothing to read aloud`);
   });
+  // Math packs: recompute every "a + b" / "a minus b" the answers depend on.
+  const calc = t => { const m = String(t).trim().match(/^(\d+) (\+|minus|−|-) (\d+)$/); return m ? (m[2] === '+' ? +m[1] + +m[3] : +m[1] - +m[3]) : null; };
+  let sums = 0;
+  qs.forEach(q => {
+    const Q = `${P} ${q.id}`, optText = id => (q.options.find(o => o.id === id) || {}).text;
+    let m;
+    if (q.type === 'multiple_choice' && (m = q.prompt.match(/^What is (.+)\?$/)) && calc(m[1]) !== null) {
+      sums++;
+      q.options.forEach(o => { if ((+o.text === calc(m[1])) !== (o.id === q.correctAnswer)) err(`${Q}: ${m[1]} = ${calc(m[1])}, key says ${optText(q.correctAnswer)}`); });
+    }
+    if (q.type === 'true_false_sentence' && (m = q.prompt.match(/^(.+) = (\d+)\.?$/)) && calc(m[1]) !== null) {
+      sums++;
+      if ((calc(m[1]) === +m[2]) !== (q.correctAnswer === 'T')) err(`${Q}: ${q.prompt} is ${calc(m[1]) === +m[2]}, key says ${q.correctAnswer}`);
+    }
+    if (q.type === 'matching' && q.items.every(i => calc(i.text) !== null)) {
+      sums++;
+      q.items.forEach(i => { if (+optText(q.correctAnswers[i.id]) !== calc(i.text)) err(`${Q}: ${i.text} = ${calc(i.text)}, key says ${optText(q.correctAnswers[i.id])}`); });
+    }
+    if (q.type === 'choose_two' && (m = q.prompt.match(/(?:make|equal to) (\d+)/)) && q.options.every(o => calc(o.text) !== null)) {
+      sums++;
+      q.options.forEach(o => { if ((calc(o.text) === +m[1]) !== q.correctAnswers.includes(o.id)) err(`${Q}: ${o.text} = ${calc(o.text)} (want ${m[1]})`); });
+    }
+  });
+  if (p.subject === 'math' && !sums) err(`${P}: a math pack with no sums the test can check`);
   const easy = qs.filter(q => q.difficulty === 'easy').length, med = qs.filter(q => q.difficulty === 'medium').length;
   if (easy < sizes.easy) err(`${P}: ${easy} easy questions, a round needs ${sizes.easy}`);
   if (med < sizes.medium) err(`${P}: ${med} medium questions, a round needs ${sizes.medium}`);
@@ -95,7 +119,7 @@ packs.forEach(p => {
   const a = L.pickSession(qs, 'easy', { rng: seeded(1), sizes }).map(q => q.id);
   const b = L.pickSession(qs, 'easy', { rng: seeded(2), sizes, avoid: a }).map(q => q.id);
   if (easy >= 2 * sizes.easy && b.some(id => a.includes(id))) err(`${P}: a fresh round repeated the last one`);
-  console.log(`pack ${p.id}: ${qs.length} questions (${easy} easy, ${med} medium), ${(p.topics || []).length} topics`);
+  console.log(`pack ${p.id}: ${qs.length} questions (${easy} easy, ${med} medium), ${(p.topics || []).length} topics` + (sums ? `, ${sums} sums checked` : ''));
 });
 
 /* ---------- logic edge cases the kit relies on ---------- */

@@ -1,3 +1,9 @@
+## FEATURE — Phase 6b: Grades 1–2 math, Number Fun pack · 2026-10-30
+- `quiz/packs/numbers.js` (g1, g2) is the first content written for grades 1–2; until now they only saw band-g3 apps. Catalog grades `["g1","g2"]`, so G3 doesn't get it.
+- `test/phase4-quizkit.js` recomputes math answer keys: "What is a + b?", "a minus b = c" true/false, all-expression matching, and "Which TWO make/equal N". A math pack with nothing checkable fails. Word problems and place value aren't parsed; check them by hand.
+- Prompts say "minus" in words. Matching items may show "14 − 6" because their `audioText` says "14 minus 6", so TTS never meets the − symbol.
+- The word rule counts "+" and "=" as words, so number facts hit 12 quickly.
+
 ## FEATURE — Phase 6a: KG Social Studies, Community Helpers pack · 2026-10-30
 - `quiz/packs/helpers.js` (pk, kg, Benny the Bus) fills the last "Coming soon" KG subject. A new pack needs: the file, a script tag, a catalog line, a Hub tile (its own look/tip) and Admin's hand-kept pack list.
 - Safety answers say "tell a grown-up", never an emergency number: the family uses both US (911) and India (112).
