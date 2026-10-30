@@ -142,3 +142,8 @@
 @keyframes qkwiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 @keyframes qkstar{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
 @keyframes qkconf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 170px)) rotate(var(--r));opacity:0}}
+
+/* native-language words ({{வணக்கம்|vanakkam}} in a pack) */
+.qk-native{font-family:"Nirmala UI","Noto Sans Tamil","Latha","Noto Naskh Arabic",system-ui,sans-serif;font-weight:700;font-size:1.15em;white-space:nowrap}
+.qk-spell{font-weight:600;color:var(--muted,#6B6590);white-space:nowrap}
+.qk-choice.right .qk-spell,.qk-mi.locked .qk-spell{color:inherit}

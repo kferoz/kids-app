@@ -11,7 +11,10 @@
      id, title, skill ("Unit 2" → Tracker skill "Unit 2: <topic>"),
      topics [{n, title, art, facts[], story}], questions [...],
      mascot {name, svg | emoji, hello}, readToMe (default for a new
-     learner), sizes {easy, medium, mixed}, lang ("en-US").
+     learner), sizes {easy, medium, mixed}, lang ("en-US"),
+     native {lang: "ta-IN", name: "Tamil"} for packs whose text marks
+     words as {{வணக்கம்|vanakkam}} (shown with the spelling; read by a
+     native on-device voice, or the spelling when there is none).
    hooks (all optional):
      store     object to keep {readToMe, last, rounds, ends} in
                (default: localStorage "qk_<pack.id>", per learner)
@@ -35,9 +38,15 @@
   const PAIR_COLORS = ["#6C4CF1", "#E0424E", "#0E7C70", "#C77700"];
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c]));
+  // Pack text → HTML: {{native|spelling}} becomes the native word (its own lang) and the spelling.
+  const richWith = lang => s => L.segments(s).map(g => g.native
+    ? `<span class="qk-native" lang="${esc(lang || "")}">${esc(g.text)}</span> <span class="qk-spell">(${esc(g.say)})</span>`
+    : esc(g.text)).join("");
+  const label = s => esc(L.plain(s));
 
   function mount(host, pack, hooks) {
     hooks = hooks || {};
+    const rich = richWith(pack.native && pack.native.lang.split("-")[0]);
     const KEY = "qk_" + pack.id;
     const sizes = Object.assign({}, L.SIZES, pack.sizes);
     const topics = pack.topics || [];
@@ -68,7 +77,7 @@
     host.classList.add("qk");
     if (!TTS) host.classList.add("qk-no-tts");
     host.innerHTML = `<div class="qk-bar">
-        <button class="qk-btn ghost" data-qk="back" aria-label="Back to the ${esc(pack.title)} menu" hidden>&#9664; Menu</button>
+        <button class="qk-btn ghost" data-qk="back" aria-label="Back to the ${label(pack.title)} menu" hidden>&#9664; Menu</button>
         <button class="qk-btn ghost qk-tts" data-qk="read" aria-pressed="false">🔊 Read to me: Off</button>
       </div>
       <div class="qk-mascot"><div class="qk-buddy"></div><p class="qk-bubble"></p></div>
@@ -81,21 +90,36 @@
     // An on-device voice in the pack's language, a friendly one if we can find it. Network voices send the
     // text to a server, so with no local voice we leave the browser default. voice.js still applies a
     // voice the learner picked on the Hub.
-    const lang = pack.lang || "en-US", langRe = new RegExp("^" + lang.split("-")[0] + "([-_]|$)", "i");
-    let voice = null;
+    const lang = pack.lang || "en-US", native = pack.native || null;
+    const re = l => new RegExp("^" + l.split("-")[0] + "([-_]|$)", "i");
+    let voice = null, nativeVoice = null;
     function findVoice() {
-      const local = speechSynthesis.getVoices().filter(v => langRe.test(v.lang) && v.localService);
+      const all = speechSynthesis.getVoices().filter(v => v.localService);
+      const local = all.filter(v => re(lang).test(v.lang));
       voice = local.find(v => /samantha|zira|aria|jenny|karen|moira|tessa|female/i.test(v.name)) || local[0] || null;
+      nativeVoice = native ? all.find(v => re(native.lang).test(v.lang)) || null : null;
     }
     if (TTS) { try { findVoice(); if (speechSynthesis.addEventListener) speechSynthesis.addEventListener("voiceschanged", findVoice); } catch (e) {} }
+    // Marked native words go to the native voice; without one, the English voice says the spelling.
+    // Native script is never handed to an English voice.
     function speak(text) {
       if (!TTS || !text) return;
       try {
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang; u.rate = .9; u.pitch = 1.1;
-        if (voice) u.voice = voice;
-        speechSynthesis.speak(u);
+        const parts = [];
+        L.segments(text).forEach(g => {
+          const nat = g.native && nativeVoice, t = g.native ? (nat ? g.text : g.say) : g.text;
+          if (!/[\p{L}\p{N}]/u.test(t)) return;           // a lone "." or ", " between native words
+          const prev = parts[parts.length - 1];
+          if (prev && prev.nat === !!nat && !nat) prev.t += t; else parts.push({t, nat: !!nat});
+        });
+        parts.forEach(p => {
+          const u = new SpeechSynthesisUtterance(p.t);
+          u.rate = p.nat ? .8 : .9; u.pitch = 1.1;
+          if (p.nat) { u.lang = nativeVoice.lang; u.voice = nativeVoice; }
+          else { u.lang = lang; if (voice) u.voice = voice; }
+          speechSynthesis.speak(u);
+        });
       } catch (e) {}
     }
     function hush() { if (TTS) try { speechSynthesis.cancel(); } catch (e) {} }
@@ -105,7 +129,7 @@
       buddy.classList.remove("mood-happy", "mood-think");
       void buddy.offsetWidth;          // restart the hop / tilt animation
       if (m) buddy.classList.add("mood-" + m);
-      bubble.textContent = text;
+      bubble.innerHTML = rich(text);
     }
     function confetti() {
       if (reduced.matches) return;
@@ -147,7 +171,7 @@
       state = null; hush();
       backBtn.hidden = true; setStreak(null);
       mood(null, mascot.hello || `Hi! I'm ${mascot.name}. Pick a card to start!`);
-      show(`<h3 class="qk-h" tabindex="-1">${esc(pack.title)}</h3>
+      show(`<h3 class="qk-h" tabindex="-1">${rich(pack.title)}</h3>
         <p class="qk-lead">Pick a card. Take your time. There is no timer!</p>
         <div class="qk-home">${Object.entries(modes).map(([k, m]) =>
           `<button class="qk-mode ${m.cls}" data-mode="${k}"><span class="qk-mode-icon" aria-hidden="true">${m.icon}</span>` +
@@ -156,7 +180,7 @@
 
     function factHtml(f) {
       const i = f.indexOf(": ");
-      return i < 0 ? esc(f) : `<b>${esc(f.slice(0, i))}:</b> ${esc(f.slice(i + 2))}`;
+      return i < 0 ? rich(f) : `<b>${rich(f.slice(0, i))}:</b> ${rich(f.slice(i + 2))}`;
     }
     function learn() {
       state = null; hush();
@@ -166,11 +190,11 @@
         <div class="qk-topics">${topics.map((t, i) => `
           <article class="qk-topic" style="animation-delay:${i * 60}ms">
             <div class="qk-pic">${art(t.art)}</div>
-            <h4>${t.n}. ${esc(t.title)}</h4>
+            <h4>${t.n}. ${rich(t.title)}</h4>
             <ul>${t.facts.map(f => `<li>${factHtml(f)}</li>`).join("")}</ul>
             <div class="qk-row qk-tts">
-              <button class="qk-btn ghost" data-hear="${i}" aria-label="Hear the ${esc(t.title)} facts">🔊 Hear it</button>
-              ${t.story ? `<button class="qk-btn ghost" data-story="${i}" aria-label="Story mode: hear a story about ${esc(t.title)}">📖 Story mode</button>` : ""}
+              <button class="qk-btn ghost" data-hear="${i}" aria-label="Hear the ${label(t.title)} facts">🔊 Hear it</button>
+              ${t.story ? `<button class="qk-btn ghost" data-story="${i}" aria-label="Story mode: hear a story about ${label(t.title)}">📖 Story mode</button>` : ""}
             </div>
           </article>`).join("")}</div>
         <button class="qk-btn" data-mode="easy">I'm ready to practice! 🌱</button>`);
@@ -188,7 +212,7 @@
     /* ---------- one question ---------- */
     function answersHtml(q) {
       if (q.type === "matching") {
-        const btn = (side, o) => `<button class="qk-mi" data-${side}="${o.id}"><span>${esc(o.text)}</span><b class="qk-badge" aria-hidden="true"></b></button>`;
+        const btn = (side, o) => `<button class="qk-mi" data-${side}="${o.id}"><span>${rich(o.text)}</span><b class="qk-badge" aria-hidden="true"></b></button>`;
         return `<div class="qk-match"><svg class="qk-lines" aria-hidden="true"></svg>
           <div class="qk-col">${q.items.map(o => btn("left", o)).join("")}</div>
           <div class="qk-col">${q.options.map(o => btn("right", o)).join("")}</div></div>`;
@@ -196,7 +220,7 @@
       const multi = q.type === "choose_two", tf = q.type === "true_false_sentence";
       return `<div class="qk-choices${tf ? " tf" : ""}">${q.options.map(o =>
         `<button class="qk-choice" data-opt="${o.id}"${multi ? ' aria-pressed="false"' : ""}>` +
-        `${tf ? (o.id === "T" ? "👍 " : "👎 ") : ""}<span>${esc(o.text)}</span></button>`).join("")}</div>`;
+        `${tf ? (o.id === "T" ? "👍 " : "👎 ") : ""}<span>${rich(o.text)}</span></button>`).join("")}</div>`;
     }
 
     function question() {
@@ -211,9 +235,9 @@
           <span class="qk-streak"></span></div>
         <div class="qk-q">
           <div class="qk-pic sm">${art(questionArt(q))}</div>
-          <h3 class="qk-h qk-prompt" tabindex="-1">${tf ? "True or false?" : esc(q.prompt)}</h3>
+          <h3 class="qk-h qk-prompt" tabindex="-1">${tf ? "True or false?" : rich(q.prompt)}</h3>
           <button class="qk-say qk-tts" data-say="q" aria-label="Read the question to me">🔊</button>
-          ${tf ? `<p class="qk-sentence">“${esc(q.prompt)}”</p>` : ""}
+          ${tf ? `<p class="qk-sentence">“${rich(q.prompt)}”</p>` : ""}
         </div>
         ${q.type === "choose_two" ? `<p class="qk-hint">✌️ Pick 2 answers</p>` :
           q.type === "matching" ? `<p class="qk-hint">👆 Tap one, then tap what it matches</p>` : ""}
@@ -233,7 +257,7 @@
       state.fb = msg + " " + expl;
       const last = state.i === state.qs.length - 1, box = $(".qk-feedback");
       box.innerHTML = `<div class="qk-fb ${kind}">
-        <p class="qk-msg">${esc(msg)}</p><p class="qk-expl">${esc(expl)}</p>
+        <p class="qk-msg">${rich(msg)}</p><p class="qk-expl">${rich(expl)}</p>
         <div class="qk-row"><button class="qk-say qk-tts" data-say="fb" aria-label="Read why to me">🔊 Hear why</button>
         ${state.done ? `<button class="qk-btn" data-qk="next">${last ? "See my stars ⭐" : "Next question ➜"}</button>` : ""}</div></div>`;
       if (S.readToMe) speak(state.fb);
@@ -335,7 +359,7 @@
     }
     function paintMatch() {
       const q = cur(), r = state.resp, sel = state.sel;
-      const text = (side, id) => (side === "left" ? q.items : q.options).find(o => o.id === id).text;
+      const text = (side, id) => L.plain((side === "left" ? q.items : q.options).find(o => o.id === id).text);
       view.querySelectorAll(".qk-mi").forEach(b => {
         const side = b.dataset.left ? "left" : "right", id = b.dataset[side];
         const l = side === "left" ? (r[id] ? id : null) : leftOf(id);
@@ -448,7 +472,7 @@
     paintReadToMe();
     home(false);
     // host.__qk lets tests (and the console) see the round in progress.
-    return (host.__qk = {home, learn, start, speak, state: () => state, store: S});
+    return (host.__qk = {home, learn, start, speak, state: () => state, store: S, nativeVoice: () => nativeVoice});
   }
 
   root.QuizKit = {mount};

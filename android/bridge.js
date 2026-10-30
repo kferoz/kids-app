@@ -75,9 +75,11 @@
     getVoices: function () {
       if (!voiceList || (voiceList.length === 1 && B.ttsReady())) {
         voiceList = B.ttsReady() ? loadVoices() : [VOICE];
-        // Arabic Oasis: offer the phone's Arabic voice when its language data is installed
-        if (B.ttsReady() && B.ttsHasLang && B.ttsHasLang("ar"))
-          voiceList.push({ name: "Android Arabic", lang: "ar", voiceURI: "lang:ar", localService: true, "default": false });
+        // Arabic Oasis and the Tamil quiz: offer the phone's voice for a language when its data is installed
+        if (B.ttsReady() && B.ttsHasLang)
+          [["ar", "Arabic"], ["ta", "Tamil"]].forEach(function (l) {
+            if (B.ttsHasLang(l[0])) voiceList.push({ name: "Android " + l[1], lang: l[0], voiceURI: "lang:" + l[0], localService: true, "default": false });
+          });
       }
       return voiceList.slice();
     },

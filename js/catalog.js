@@ -90,7 +90,8 @@
     A("arabic-kg", "Arabic Oasis", "🐪", "arabic/index.html", "arabic", "language", "learn", ["pk", "kg"], "arabic"),
     A("arabic-g3", "Arabic Oasis", "🐪", "arabic/index.html", "arabic", "language", "learn", ["g3"], "arabic"),
 
-    /* ---- Language: Tamil (Phase 5 adds the first app) ---- */
+    /* ---- Language: Tamil ---- */
+    A("quiz-tamil", "Tamil Starter: Vanakkam!", "🦚", "quiz/index.html#tamil", "quiz", "language", "learn", ALL, "tamil"),
 
     /* ---- Fun Zone ---- */
     A("arcade", "Free Games Arcade", "🎮", "arcade/index.html", "arcade", "fun", "games", ALL),

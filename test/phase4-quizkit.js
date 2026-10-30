@@ -35,6 +35,17 @@ packs.forEach(p => {
   if ((p.grades.includes('pk') || p.grades.includes('kg')) && !p.readToMe) err(`${P}: Pre-K/KG packs should read to me by default`);
   if (!p.mascot || !p.mascot.name || !(p.mascot.emoji || p.mascot.svg)) err(`${P}: mascot needs a name and an emoji or svg`);
   const sizes = Object.assign({}, L.SIZES, p.sizes), qs = p.questions || [];
+  // {{native|spelling}} markers: well formed, only in packs that say which language they are
+  const texts = [p.title, p.mascot && p.mascot.hello].concat(...(p.topics || []).map(t => [t.title, t.story].concat(t.facts)),
+    ...qs.map(q => [q.prompt, q.explanation, q.audioText].concat((q.options || []).map(o => o.text), (q.items || []).map(i => i.text))));
+  texts.filter(Boolean).forEach(t => {
+    if (/\{\{|\}\}/.test(t.replace(/\{\{[^|{}]+\|[^|{}]+\}\}/g, ''))) err(`${P}: broken {{native|spelling}} in: ${t}`);
+    L.segments(t).filter(g => g.native).forEach(g => {
+      if (!p.native) err(`${P}: uses {{…}} but has no native language`);
+      if (/[A-Za-z]/.test(g.text) || !/^[A-Za-z' -]+$/.test(g.say)) err(`${P}: {{${g.text}|${g.say}}} should be native script | English letters`);
+    });
+    if (p.native && /^ta/.test(p.native.lang) && /[஀-௿]/.test(L.segments(t).filter(g => !g.native).map(g => g.text).join(''))) err(`${P}: Tamil script outside {{…}}: ${t}`);
+  });
   const topicNs = (p.topics || []).map(t => t.n);
   (p.topics || []).forEach(t => {
     if (!t.title || !t.art || !Array.isArray(t.facts) || !t.facts.length) err(`${P} topic ${t.n}: needs title, art, facts`);

@@ -38,7 +38,7 @@ if (!ids('kg', 'math').includes('homeschool-kg-math') || ids('kg', 'math').inclu
 if (!ids('g5', 'math').includes('homeschool-g3-math') || ids('g5', 'math').includes('homeschool-kg-math')) err('g5 homeschool twin');
 if (!ids('pk', 'language', 'arabic').includes('arabic-kg')) err('pk Arabic');
 if (ids('kg', 'social').length) err('kg should have no Social Studies yet (shows Coming soon)');
-if (C.forLearner('g3', 'g3', 'language', 'tamil').length) err('Tamil has no apps until Phase 5');
+if (!C.forLearner('g3', 'g3', 'language', 'tamil').length || !C.forLearner('pk', 'kg', 'language', 'tamil').length) err('Tamil Starter for every grade');
 
 console.log(fail ? `${fail} failure(s)` : 'phase1 subject hub: all checks passed');
 process.exit(fail ? 1 : 0);

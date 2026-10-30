@@ -57,14 +57,14 @@
     $("#title").textContent = "🧠 Quiz Corner";
     $("#stage").innerHTML = '<p class="lead">Pick a quiz. Every right answer wins a ⭐!</p><div class="packs">' +
       list.map(function (p) {
-        return '<a class="pack" href="#' + p.id + '"><span class="pack-icon">' + p.icon + '</span><span class="pack-name">' + esc(p.title) +
+        return '<a class="pack" href="#' + p.id + '"><span class="pack-icon">' + p.icon + '</span><span class="pack-name">' + esc(QuizLogic.plain(p.title)) +
           '</span><span class="pack-sub">' + esc(p.blurb || "") + "</span></a>";
       }).join("") + "</div>";
   }
 
   function open(p) {
-    document.title = p.title + " " + p.icon;
-    $("#title").textContent = p.icon + " " + p.title;
+    document.title = QuizLogic.plain(p.title, true) + " " + p.icon;
+    $("#title").textContent = p.icon + " " + QuizLogic.plain(p.title);
     var host = document.createElement("section");
     host.className = "quiz-card";
     $("#stage").innerHTML = "";

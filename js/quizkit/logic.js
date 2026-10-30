@@ -98,8 +98,31 @@
     return q.prompt + " " + q.options.map(function (o, i) { return (i ? "Or, " : "") + o.text.replace(/[.?]$/, "") + "?"; }).join(" ");
   }
 
+  /* ---------- native-language words: {{வணக்கம்|vanakkam}} ----------
+     A pack can mark a word in another script with its English spelling. Screens show both;
+     read-aloud gives the native part to a native voice, or says the spelling when there is none. */
+  var NATIVE = /\{\{([^|{}]+)\|([^|{}]+)\}\}/g;
+  // [{text, native?: true, say}] in order; plain English parts have native false.
+  function segments(s) {
+    var out = [], last = 0, m;
+    s = String(s == null ? "" : s);
+    NATIVE.lastIndex = 0;
+    while ((m = NATIVE.exec(s))) {
+      if (m.index > last) out.push({ text: s.slice(last, m.index), native: false });
+      out.push({ text: m[1], say: m[2], native: true });
+      last = NATIVE.lastIndex;
+    }
+    if (last < s.length) out.push({ text: s.slice(last), native: false });
+    return out;
+  }
+  // Text without markers: "வணக்கம் (vanakkam)" (for labels), or only the spelling when spellOnly.
+  function plain(s, spellOnly) {
+    return String(s == null ? "" : s).replace(NATIVE, function (_, nat, say) { return spellOnly ? say : nat + " (" + say + ")"; });
+  }
+
   var QuizLogic = { SIZES: SIZES, shuffle: shuffle, prepare: prepare, pickSession: pickSession,
-    isCorrect: isCorrect, wrongItems: wrongItems, scoreSession: scoreSession, readText: readText };
+    isCorrect: isCorrect, wrongItems: wrongItems, scoreSession: scoreSession, readText: readText,
+    segments: segments, plain: plain };
   root.QuizLogic = QuizLogic;
   if (typeof module !== "undefined" && module.exports) module.exports = QuizLogic;
 })(typeof window !== "undefined" ? window : globalThis);

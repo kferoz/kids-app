@@ -1,3 +1,12 @@
+## FEATURE — Phase 5: Tamil Starter (Quiz Kit native words, two-voice read-aloud) · 2026-10-30
+- Pack text marks foreign words `{{வணக்கம்|vanakkam}}` and sets `native: {lang}`. `QuizLogic.segments`/`plain` parse them. The kit shows `<span lang="ta">` + `(spelling)`, and ARIA labels use `plain()`.
+- `speak()` queues one utterance per part: English parts get the English voice, native parts the first on-device voice whose lang matches. With no such voice, the English voice says the spelling. Native script never reaches an English voice (same rule as Arabic Oasis). Parts with no letters/digits are skipped (`/[\p{L}\p{N}]/u`).
+- Edge (headed and headless) lists "Microsoft Valluvar - Tamil (India)" ta-IN, localService, once the Windows capability is installed (see Tamil FINDING).
+- Android: `bridge.js` now lists "Android Tamil" (`lang:ta`) when `ttsHasLang("ta")`; the Java side was already language-generic. Still unverified on the tablet (needs Google TTS Tamil data).
+- The Hub's subject cards borrow the look of the tile with the same href, so a second pack on the same app (`quiz`) needs its own Hub tile, or it shows the other pack's tip.
+- `test/phase4-quizkit.js` fails Tamil script outside `{{…}}`, broken markers, and non-ASCII spellings. Admin's Quiz Corner row lists each pack id by hand.
+- Gotcha: Python heredocs writing JS turn `஀` / `\p` into literal text or warnings. Check the written JS, and prove a check fails by injecting bad data with Node, not sed (`|` in patterns).
+
 ## FEATURE — Phase 4: shared Quiz Kit + Quiz Corner · 2026-10-30
 - `js/quizkit/logic.js` (QuizLogic) is Unit 2's tested rules, with per-pack `sizes`. Mixed now caps at the pool size and works with no medium questions. Sticker Quest's `unit2Logic.js` returns QuizLogic (`require` in Node, the global on the page), so `test/unit2-logic.js` still checks it.
 - `QuizKit.mount(host, pack, hooks)` draws everything inside `host` with `qk-` classes. Sticker Quest passes `store: save.unit2`, `prefix "u2"` and `complete "unit2"`, so old saves, sticker ids (`u2:<id>`) and Tracker names didn't change.
