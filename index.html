@@ -32,6 +32,14 @@
   <div class="kid-bar" id="kidBar" hidden></div>
 
   <main class="hub-main">
+    <!-- Logged in: Subjects (from js/catalog.js) or the full app grid -->
+    <nav class="filter-bar view-bar" id="viewBar" aria-label="How to show the apps" hidden>
+      <a class="filter-chip" data-view="subjects" href="#">📚 Subjects</a>
+      <a class="filter-chip" data-view="apps" href="#apps">🧩 All My Apps</a>
+    </nav>
+    <div id="subjectHub" class="subject-hub" hidden></div>
+
+    <div id="allApps">
     <!-- Category filter -->
     <nav class="filter-bar" id="filterBar" aria-label="Choose an age group">
       <button class="filter-chip active" data-filter="all">✨ All Apps</button>
@@ -197,6 +205,7 @@
         </a>
       </div>
     </section>
+    </div>
 
   </main>
 
@@ -212,6 +221,7 @@
   <script src="js/activitydb.js"></script>
   <script src="js/kidsdb.js"></script>
   <script src="js/voice.js"></script>
+  <script src="js/catalog.js"></script>
   <script src="js/hub.js"></script>
 </body>
 </html>

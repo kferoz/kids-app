@@ -1,3 +1,13 @@
+## FEATURE — Phase 1: subject Hub from the catalog · 2026-10-30
+- Logged-in learners start on subject cards (`renderSubjectHome` in `js/hub.js`); the old grade grid is one tap away as All My Apps (`#apps`). Logged out = old grid + age filter, unchanged.
+- Routes are in the hash (`""`, `#apps`, `#s=math`, `#s=language&l=arabic`) so browser/Android Back and returning from an app restore the page.
+- `Catalog.forLearner(grade, band, …)` = own grade OR band, so g1–g5 see g3 work and pk sees kg work until they get their own.
+- Subject cards borrow colours + tip from the matching grid tile (same href first, then same `data-app`). New catalog items need a Hub tile, or they render grey; `test/phase1-subject-hub.js` checks this.
+- Gotcha: `applyFilter` once toggled `.active` on every `.filter-chip` on the page, wiping the view/language chips. Chip queries are now scoped to `#filterBar`.
+- Open-app tracking is delegated on `document`, because subject cards are drawn after boot.
+- `color-mix()` has a plain fallback line above it for older Android WebViews.
+- Puppeteer: a `position: fixed` element always has `offsetParent === null`; check `.hidden` for overlays.
+
 ## BUG-FIX — Cross-device QA: offline fonts, local photos, contrast, tap targets · 2026-10-29
 - Hub + 19 apps loaded Google Fonts; now `fonts/fonts.css` + `fonts/files/*.woff2` (latin, latin-ext, arabic subsets only).
 - Pirate Math injects `@import` in a `<style>`; its path resolves from piratemath/index.html, so `../../fonts/fonts.css`.

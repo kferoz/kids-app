@@ -6,6 +6,12 @@
      (filter chips are hidden while a learner is logged in).
    • Tracks actions (which app a kid opens) into KidsDB (hub_events).
    • Filter chips work only when nobody is logged in.
+   • Subject Hub: a logged-in learner starts on subject cards
+     (Science, Math, Social Studies, Language, from js/catalog.js);
+     each subject lists its activities by Learn / Stories / Practice /
+     Tests / Games. "All My Apps" (#apps) is the old grade grid.
+     Routes live in the hash so Back works: "" home, #apps,
+     #s=math, #s=language&l=arabic.
    ============================================================ */
 (function () {
   "use strict";
@@ -21,7 +27,7 @@
 
   /* ---------- category filter ---------- */
   function applyFilter(cat) {
-    var chips = document.querySelectorAll(".filter-chip");
+    var chips = document.querySelectorAll("#filterBar .filter-chip");
     var sections = document.querySelectorAll(".cat-section");
     chips.forEach(function (c) { c.classList.toggle("active", c.dataset.filter === cat); });
     sections.forEach(function (s) { s.hidden = !(cat === "all" || s.dataset.cat === cat); });
@@ -36,7 +42,7 @@
     });
   }
   function wireFilter() {
-    document.querySelectorAll(".filter-chip").forEach(function (chip) {
+    document.querySelectorAll("#filterBar .filter-chip").forEach(function (chip) {
       chip.addEventListener("click", function () { if (!DB.active()) applyFilter(chip.dataset.filter); });
     });
   }
@@ -48,13 +54,108 @@
     applyFilter(g ? g.cat : "all");
   }
 
+  /* ---------- subject Hub ---------- */
+  function route() {
+    var h = location.hash.replace(/^#/, ""), r = { view: h === "apps" ? "apps" : "subjects" };
+    h.split("&").forEach(function (p) { var kv = p.split("="); if (kv[1]) r[kv[0]] = decodeURIComponent(kv[1]); });
+    return r;
+  }
+  function render() {
+    var kid = DB.active(), C = window.Catalog, r = route();
+    var subjects = !!(kid && C) && r.view === "subjects";
+    $("viewBar").hidden = !(kid && C);
+    document.querySelectorAll("#viewBar .filter-chip").forEach(function (c) { c.classList.toggle("active", c.dataset.view === r.view); });
+    $("allApps").hidden = subjects;
+    $("subjectHub").hidden = !subjects;
+    showKidGrade();
+    if (!subjects) return;
+    var subj = r.s && C.subject(r.s);
+    if (subj && subj.id !== "fun") renderSubject(kid, subj, r.l); else renderSubjectHome(kid);
+  }
+  function mine(kid, subject, lang) {
+    return window.Catalog.forLearner(kid.grade, DB.band(kid.grade), subject, lang);
+  }
+
+  // Each activity borrows its colours and tip from its tile in the app grid (same href first, then same app).
+  function lookFor(it) {
+    var tiles = $("allApps").querySelectorAll(".tile[data-app]"), byApp = null;
+    for (var i = 0; i < tiles.length; i++) {
+      if (tiles[i].getAttribute("href") === it.href) return tiles[i];
+      if (!byApp && tiles[i].dataset.app === it.app) byApp = tiles[i];
+    }
+    return byApp;
+  }
+  function actCard(it) {
+    var look = lookFor(it), tip = look ? look.querySelector(".tile-tip").textContent : "";
+    return '<a class="act-card" href="' + escapeHtml(it.href) + '" data-app="' + it.app + '" data-app-name="' + escapeHtml(it.title) + '"' +
+      (look ? ' style="' + escapeHtml(look.getAttribute("style") || "") + '"' : "") + ">" +
+      '<span class="act-icon"><span>' + it.icon + "</span></span>" +
+      '<span class="act-text"><span class="act-name">' + escapeHtml(it.title) + "</span>" +
+        (tip ? '<span class="act-tip">' + escapeHtml(tip) + "</span>" : "") + "</span></a>";
+  }
+
+  // Home: one big card per subject, then the Fun Zone.
+  function renderSubjectHome(kid) {
+    var C = window.Catalog, g = DB.GRADES[kid.grade] || DB.GRADES.kg;
+    var html = '<section class="icon-section"><h2 class="zone-title"><span class="zone-emoji">📚</span> My Subjects <span class="zone-age">' + g.short + "</span></h2>" +
+      '<div class="subject-grid">';
+    C.SUBJECTS.forEach(function (s) {
+      if (s.id === "fun") return;
+      var n = mine(kid, s.id).length;
+      var langs = s.langs ? '<span class="subj-langs">' + s.langs.map(function (l) { return "<span>" + l.emoji + " " + l.name + "</span>"; }).join("") + "</span>" : "";
+      var body = '<span class="subj-emoji">' + s.emoji + "</span>" +
+        '<span class="subj-name">' + s.name + "</span>" +
+        '<span class="subj-count">' + (n ? n + (n === 1 ? " activity" : " activities") : "Coming soon ✨") + "</span>" + langs;
+      html += n
+        ? '<a class="subj-card" href="#s=' + s.id + '" style="--sc:' + s.color + '">' + body + "</a>"
+        : '<div class="subj-card soon" style="--sc:' + s.color + '" aria-disabled="true">' + body + "</div>";
+    });
+    html += "</div></section>";
+    var fun = mine(kid, "fun");
+    if (fun.length) {
+      html += '<section class="icon-section funzone"><h2 class="zone-title"><span class="zone-emoji">🎉</span> Fun Zone</h2><div class="act-grid">' +
+        fun.map(actCard).join("") + "</div></section>";
+    }
+    $("subjectHub").innerHTML = html;
+  }
+
+  // One subject: language chips (Language only), then its activities by section.
+  function renderSubject(kid, s, langId) {
+    var C = window.Catalog, html = "", items, lang = null;
+    if (s.langs) {
+      lang = s.langs.filter(function (l) { return l.id === langId; })[0] ||
+             s.langs.filter(function (l) { return mine(kid, s.id, l.id).length; })[0] || s.langs[0];
+      html += '<nav class="filter-bar lang-bar" aria-label="Choose a language">' + s.langs.map(function (l) {
+        return '<a class="filter-chip' + (l === lang ? " active" : "") + '" href="#s=' + s.id + "&l=" + l.id + '">' +
+          l.emoji + " " + l.name + (l.native !== l.name ? ' <span class="native" lang="' + (l.id === "tamil" ? "ta" : "ar") + '">' + l.native + "</span>" : "") + "</a>";
+      }).join("") + "</nav>";
+    }
+    items = mine(kid, s.id, lang && lang.id);
+    C.SECTIONS.forEach(function (sec) {
+      var list = items.filter(function (it) { return it.section === sec.id; });
+      if (!list.length) return;
+      html += '<section class="icon-section subj-section"><h3 class="sec-title"><span>' + sec.emoji + "</span> " + sec.name + "</h3>" +
+        '<div class="act-grid">' + list.map(actCard).join("") + "</div></section>";
+    });
+    if (!items.length) {
+      html += '<section class="icon-section subj-empty"><div class="subj-empty-emoji">' + (lang ? lang.emoji : s.emoji) + "</div>" +
+        "<p><b>" + (lang ? lang.name : s.name) + " is coming soon!</b></p>" +
+        (lang && lang.id === "tamil" ? '<p lang="ta" class="native-big">வணக்கம்!</p>' : "") +
+        "<p>New lessons are on the way. Try another subject for now.</p></section>";
+    }
+    $("subjectHub").innerHTML =
+      '<div class="subj-head" style="--sc:' + s.color + '">' +
+        '<a class="kid-btn" href="#">← Subjects</a>' +
+        '<h2 class="subj-title"><span>' + s.emoji + "</span> " + s.name + "</h2>" +
+      "</div>" + html;
+  }
+
   /* ---------- action tracking ---------- */
-  // Log an "open app" event when a kid taps any app / feature card.
+  // Log an "open app" event when a kid taps any app / feature card (subject cards are drawn later, so delegate).
   function wireTracking() {
-    document.querySelectorAll("[data-app]").forEach(function (a) {
-      a.addEventListener("click", function () {
-        DB.log(a.dataset.app, "open_app", { name: a.dataset.appName || a.dataset.app });
-      });
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("[data-app]");
+      if (a) DB.log(a.dataset.app, "open_app", { name: a.dataset.appName || a.dataset.app });
     });
   }
 
@@ -205,7 +306,7 @@
       DB.removeKid(id);
       renderPicker();
       renderGreeting();
-      showKidGrade();
+      render();
     });
     $("keepKid").focus();
   }
@@ -274,7 +375,7 @@
   function finishLogin() {
     closeLogin();
     renderGreeting();
-    showKidGrade();
+    render();
   }
 
   /* ---------- utils ---------- */
@@ -296,7 +397,8 @@
       if (window.ActivityDB && DB.syncStudents) { DB.syncStudents(); ActivityDB.migrateLegacy().catch(function () {}); }
     } catch (e) { /* never block the Hub over the activity database */ }
     var kid = DB.active();
-    showKidGrade();
+    render();
+    window.addEventListener("hashchange", function () { render(); window.scrollTo(0, 0); });
     if (kid) renderGreeting();
     else openLogin();
   });

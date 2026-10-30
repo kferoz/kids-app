@@ -13,7 +13,7 @@
 
    One app can sit in several places (Sticker Quest is math
    practice AND a Unit 2 test for science and social studies).
-   Phase 1's subject Hub reads this; tests check every href.
+   The subject Hub (js/hub.js) reads this; tests check every href.
    ============================================================ */
 (function (root) {
   "use strict";
@@ -102,9 +102,17 @@
       return it.grades.indexOf(grade) >= 0 && (!subject || it.subject === subject) && (!lang || it.lang === lang);
     });
   }
+  // What a learner sees: their own grade's activities, plus their band's (pk → kg, g1–g5 → g3)
+  // until a grade has content of its own. Same order as ITEMS.
+  function forLearner(grade, band, subject, lang) {
+    return ITEMS.filter(function (it) {
+      var fits = it.grades.indexOf(grade) >= 0 || (band && it.grades.indexOf(band) >= 0);
+      return fits && (!subject || it.subject === subject) && (!lang || it.lang === lang);
+    });
+  }
   function subject(id) { for (var i = 0; i < SUBJECTS.length; i++) if (SUBJECTS[i].id === id) return SUBJECTS[i]; return null; }
 
-  var Catalog = { SUBJECTS: SUBJECTS, SECTIONS: SECTIONS, ITEMS: ITEMS, forGrade: forGrade, subject: subject };
+  var Catalog = { SUBJECTS: SUBJECTS, SECTIONS: SECTIONS, ITEMS: ITEMS, forGrade: forGrade, forLearner: forLearner, subject: subject };
   root.Catalog = Catalog;
   if (typeof module !== "undefined" && module.exports) module.exports = Catalog;
 })(typeof window !== "undefined" ? window : globalThis);
