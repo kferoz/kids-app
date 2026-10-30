@@ -1,3 +1,12 @@
+## FEATURE — Phase 3: money settings in Admin (USD/INR, Bronze/Silver/Gold) · 2026-10-30
+- Admin's tab id stays `dollars` (saved in sessionStorage `adm_view`); the label is now 💰 Money. It holds the settings card, the ledgers and a level picker per challenge (`money.levelOf[challengeId]`).
+- Rows store `lv`, `amt`, `cur` at earn time; changing settings never rewrites them. Old rows without `cur` are USD, so an INR switch shows "$4 + ₹…" and never converts.
+- With money off (device switch AND learner switch must both be on), `sync` still writes the win as `off: true, amt: 0, seen: true`, so switching back on does not back-pay. `setPaid("*")` skips off rows.
+- `forKid(id).g` carries `.kid` so `sync`/`totals` pick that learner's currency in Admin. On app pages the learner is raw `hub_activeKid`.
+- Reading Adventures' own `amount` is now a count × the Silver amount (2 → $2 or ₹200).
+- Per-learner "Same as device" is stored as `enabled: null` / `currency: ""`; `settings.merge` can't delete keys, and `moneyFor` treats both as unset.
+- Every page that loads `dollars.js` must load `settings.js` first; `test/phase3-money.js` checks this.
+
 ## FEATURE — Phase 2: RewardKit (stars, levels, streaks, virtual gifts) · 2026-10-30
 - `js/rewardkit.js` wraps `Tracker.answer`/`Tracker.complete`, so no app changed. +1 per correct answer, +5 per complete (+5 at ≥90%), capped at 300/day. Pages load tracker → settings → rewardkit → dollars → kidbar (the test checks the order).
 - State is `kb_rewards`, per learner. A `kb_` key is skipped by tracker progress events and by kidbar's DollarBank re-check. The Hub reads it raw via `RewardKit.forKid(id)`.

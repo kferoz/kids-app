@@ -211,9 +211,9 @@
     DollarBank.sync();
     var t = DollarBank.totals(), apps = [];
     DollarBank.CHALLENGES.forEach(function (c) { if (apps.indexOf(c.app) < 0) apps.push(c.app); });
-    var html = '<div class="kb-bank"><div><b>$' + t.earned + '</b><small>earned</small></div><div><b>$' + t.owed +
-      '</b><small>to collect</small></div><div><b>$' + t.paid + '</b><small>in my hand</small></div></div>' +
-      '<p class="kb-note">💡 A grown-up hands over your dollars from Admin → 💵 Dollars.</p>';
+    var html = '<div class="kb-bank"><div><b>' + t.text.earned + '</b><small>earned</small></div><div><b>' + t.text.owed +
+      '</b><small>to collect</small></div><div><b>' + t.text.paid + '</b><small>in my hand</small></div></div>' +
+      '<p class="kb-note">💡 A grown-up hands over your money from Admin → 💰 Money.</p>';
     apps.forEach(function (a) {
       html += '<div class="kb-grp"><h4>' + KidBar.appEmoji(a) + " " + KidBar.appName(a) + "</h4>" + DollarBank.challengesFor(a).map(KidBar.chRow).join("") + "</div>";
     });
@@ -237,6 +237,12 @@
     };
     if (localStorage.getItem("rw_tickets") === null) localStorage.setItem("rw_tickets", "5"); // starter tickets
 
+    // Money switched off for this learner (Admin → 💰 Money): no bank tab.
+    var bankTab = el.tabBar.querySelector('[data-tab="dollars"]');
+    if (bankTab && window.DollarBank) {
+      if (DollarBank.on()) bankTab.textContent = "💵 " + DollarBank.bankName();
+      else bankTab.hidden = true;
+    }
     updateTicketBadge();
     buildLevel();
     buildProgress();

@@ -8,13 +8,15 @@
 
    money   enabled (on/off for this device), currency USD | INR,
            three reward levels with an amount per currency, and
-           per-learner overrides: perKid[id] = {enabled?, currency?}
+           per-learner overrides: perKid[id] = {enabled?, currency?},
+           levelOf[challengeId] = small | big | huge (a challenge with
+           no entry pays its own level, "big" by default)
    gifts   surprise gifts are virtual only (stickers, critters,
            avatar items, bonus tickets), capped per day
 
-   Phase 3's Admin page edits these and the Dollar Bank reads them.
-   Until then nothing reads them, so behaviour is unchanged
-   (existing $1 challenges = the "big" level = $1).
+   Admin → 💰 Money edits these; the Dollar Bank (js/dollars.js)
+   reads them; RewardKit reads gifts.perDay. With nothing changed,
+   every challenge pays the "big" level = $1, as before.
    ============================================================ */
 (function (root) {
   "use strict";
@@ -34,7 +36,8 @@
         { id: "big",   name: "Silver", emoji: "🥈", when: "Pass a test with 3 stars", amounts: { USD: 1, INR: 100 } },
         { id: "huge",  name: "Gold",   emoji: "🥇", when: "Finish a whole grade's course", amounts: { USD: 5, INR: 500 } }
       ],
-      perKid: {}
+      perKid: {},
+      levelOf: {}
     },
     gifts: { virtualOnly: true, perDay: 3 }
   };

@@ -10,8 +10,10 @@
    • 🎒  "My Pocket": this app's stickers + every sticker from every
          app, and the Dollar Bank (the $1 challenges here and what
          you've earned). data-pocket="off" hides it (Rewards Center).
-   • 💵  When a $1 challenge is won (DollarBank.sync finds a new
-         dollar), a big celebration pops up on whatever page it is.
+   • 💵  When a money challenge is won (DollarBank.sync finds a new
+         row), a big celebration pops up on whatever page it is.
+         Amounts and currency come from Admin → 💰 Money; with money
+         switched off for this learner the bank tab and badge hide.
    • ⭐  RewardKit (js/rewardkit.js): a star chip above the pocket, a
          Stars tab, and a level-up / streak / gift card that waits for
          the end of a lesson (or the next page) so it never interrupts
@@ -207,7 +209,7 @@
   function updateBadge() {
     if (!pocketBtn || !window.DollarBank) return;
     var t = DollarBank.totals();
-    pocketBtn.querySelector("b").textContent = t.earned ? "$" + t.earned : "";
+    pocketBtn.querySelector("b").textContent = DollarBank.on() && t.count ? t.text.earned : "";
   }
   function closeVeil() { if (veil) { veil.remove(); veil = null; } }
   function openPocket(tab) {
@@ -216,7 +218,8 @@
     var card = el("div", "kb-card");
     card.innerHTML = '<button class="kb-x" title="Close">✖</button><h3>🎒 My Pocket</h3>' +
       '<div class="kb-tabs">' + (window.RewardKit ? '<button data-t="stars">⭐ Stars</button>' : "") +
-      '<button data-t="stk">🎟️ Stickers</button><button data-t="bank">💵 Dollar Bank</button></div><div class="kb-body"></div>';
+      '<button data-t="stk">🎟️ Stickers</button>' + (window.DollarBank && DollarBank.on() ? '<button data-t="bank">💵 ' + DollarBank.bankName() + "</button>" : "") +
+      '</div><div class="kb-body"></div>';
     veil.appendChild(card); document.body.appendChild(veil);
     veil.addEventListener("click", function (e) { if (e.target === veil || e.target.closest(".kb-x")) closeVeil(); });
     card.querySelectorAll(".kb-tabs button").forEach(function (b) { b.addEventListener("click", function () { show(b.getAttribute("data-t")); }); });
@@ -318,12 +321,12 @@
   }
 
   function chRow(c) {
-    var p = c.progress, got = c.dollars > 0, bar = "", sub = "";
+    var p = c.progress, got = c.dollars > 0, bar = "", sub = "", amt = c.amountText || "$1";
     if (c.repeat) {
-      sub = got ? "You earned $" + c.dollars + " here so far! Keep going for more." : "Every time = $1";
-      if (p && c.every) { bar = '<div class="kb-bar"><i style="width:' + Math.round(100 * p.have / p.need) + '%"></i></div>'; sub += " · " + p.have + " of " + p.need + " " + esc(c.unit || "") + " toward the next $1"; }
+      sub = got ? "You earned " + c.earnedText + " here so far! Keep going for more." : "Every time = " + amt;
+      if (p && c.every) { bar = '<div class="kb-bar"><i style="width:' + Math.round(100 * p.have / p.need) + '%"></i></div>'; sub += " · " + p.have + " of " + p.need + " " + esc(c.unit || "") + " toward the next " + amt; }
     } else {
-      sub = got ? "Done! You earned $1 🎉" : "Not yet. You can do it!";
+      sub = got ? "Done! You earned " + (c.earnedText || amt) + " 🎉" : "Not yet. You can do it! · " + amt;
       if (!got && p && p.need > 1) bar = '<div class="kb-bar"><i style="width:' + Math.round(100 * p.have / p.need) + '%"></i></div>';
     }
     return '<div class="kb-ch' + (got && !c.repeat ? " got" : "") + '"><span class="kb-ic">' + (got && !c.repeat ? "✅" : "💵") + '</span><span class="kb-t">' + esc(c.title) + "<small>" + sub + "</small>" + bar + "</span></div>";
@@ -331,14 +334,14 @@
   function bankHtml() {
     if (!window.DollarBank) return "";
     var t = DollarBank.totals(), here = DollarBank.challengesFor(APP), html = "";
-    html += '<div class="kb-bank"><div><b>$' + t.earned + "</b><small>earned</small></div><div><b>$" + t.owed + "</b><small>to collect</small></div><div><b>$" + t.paid + "</b><small>in my hand</small></div></div>";
-    html += '<p class="kb-note">💡 Big, hard wins earn a <b>real dollar</b>! A grown-up hands it over from Admin → 💵 Dollars.</p>';
-    if (here.length) html += '<h4 style="margin:12px 4px 2px">' + appEmoji(APP) + " $1 challenges in " + esc(appName(APP)) + "</h4>" + here.map(chRow).join("");
-    else html += '<p class="kb-note">This one is just for fun, so there are no $1 challenges here. Try a learning app!</p>';
-    var L = DollarBank.ledger().slice().reverse();
+    html += '<div class="kb-bank"><div><b>' + t.text.earned + "</b><small>earned</small></div><div><b>" + t.text.owed + "</b><small>to collect</small></div><div><b>" + t.text.paid + "</b><small>in my hand</small></div></div>";
+    html += '<p class="kb-note">💡 Big, hard wins earn <b>real money</b>! A grown-up hands it over from Admin → 💰 Money.</p>';
+    if (here.length) html += '<h4 style="margin:12px 4px 2px">' + appEmoji(APP) + " Money challenges in " + esc(appName(APP)) + "</h4>" + here.map(chRow).join("");
+    else html += '<p class="kb-note">This one is just for fun, so there are no money challenges here. Try a learning app!</p>';
+    var L = DollarBank.ledger().filter(function (e) { return !e.off; }).reverse();
     if (L.length) {
-      html += '<h4 style="margin:12px 4px 2px">🏦 My dollars</h4>' + L.map(function (e) {
-        return '<div class="kb-ch got"><span class="kb-ic">' + (e.paid ? "🤑" : "💵") + '</span><span class="kb-t">$' + (e.amt || 1) + " · " + esc(e.title) +
+      html += '<h4 style="margin:12px 4px 2px">🏦 My money</h4>' + L.map(function (e) {
+        return '<div class="kb-ch got"><span class="kb-ic">' + (e.paid ? "🤑" : "💵") + '</span><span class="kb-t">' + DollarBank.sumText([e]) + " · " + esc(e.title) +
           "<small>" + appEmoji(e.app) + " " + esc(appName(e.app)) + " · " + new Date(e.ts).toLocaleDateString() + (e.paid ? " · in your hand ✓" : " · ask a grown-up!") + "</small></span></div>";
       }).join("");
     }
@@ -359,20 +362,32 @@
   function say(t) {
     try { var u = new SpeechSynthesisUtterance(t); u.lang = "en-US"; u.rate = 1; u.pitch = 1.15; speechSynthesis.speak(u); } catch (e) {}
   }
+  // "one whole dollar", "25 cents", "100 rupees" for the read-aloud cheer.
+  function spoken(rows) {
+    var curs = {}, v = 0;
+    rows.forEach(function (e) { curs[e.cur || "USD"] = 1; v += e.amt == null ? 1 : e.amt; });
+    var c = Object.keys(curs);
+    if (c.length !== 1) return "real money";
+    v = Math.round(v * 100) / 100;
+    if (c[0] === "INR") return v + (v === 1 ? " rupee" : " rupees");
+    if (v < 1) return Math.round(v * 100) + " cents";
+    return v === 1 ? "one whole dollar" : v + " dollars";
+  }
   function party() {
     if (partyOpen || !window.DollarBank) return;
-    var news = DollarBank.ledger().filter(function (e) { return !e.seen; });
+    var news = DollarBank.ledger().filter(function (e) { return !e.seen && !e.off; });
     if (!news.length) return;
+    if (!DollarBank.on()) return DollarBank.markSeen(news.map(function (e) { return e.id; }));
     partyOpen = true; closeVeil();
-    var sum = news.reduce(function (a, e) { return a + (e.amt || 1); }, 0);
+    var sum = DollarBank.sumText(news);
     veil = el("div", "kb-veil");
     var card = el("div", "kb-card kb-party");
     var JOKES = ["Cha-ching! 🤑", "Money, money, honey! 🍯", "You're rich! Well… a little bit rich! 😄", "Ka-boom! That was a BIG win!"];
-    card.innerHTML = '<div class="kb-big">💵</div><h2>+$' + sum + "!</h2><p><b>" + JOKES[Math.floor(Math.random() * JOKES.length)] + "</b><br>That was really hard, and you did it. You earned a <b>real " + (sum > 1 ? "$" + sum : "dollar") + "</b>!</p>" +
+    card.innerHTML = '<div class="kb-big">💵</div><h2>+' + sum + "!</h2><p><b>" + JOKES[Math.floor(Math.random() * JOKES.length)] + "</b><br>That was really hard, and you did it. You earned <b>" + sum + " of real money</b>!</p>" +
       "<ul>" + news.map(function (e) { return "<li>" + appEmoji(e.app) + " " + esc(e.title) + "</li>"; }).join("") + "</ul>" +
-      "<p>🏦 It's saved in your Dollar Bank. Show a grown-up!</p><button class=\"kb-ok\">Yay! 🎉</button>";
+      "<p>🏦 It's saved in your " + DollarBank.bankName() + ". Show a grown-up!</p><button class=\"kb-ok\">Yay! 🎉</button>";
     veil.appendChild(card); document.body.appendChild(veil); rain();
-    say("Wow! You earned " + (sum > 1 ? sum + " dollars" : "one whole dollar") + "! " + news[0].title + ". That was really hard, and you did it! Show a grown-up!");
+    say("Wow! You earned " + spoken(news) + "! " + news[0].title + ". That was really hard, and you did it! Show a grown-up!");
     try { window.Tracker && Tracker.log("reward", "dollar", { amount: sum, items: news.map(function (e) { return e.id; }) }); } catch (e) {}
     card.querySelector(".kb-ok").addEventListener("click", function () {
       DollarBank.markSeen(news.map(function (e) { return e.id; }));

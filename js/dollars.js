@@ -10,7 +10,16 @@
    (trophies, lesson lists…), so no app has to call anything.
    A dollar earned is written once to the learner's ledger:
 
-     kb_dollars = [{ id, ch, app, title, amt, ts, seen, paid }]   (ch = challenge id)
+     kb_dollars = [{ id, ch, app, title, lv, amt, cur, ts, seen, paid, off }]   (ch = challenge id)
+
+   Money follows the grown-up settings (js/settings.js, Admin → 💰 Money):
+   each challenge pays one reward level (small/big/huge = Bronze/Silver/
+   Gold; "big" unless Admin picks another), in the learner's currency
+   (USD | INR). A row keeps the amount and currency it was earned at,
+   so changing settings never rewrites past money. Old rows without
+   `cur` are USD. With money switched off (device or learner) a win is
+   still written, as `off` with amt 0, so switching it back on later
+   does not back-pay.
 
    `seen` = the child saw the celebration (js/kidbar.js shows it).
    `paid` = a grown-up handed over the dollar (Admin → 💵 Dollars).
@@ -161,32 +170,78 @@
 
   function ledger(g) { return arr((g || localGetter)(LEDGER)); }
 
+  /* ---------- money settings (HubSettings) ---------- */
+  // Which learner a getter belongs to: forKid() getters carry .kid; otherwise this page's learner.
+  function kidOf(g) {
+    if (g && g.kid != null) return g.kid;
+    try { return (window.ProfileStore ? ProfileStore.rawGet("hub_activeKid") : localStorage.getItem("hub_activeKid")) || ""; } catch (e) { return ""; }
+  }
+  var HS = function () { return window.HubSettings || null; };
+  function money(kid) {
+    return HS() ? HS().moneyFor(kid) : { enabled: true, currency: "USD", levels: [{ id: "big", amounts: { USD: 1, INR: 100 } }] };
+  }
+  function on(kid) { return money(kid == null ? kidOf() : kid).enabled; }
+  // The reward level a challenge pays: Admin's choice, else the challenge's own, else Silver ("big").
+  function levelOf(c) {
+    var pick = HS() ? HS().get().money.levelOf : null;
+    return (pick && pick[c.id]) || c.lv || "big";
+  }
+  function amountOf(lv, kid) {
+    var m = money(kid), L = m.levels.filter(function (l) { return l.id === lv; })[0];
+    return { value: L ? Number(L.amounts[m.currency]) || 0 : 0, cur: m.currency };
+  }
+  function fmt(value, cur) {
+    cur = cur || "USD";
+    if (HS()) return HS().format(value, cur);
+    return (cur === "INR" ? "₹" : "$") + (Math.round(value) === value ? value : value.toFixed(2));
+  }
+  // Rows → "$3" or "$1 + ₹200" (a family that switched currency).
+  function sumText(rows) {
+    var by = {}, order = [];
+    rows.forEach(function (e) { if (e.off) return; var c = e.cur || "USD"; if (!(c in by)) { by[c] = 0; order.push(c); } by[c] += e.amt == null ? 1 : e.amt; });
+    if (!order.length) return fmt(0, money(kidOf()).currency);
+    return order.map(function (c) { return fmt(Math.round(by[c] * 100) / 100, c); }).join(" + ");
+  }
+  function bankName(kid) { return money(kid == null ? kidOf() : kid).currency === "INR" ? "Rupee Bank" : "Dollar Bank"; }
+
   // Every dollar this learner has earned, by the challenges' rules.
   function earnedNow(g) {
     var out = [];
     CHALLENGES.forEach(function (c) {
       var items = []; try { items = c.items(g); } catch (e) {}
-      items.forEach(function (it) { out.push({ id: it.id, ch: c.id, app: c.app, title: it.title, amt: it.amt || 1, quiet: !!c.quiet }); });
+      items.forEach(function (it) { out.push({ id: it.id, ch: c.id, app: c.app, title: it.title, lv: levelOf(c), times: it.amt || 1, quiet: !!c.quiet }); });
     });
     return out;
   }
   // Add any newly earned dollars to the ledger. Returns the new entries.
   function sync(g, s) {
     g = g || localGetter; s = s || localSetter;
-    var L = ledger(g), ids = {}, fresh = [];
+    var L = ledger(g), ids = {}, fresh = [], kid = kidOf(g), live = on(kid);
     L.forEach(function (e) { ids[e.id] = 1; });
     earnedNow(g).forEach(function (e) {
       if (ids[e.id]) return;
-      var row = { id: e.id, ch: e.ch, app: e.app, title: e.title, amt: e.amt, ts: Date.now(), seen: e.quiet, paid: 0 };
+      // `times` = how many of the level's amount (Reading Adventures sets its own count)
+      var a = amountOf(e.lv, kid);
+      var row = { id: e.id, ch: e.ch, app: e.app, title: e.title, lv: e.lv, amt: live ? Math.round(a.value * e.times * 100) / 100 : 0, cur: a.cur,
+                  ts: Date.now(), seen: live ? e.quiet : true, paid: 0 };
+      if (!live) row.off = true;
       L.push(row); fresh.push(row); ids[e.id] = 1;
     });
     if (fresh.length) s(LEDGER, L);
     return fresh;
   }
+  // earned / paid / owed: numbers for the learner's current currency; text: every currency ("$3 + ₹200").
   function totals(g) {
-    var t = { earned: 0, paid: 0, owed: 0, count: 0 };
-    ledger(g).forEach(function (e) { t.earned += e.amt || 1; t.count++; if (e.paid) t.paid += e.amt || 1; });
-    t.owed = t.earned - t.paid;
+    var cur = money(kidOf(g)).currency, L = ledger(g).filter(function (e) { return !e.off; });
+    var t = { earned: 0, paid: 0, owed: 0, count: L.length, cur: cur };
+    L.forEach(function (e) {
+      if ((e.cur || "USD") !== cur) return;
+      var a = e.amt == null ? 1 : e.amt; t.earned += a; if (e.paid) t.paid += a;
+    });
+    t.owed = Math.round((t.earned - t.paid) * 100) / 100;
+    var unpaid = L.filter(function (e) { return !e.paid; }), paid = L.filter(function (e) { return e.paid; });
+    t.text = { earned: sumText(L), paid: sumText(paid), owed: sumText(unpaid) };
+    t.owedCount = unpaid.length;
     return t;
   }
   function markSeen(ids, g, s) {
@@ -194,16 +249,19 @@
     var L = ledger(g); L.forEach(function (e) { if (!ids || ids.indexOf(e.id) >= 0) e.seen = true; }); s(LEDGER, L);
   }
   function setPaid(id, paid, g, s) {
-    var L = ledger(g); L.forEach(function (e) { if (id === "*" ? !e.paid : e.id === id) e.paid = paid ? Date.now() : 0; }); s(LEDGER, L);
+    var L = ledger(g); L.forEach(function (e) { if (id === "*" ? !e.paid && !e.off : e.id === id) e.paid = paid ? Date.now() : 0; }); s(LEDGER, L);
   }
   // Challenges for one app, with where the learner stands.
   function challengesFor(app, g) {
     g = g || localGetter;
+    var kid = kidOf(g);
     return CHALLENGES.filter(function (c) { return c.app === app; }).map(function (c) {
-      var got = ledger(g).filter(function (e) { return e.ch === c.id; });
+      var got = ledger(g).filter(function (e) { return e.ch === c.id && !e.off; });
       var p = null; try { p = c.progress ? c.progress(g) : null; } catch (e) {}
+      var lv = levelOf(c), a = amountOf(lv, kid);
       return { id: c.id, title: c.title, every: c.every, unit: c.unit, repeat: !!(c.every || c.app === "readrocket" || c.quiet),
-        dollars: got.reduce(function (a, e) { return a + (e.amt || 1); }, 0), progress: p, done: got.length > 0 };
+        lv: lv, amountText: fmt(a.value, a.cur), earnedText: sumText(got),
+        dollars: got.length, progress: p, done: got.length > 0 };
     });
   }
 
@@ -232,15 +290,15 @@
     CHALLENGES: CHALLENGES, LEDGER: LEDGER,
     sync: sync, totals: totals, ledger: ledger, markSeen: markSeen, setPaid: setPaid,
     challengesFor: challengesFor, earnedNow: earnedNow,
+    on: on, levelOf: levelOf, amountOf: amountOf, fmt: fmt, sumText: sumText, bankName: bankName,
     // getter/setter pair for another learner's raw keys (Admin): id "" = guest
     forKid: function (id) {
       var ns = id ? "k" + id + "::" : "";
       var raw = window.ProfileStore ? ProfileStore.rawGet : function (k) { return localStorage.getItem(k); };
       var rawSet = window.ProfileStore ? ProfileStore.rawSet : function (k, v) { localStorage.setItem(k, v); };
-      return {
-        g: function (k) { try { var v = raw(ns + k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } },
-        s: function (k, v) { try { rawSet(ns + k, JSON.stringify(v)); } catch (e) {} }
-      };
+      var g = function (k) { try { var v = raw(ns + k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } };
+      g.kid = id || "";   // so sync/totals use this learner's money settings
+      return { id: id || "", g: g, s: function (k, v) { try { rawSet(ns + k, JSON.stringify(v)); } catch (e) {} } };
     }
   };
 })();

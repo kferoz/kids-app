@@ -6,7 +6,7 @@
    saved progress (localStorage, namespaced k<id>::key).
 
    Tabs:  Overview · Students · Progress · Suggestions · Forecast ·
-          Activity Log (audit) · Data
+          Activity Log (audit) · Money (settings + who is owed) · Data
    Every grown-up action here is itself logged (type "admin").
    ============================================================ */
 (function () {
@@ -202,7 +202,7 @@
   var TABS = [
     { id: "overview", label: "📊 Overview" }, { id: "students", label: "👧 Students" },
     { id: "progress", label: "📈 Progress" }, { id: "suggest", label: "💡 Suggestions" },
-    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💵 Dollars" }, { id: "data", label: "💾 Data" }
+    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "data", label: "💾 Data" }
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.innerHTML = "";
@@ -329,27 +329,29 @@
   }
 
   /* ---------- Students ---------- */
-  /* ---------- 💵 Dollar Bank: real $1 rewards for really hard wins (js/dollars.js) ---------- */
+  /* ---------- 💰 Money: settings (js/settings.js) + the Dollar Bank ledgers (js/dollars.js) ---------- */
   function renderDollars(host) {
-    var B = window.DollarBank; if (!B) return;
+    var B = window.DollarBank, H = window.HubSettings; if (!B) return;
+    if (H) renderMoneySettings(host, B, H);
     var who = DB.kids().map(function (k) { return { id: k.id, label: k.avatar + " " + k.name }; });
     var guest = B.forKid("");
     if (B.ledger(guest.g).length || B.earnedNow(guest.g).length) who.push({ id: "", label: "👤 Guest (nobody logged in)" });
-    if (!who.length) section(host, "💵 Dollars", '<span class="muted">No students yet.</span>');
+    if (!who.length) section(host, "💵 Money earned", '<span class="muted">No students yet.</span>');
     who.forEach(function (w) {
       var io = B.forKid(w.id); B.sync(io.g, io.s);
-      var t = B.totals(io.g), L = B.ledger(io.g).slice().reverse();
-      var sec = section(host, esc(w.label) + " · $" + t.earned + " earned",
-        "<b>$" + t.owed + "</b> still to hand over · $" + t.paid + " already paid");
-      if (!L.length) { sec.insertAdjacentHTML("beforeend", '<p class="muted">No dollars yet. The $1 challenges are listed below.</p>'); return; }
+      var t = B.totals(io.g), L = B.ledger(io.g).slice().reverse(), off = H && !H.moneyFor(w.id).enabled;
+      var sec = section(host, esc(w.label) + " · " + t.text.earned + " earned" + (off ? ' <span class="pill">money off</span>' : ""),
+        "<b>" + t.text.owed + "</b> still to hand over · " + t.text.paid + " already paid");
+      if (!L.length) { sec.insertAdjacentHTML("beforeend", '<p class="muted">Nothing earned yet. The challenges are listed below.</p>'); return; }
       var rows = L.map(function (e) {
         var a = appById(e.app);
-        return "<tr><td>" + shortDate(e.ts) + "</td><td>" + a.emoji + " " + esc(a.name) + "</td><td>" + esc(e.title) + "</td><td><b>$" + (e.amt || 1) + "</b></td><td>" +
-          (e.paid ? '✅ paid ' + shortDate(e.paid) + ' <button class="btn small" data-unpay="' + esc(e.id) + '">undo</button>'
+        return "<tr" + (e.off ? ' class="muted"' : "") + "><td>" + shortDate(e.ts) + "</td><td>" + a.emoji + " " + esc(a.name) + "</td><td>" + esc(e.title) + "</td><td><b>" +
+          (e.off ? "—" : esc(B.sumText([e]))) + "</b></td><td>" +
+          (e.off ? "money was off" : e.paid ? '✅ paid ' + shortDate(e.paid) + ' <button class="btn small" data-unpay="' + esc(e.id) + '">undo</button>'
                   : '<button class="btn small primary" data-pay="' + esc(e.id) + '">Mark paid</button>') + "</td></tr>";
       }).join("");
-      sec.insertAdjacentHTML("beforeend", (t.owed ? '<p><button class="btn primary" data-payall="1">✅ Mark all $' + t.owed + ' as paid</button></p>' : "") +
-        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>App</th><th>Challenge</th><th>$</th><th>Paid?</th></tr></thead><tbody>' + rows + "</tbody></table></div>");
+      sec.insertAdjacentHTML("beforeend", (t.owedCount ? '<p><button class="btn primary" data-payall="1">✅ Mark all ' + esc(t.text.owed) + ' as paid</button></p>' : "") +
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>App</th><th>Challenge</th><th>Amount</th><th>Paid?</th></tr></thead><tbody>' + rows + "</tbody></table></div>");
       sec.addEventListener("click", function (ev) {
         var b = ev.target.closest("button"); if (!b) return;
         var id = b.getAttribute("data-pay") || b.getAttribute("data-unpay") || (b.getAttribute("data-payall") ? "*" : null);
@@ -359,12 +361,103 @@
         renderTab();
       });
     });
-    var rules = section(host, "How kids earn a dollar", "Only big, hard wins pay: a whole phase, a Phase Check, a no-mistake run. Everyday wins still earn points and stickers. Reading Adventures keeps its own PIN-protected rule; its dollars show up here too.");
-    var byApp = {};
-    B.CHALLENGES.forEach(function (c) { (byApp[c.app] = byApp[c.app] || []).push(c.every ? c.title + " (each time)" : c.title); });
-    rules.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><tbody>' + Object.keys(byApp).map(function (a) {
-      var ap = appById(a); return "<tr><td>" + ap.emoji + " " + esc(ap.name) + "</td><td>" + byApp[a].map(esc).join(" · ") + "</td></tr>";
-    }).join("") + "</tbody></table></div>");
+    renderChallengeLevels(host, B, H);
+  }
+
+  // Device switch, currency, the three reward levels, per-learner overrides and surprise gifts per day.
+  function renderMoneySettings(host, B, H) {
+    var st = H.get(), m = st.money, CUR = H.CURRENCIES;
+    var sec = section(host, "💰 Money settings",
+      "Real money is only for big, hard wins. Every challenge pays one of three levels. Changes save at once and apply to wins from now on; money already earned keeps its amount.");
+    var curOpts = function (sel, withDefault) {
+      return (withDefault ? '<option value=""' + (!sel ? " selected" : "") + ">Same as device</option>" : "") +
+        Object.keys(CUR).map(function (c) { return '<option value="' + c + '"' + (sel === c ? " selected" : "") + ">" + CUR[c].symbol + " " + CUR[c].name + "</option>"; }).join("");
+    };
+    var html =
+      '<div class="money-row"><label class="switch-row"><input type="checkbox" id="mOn"' + (m.enabled ? " checked" : "") + "> Money rewards on this device</label>" +
+      '<label class="sel">Currency <select id="mCur">' + curOpts(m.currency) + "</select></label></div>" +
+      '<div class="tbl-wrap"><table class="tbl money-levels"><thead><tr><th>Level</th><th>Meant for</th><th>US $</th><th>Rupees ₹</th></tr></thead><tbody>' +
+      m.levels.map(function (l, i) {
+        return "<tr><td>" + l.emoji + " <b>" + esc(l.name) + "</b></td><td>" + esc(l.when) + "</td>" +
+          '<td><input class="num" type="number" min="0" max="1000" step="0.25" data-lv="' + i + '" data-cur="USD" value="' + l.amounts.USD + '" aria-label="' + esc(l.name) + ' in US dollars"></td>' +
+          '<td><input class="num" type="number" min="0" max="100000" step="1" data-lv="' + i + '" data-cur="INR" value="' + l.amounts.INR + '" aria-label="' + esc(l.name) + ' in rupees"></td></tr>';
+      }).join("") + "</tbody></table></div>";
+    var kids = DB.kids();
+    if (kids.length) {
+      html += '<h4 class="money-h">Each learner</h4><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Learner</th><th>Money</th><th>Currency</th></tr></thead><tbody>' +
+        kids.map(function (k) {
+          var own = m.perKid[k.id] || {}, en = own.enabled === false ? "off" : own.enabled === true ? "on" : "";
+          return "<tr><td>" + k.avatar + " " + esc(k.name) + "</td>" +
+            '<td><select data-kid="' + k.id + '" data-f="enabled"><option value=""' + (en === "" ? " selected" : "") + ">Same as device</option>" +
+              '<option value="on"' + (en === "on" ? " selected" : "") + '>On</option><option value="off"' + (en === "off" ? " selected" : "") + ">Off</option></select></td>" +
+            '<td><select data-kid="' + k.id + '" data-f="currency">' + curOpts(own.currency || "", true) + "</select></td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        '<p class="muted small-note">A learner is paid only when the device switch AND their own setting are on.</p>';
+    }
+    html += '<h4 class="money-h">🎁 Surprise gifts</h4><label class="sel">Surprise gifts per day <input class="num" type="number" min="0" max="10" step="1" id="gPerDay" value="' + st.gifts.perDay + '"></label>' +
+      '<p class="muted small-note">Gifts are always virtual: stickers, critters, dress-up items and Prize Wheel tickets. Level-ups and streaks give one too.</p>' +
+      '<p><button class="btn" id="mReset">↺ Reset money settings to defaults</button></p>';
+    sec.insertAdjacentHTML("beforeend", html);
+
+    function saved(what, patch) { H.set(patch); audit("money_settings", { what: what, patch: patch }); toast("Saved"); }
+    sec.querySelector("#mOn").addEventListener("change", function (e) { saved("enabled", { money: { enabled: e.target.checked } }); renderTab(); });
+    sec.querySelector("#mCur").addEventListener("change", function (e) { saved("currency", { money: { currency: e.target.value } }); renderTab(); });
+    sec.querySelectorAll("input[data-lv]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var v = Math.round(Math.max(0, Math.min(+inp.max, parseFloat(inp.value) || 0)) * 100) / 100, levels = H.get().money.levels;
+        inp.value = v;
+        levels[+inp.getAttribute("data-lv")].amounts[inp.getAttribute("data-cur")] = v;
+        saved("levels", { money: { levels: levels } });
+      });
+    });
+    sec.querySelectorAll("select[data-kid]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var f = sel.getAttribute("data-f"), v = sel.value, one = {};
+        one[f] = f === "enabled" ? (v === "on" ? true : v === "off" ? false : null) : v;   // null / "" = same as device
+        var pk = {}; pk[sel.getAttribute("data-kid")] = one;
+        saved("perKid", { money: { perKid: pk } }); renderTab();
+      });
+    });
+    sec.querySelector("#gPerDay").addEventListener("change", function (e) {
+      var v = Math.max(0, Math.min(10, Math.round(+e.target.value || 0))); e.target.value = v;
+      saved("gifts", { gifts: { perDay: v } });
+    });
+    sec.querySelector("#mReset").addEventListener("click", function () {
+      if (!confirm("Reset currency, amounts, learner switches and challenge levels to the defaults?")) return;
+      var cur = H.get();
+      H.reset(); H.set({ gifts: cur.gifts });   // keep the gifts setting
+      audit("money_settings", { what: "reset" }); toast("Money settings reset"); renderTab();
+    });
+  }
+
+  // Which level each challenge pays (Silver unless changed here).
+  function renderChallengeLevels(host, B, H) {
+    var rules = section(host, "Which challenges pay what",
+      "Only big, hard wins pay: a whole phase, a Phase Check, a no-mistake run. Everyday wins still earn stars and stickers. Reading Adventures keeps its own PIN-protected rule (its count × the Silver amount).");
+    var m = H ? H.get().money : null, byApp = {};
+    B.CHALLENGES.forEach(function (c) { (byApp[c.app] = byApp[c.app] || []).push(c); });
+    function lvSelect(c) {
+      if (!m) return "$1";
+      var cur = B.levelOf(c);
+      return '<select data-ch="' + esc(c.id) + '" aria-label="Level for ' + esc(c.title) + '">' + m.levels.map(function (l) {
+        return '<option value="' + l.id + '"' + (l.id === cur ? " selected" : "") + ">" + l.emoji + " " + esc(l.name) + " · " + H.format(l.amounts[m.currency], m.currency) + "</option>";
+      }).join("") + "</select>";
+    }
+    rules.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>App</th><th>Challenge</th><th>Pays</th></tr></thead><tbody>' +
+      Object.keys(byApp).map(function (a) {
+        var ap = appById(a);
+        return byApp[a].map(function (c, i) {
+          return "<tr><td>" + (i ? "" : ap.emoji + " " + esc(ap.name)) + "</td><td>" + esc(c.title) + (c.every ? " <span class=\"pill\">each time</span>" : "") + "</td><td>" + lvSelect(c) + "</td></tr>";
+        }).join("");
+      }).join("") + "</tbody></table></div>");
+    rules.querySelectorAll("select[data-ch]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var lv = {}; lv[sel.getAttribute("data-ch")] = sel.value;
+        H.set({ money: { levelOf: lv } });
+        audit("money_settings", { what: "challenge_level", id: sel.getAttribute("data-ch"), level: sel.value });
+        toast("Saved");
+      });
+    });
   }
 
   function renderStudents(host) {

@@ -125,3 +125,4 @@ body {
 .rw-panel .kb-grp { margin: 10px 0; }
 .rk-panel { margin-bottom: 16px; }
 .rk-panel[hidden] { display: none; }
+.tab[hidden] { display: none; }

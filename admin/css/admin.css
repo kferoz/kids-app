@@ -242,3 +242,14 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
 /* Grown-up gate: comfortable taps on phones and tablets */
 .gate-card .btn { min-height: 44px; justify-content: center; }
 .gate-card .back { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- 💰 Money settings (renderMoneySettings / renderChallengeLevels in admin.js) ---------- */
+.money-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; margin-bottom: 12px; }
+.switch-row { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; min-height: 44px; cursor: pointer; }
+.switch-row input { width: 20px; height: 20px; accent-color: var(--accent); }
+input.num { width: 7.5em; min-height: 38px; padding: 4px 8px; font: inherit; text-align: right; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink); }
+.money-h { margin: 16px 0 6px; font-size: 0.95rem; }
+.small-note { font-size: 0.8rem; margin: 6px 0; }
+.tbl select { min-height: 36px; font: inherit; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 2px 6px; }
+tr.muted td { color: var(--ink-muted); }
+@media (max-width: 520px) { input.num { width: 5.2em; } .money-levels td:nth-child(2), .money-levels th:nth-child(2) { display: none; } }
