@@ -258,8 +258,8 @@ body {
 .kc-grade { font-size: 0.78rem; font-weight: 600; color: #7a76a0; }
 .kid-del {
   position: absolute;
-  top: -6px; right: -6px;
-  width: 26px; height: 26px;
+  top: -10px; right: -10px;
+  width: 36px; height: 36px; font-size: 1rem;
   border: none;
   border-radius: 50%;
   background: #ff6f91;
@@ -488,7 +488,18 @@ body {
 .voice-card .login-mascot, .voice-card .login-h, .voice-card .login-sub { text-align: center; }
 .voice-select { appearance: auto; cursor: pointer; }
 .voice-range { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; margin-bottom: 8px; }
-.voice-range input { flex: 1; accent-color: var(--purple); height: 28px; }
+.voice-range input { flex: 1; accent-color: var(--purple); height: 44px; }
 .voice-note { font-size: 0.85rem; color: #7a76a0; margin: 4px 0 8px; }
 .voice-actions { flex-wrap: wrap; gap: 10px; }
 .new-label b { font-weight: 600; color: #7a76a0; }
+
+/* ---------- Readability on the pastel background (cross-device QA, 2026-10-29) ----------
+   White text on the light gradient was about 1.5:1. Ink is about 10:1 and keeps the look. */
+.hub-subtitle, .kid-text, .zone-title, .tile { color: var(--ink); }
+.hub-subtitle, .kid-text, .tile-name { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7); }
+.zone-title { text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7); flex-wrap: wrap; row-gap: 6px; line-height: 1.15; }
+.kid-grade, .zone-age { background: rgba(255, 255, 255, 0.85); color: var(--ink); }
+.kid-grade { font-size: 0.75em; }
+.tile-grade { font-size: 0.75rem; }
+.admin-link { min-height: 44px; }
+.remove-kid { color: #c92a4a; }

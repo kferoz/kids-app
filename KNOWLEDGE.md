@@ -1,3 +1,19 @@
+## BUG-FIX — Cross-device QA: offline fonts, local photos, contrast, tap targets · 2026-10-29
+- Hub + 19 apps loaded Google Fonts; now `fonts/fonts.css` + `fonts/files/*.woff2` (latin, latin-ext, arabic subsets only).
+- Pirate Math injects `@import` in a `<style>`; its path resolves from piratemath/index.html, so `../../fonts/fonts.css`.
+- Bill of Rights photos now in `billofrights/img/`; two are CC (BY-SA 2.5, BY 2.0) and credits must name author+license.
+- White text on the pastel Hub gradient was ~1.5:1; ink overrides live in a labeled block at end of `css/dashboard.css`.
+- Learner ✕ removed instantly; now `confirmRemove()` in `js/hub.js` asks first, Keep focused. Kept at 36px deliberately.
+- Playwright full-page shots lose `background-attachment: fixed` below the fold; check real scrolling before calling it a bug.
+
+## FINDING — Tamil (ta-IN) speech on Windows · 2026-10-29
+- Windows offers `Language.TextToSpeech~~~ta-IN~0.0.1.0`; install with `dism /Online /Add-Capability` (admin), no display-language change.
+- It adds OneCore voice "Microsoft Valluvar - Tamil (India)"; Chromium lists it as `ta-IN`, `localService: true`.
+- Chrome on Windows uses OneCore voices (names lack "Desktop"), so OneCore-only installs work without registry tricks.
+- PowerShell 7 `Get-WindowsCapability` fails "Class not registered"; use `dism.exe /Get-Capabilities` instead.
+- Offline WAV from a voice: WinRT `SpeechSynthesizer.SynthesizeTextToStreamAsync` in Windows PowerShell 5.1.
+- Android APK uses the native bridge TTS; Tamil there needs Google TTS Tamil data on the tablet (unverified).
+
 ## FEATURE — Phase 0: PreK–5 grades, subject catalog, Hub settings · 2026-10-29
 - Grades pk, kg, g1–g5 (`KidsDB.GRADE_ORDER`). Apps only know "kg"/"g3", so each grade has a `band` (pk→kg, g1–g5→g3); use `KidsDB.band()` wherever code asks "KG or G3?". Profiles keep the real grade.
 - Apps that read `hub_kids` raw (Arabic Oasis, Reading Adventures `src/base.html` → `node build.js`) carry their own small grade→band map; keep them in step with KidsDB.

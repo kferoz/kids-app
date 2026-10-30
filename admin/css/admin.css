@@ -238,3 +238,7 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
   .stat-value { font-size: 1.3rem; }
   .top .sub { display: none; }
 }
+
+/* Grown-up gate: comfortable taps on phones and tablets */
+.gate-card .btn { min-height: 44px; justify-content: center; }
+.gate-card .back { display: inline-flex; align-items: center; min-height: 44px; }

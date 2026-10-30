@@ -212,7 +212,8 @@ const ICONS = {
 };
 
 /* ============================= PHOTOS (with safe illustrated fallback) =============
-   Real public-domain photos from Wikimedia Commons. If a photo can't load for any
+   Photos from Wikimedia Commons, saved in img/ so nothing loads from outside (credits
+   name each author and license). If a photo can't load for any
    reason (offline, blocked network, etc.) the onerror handler swaps in the matching
    hand-drawn illustration instead, so the page never shows a broken-image icon. */
 let photoFallbackCounter = 0;
@@ -237,9 +238,9 @@ const SLIDES = [
     speak:"Hi there, reading explorer! I'm Ms. Compass. Today we're going to figure out one big question: why do we have the Bill of Rights? Let's read like detectives and find out!",
     body:`<div class="media-row">
       ${photoBlock(
-        'https://commons.wikimedia.org/wiki/Special:FilePath/Independence_Hall.jpg?width=700',
+        'img/independence-hall.jpg',
         'Independence Hall in Philadelphia, where the Constitution was written',
-        'Independence Hall, Philadelphia — Wikimedia Commons',
+        'Independence Hall, Philadelphia — Rdsmith4, CC BY-SA 2.5, Wikimedia Commons',
         'scroll'
       )}
       <div class="text-col">
@@ -278,7 +279,7 @@ const SLIDES = [
     speak:"A long time ago, some leaders called delegates wrote a plan for how America's new government would work. They called their plan the Constitution. It wasn't very long, but it was full of big ideas. The biggest idea was this: the people are in charge. People vote to choose their leaders, and those leaders run the government for the people.",
     body:`<div class="media-row">
       ${photoBlock(
-        'https://commons.wikimedia.org/wiki/Special:FilePath/Scene_at_the_Signing_of_the_Constitution_of_the_United_States.jpg?width=700',
+        'img/signing-constitution.jpg',
         'Painting of delegates signing the United States Constitution',
         '"Scene at the Signing of the Constitution," Howard Chandler Christy — Wikimedia Commons (public domain)',
         'scroll'
@@ -295,9 +296,9 @@ const SLIDES = [
     speak:"Not everyone agreed on everything! The author uses compare and contrast here. Some delegates wanted just one person to run the government. Others thought a group of people should be in charge instead. They did agree on one thing: a group should make the laws. But they disagreed about how to pick these leaders.",
     body:`<div class="media-row">
       ${photoBlock(
-        'https://commons.wikimedia.org/wiki/Special:FilePath/Assembly_Room%2C_Independence_Hall%2C_Philadelphia.jpg?width=700',
+        'img/assembly-room.jpg',
         'The Assembly Room in Independence Hall where delegates debated',
-        'Assembly Room, Independence Hall — Wikimedia Commons',
+        'Assembly Room, Independence Hall — Xiquinho Silva, CC BY 2.0, Wikimedia Commons',
         'debate'
       )}
       <div class="text-col">
@@ -316,7 +317,7 @@ const SLIDES = [
     speak:"Now here's the big one. The delegates met for four months to plan the Constitution. Most of them thought it was a great plan. But some delegates refused to sign it! Why? Because they wanted to make sure the government would also protect people's rights. A right is something you are allowed to have or do, like the right to speak freely. So, because of that, in 1791 Congress changed the Constitution and added new rules to protect people's rights. Those new rules are called the Bill of Rights!",
     body:`<div class="media-row">
       ${photoBlock(
-        'https://commons.wikimedia.org/wiki/Special:FilePath/Bill_of_Rights_Pg1of1_AC.jpg?width=700',
+        'img/bill-of-rights.jpg',
         'The original Bill of Rights document',
         'Bill of Rights, page 1 — U.S. National Archives / Wikimedia Commons (public domain)',
         'scroll'

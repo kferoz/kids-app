@@ -155,9 +155,9 @@
     ".kb-pocket b:empty{display:none}" +
     ".kb-veil{position:fixed;inset:0;z-index:10000;background:rgba(20,16,40,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:'Fredoka','Baloo 2',system-ui,sans-serif}" +
     ".kb-card{background:#fffdf7;color:#2b2540;border-radius:24px;width:min(540px,100%);max-height:88vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.35);padding:16px 16px 20px;position:relative}" +
-    ".kb-x{position:absolute;right:10px;top:10px;width:40px;height:40px;border-radius:50%;border:0;background:#f1f0f7;font-size:20px;cursor:pointer}" +
+    ".kb-x{position:absolute;right:10px;top:10px;width:44px;height:44px;border-radius:50%;border:0;background:#f1f0f7;font-size:20px;cursor:pointer}" +
     ".kb-card h3{margin:2px 48px 10px 4px;font-size:22px}.kb-tabs{display:flex;gap:8px;margin-bottom:12px}" +
-    ".kb-tabs button{flex:1;border:0;border-radius:14px;padding:10px;font:600 17px inherit;font-family:inherit;background:#efeafd;color:#4b3c8c;cursor:pointer}" +
+    ".kb-tabs button{flex:1;min-height:44px;border:0;border-radius:14px;padding:10px;font:600 17px inherit;font-family:inherit;background:#efeafd;color:#4b3c8c;cursor:pointer}" +
     ".kb-tabs button.on{background:#7950f2;color:#fff}" +
     ".kb-grp{background:#fff;border:2px solid #eee6ff;border-radius:16px;padding:8px 10px;margin:8px 0}.kb-grp h4{margin:0 0 6px;font-size:16px}.kb-grp h4 small{background:#efeafd;border-radius:999px;padding:1px 8px;font-size:13px;color:#5f3dc4}" +
     ".kb-stk{display:flex;flex-wrap:wrap;gap:6px;font-size:30px}.kb-stk span{width:44px;height:44px;display:grid;place-items:center;background:#fff8e1;border-radius:12px}" +
@@ -172,7 +172,7 @@
     ".kb-rain{position:fixed;inset:0;pointer-events:none;z-index:10001;overflow:hidden}.kb-rain span{position:absolute;top:-60px;font-size:34px;animation:kbFall linear forwards}" +
     "@keyframes kbBounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}" +
     "@keyframes kbFall{to{transform:translateY(115vh) rotate(540deg)}}" +
-    "@media (max-width:520px){.kb-home{width:42px;height:42px;font-size:22px;border-radius:14px}.kb-pocket{width:44px;height:44px;font-size:21px}.kb-party .kb-big{font-size:70px}}";
+    "@media (max-width:520px){.kb-home{width:44px;height:44px;font-size:22px;border-radius:14px}.kb-pocket{width:44px;height:44px;font-size:21px}.kb-party .kb-big{font-size:70px}}";
 
   /* ---------- 🏠 floating Home ---------- */
   var homeBtn = null;

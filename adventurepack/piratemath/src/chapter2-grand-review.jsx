@@ -353,7 +353,7 @@ export default function Chapter2GrandReview() {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+        @import url('../../fonts/fonts.css');
         .parchment {
           background: linear-gradient(180deg, #f4e9d8 0%, #ecdcbd 100%);
           box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(139,105,58,0.25);

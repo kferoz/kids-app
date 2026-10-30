@@ -181,13 +181,33 @@
     card.querySelectorAll(".kid-del").forEach(function (b) {
       b.addEventListener("click", function (e) {
         e.stopPropagation();
-        DB.removeKid(b.dataset.del);
-        renderPicker();
-        renderGreeting();
-        showKidGrade();
+        confirmRemove(b.dataset.del);
       });
     });
     $("addKidBtn").addEventListener("click", renderNewForm);
+  }
+
+  // One tap on ✕ used to remove a learner at once. Now it asks first, with Keep as the easy choice.
+  function confirmRemove(id) {
+    var kid = DB.kids().filter(function (k) { return k.id === id; })[0];
+    if (!kid) return renderPicker();
+    var name = escapeHtml(kid.name), card = $("loginCard");
+    card.innerHTML =
+      '<div class="login-mascot">' + kid.avatar + '</div>' +
+      '<h2 class="login-h">Remove ' + name + '?</h2>' +
+      '<p class="login-sub">Ask a grown-up first. ' + name + ' will leave this list.</p>' +
+      '<div class="new-actions">' +
+        '<button class="big-start" id="keepKid">Keep ' + name + ' 💛</button>' +
+        '<button class="kid-btn ghost remove-kid" id="removeKid">Remove</button>' +
+      '</div>';
+    $("keepKid").addEventListener("click", renderPicker);
+    $("removeKid").addEventListener("click", function () {
+      DB.removeKid(id);
+      renderPicker();
+      renderGreeting();
+      showKidGrade();
+    });
+    $("keepKid").focus();
   }
 
   // Screen 2: name + avatar + grade for a brand-new learner.

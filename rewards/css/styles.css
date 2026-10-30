@@ -51,7 +51,7 @@ body {
 .tabview { display: none; animation: fadeIn 0.35s ease; }
 .tabview.active { display: block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
-.section-h { font-family: var(--font-round); font-weight: 800; color: #fff; text-shadow: 0 3px 0 var(--purple-deep); font-size: clamp(1.3rem,5vw,1.9rem); text-align: center; margin: 24px 0 6px; }
+.section-h { font-family: var(--font-round); font-weight: 800; color: var(--purple-deep); text-shadow: 0 2px 0 rgba(255,255,255,.75); font-size: clamp(1.3rem,5vw,1.9rem); text-align: center; margin: 24px 0 6px; }
 .section-sub { text-align: center; color: var(--ink); font-weight: 500; margin-bottom: 16px; font-size: clamp(.95rem,3vw,1.1rem); }
 .section-sub.center { color: #4a3a70; }
 
