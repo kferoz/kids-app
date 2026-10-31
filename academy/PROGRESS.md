@@ -29,7 +29,7 @@ Nothing else needs wiring: the Hub and the lesson page load the file by name.
 
 | Grade | Math | English | Science | Social | Computing | Health |
 |---|---|---|---|---|---|---|
-| pk | ☐ (5) | ☐ (5) | ☐ (5) | ☐ (5) | ☐ (4) | ☐ (5) |
+| pk | ✅ (5) | ✅ (5) | ✅ (5) | ✅ (5) | ☐ (4) | ☐ (5) |
 | kg | ☐ (8) | ☐ (8) | ☐ (7) | ☐ (6) | ☐ (5) | ☐ (6) |
 | g1 | ☐ (8) | ☐ (8) | ☐ (7) | ☐ (7) | ☐ (5) | ☐ (6) |
 | g2 | ☐ (8) | ☐ (8) | ☐ (7) | ☐ (7) | ☐ (6) | ☐ (6) |
