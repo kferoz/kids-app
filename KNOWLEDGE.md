@@ -1,3 +1,11 @@
+## FEATURE — Academy lessons for all 278 units (42 files, 2,032 questions) · 2026-10-31
+- The user said to finish every phase without stopping. All 42 grade-subject lesson files were written and shipped in commits of 2–4 files, ticking `academy/PROGRESS.md` each time so a fresh session could resume.
+- Pre-K units have 6 questions (3 easy, 3 medium); the other core units have 8; Computing and Health have 6. The test requires at least 3 easy and 3 medium per unit so every Quiz Kit mode can fill.
+- GOTCHA (matching): a matching question cannot repeat an answer ("Pull" twice, "Need" twice). The test reports "repeated choice"; turn these into multiple choice instead.
+- GOTCHA (test recompute): the first regex took `(\d[\d,]*)` from the end of the prompt, so "4.7 × 100" was checked as 7 × 100 and "2 + 3 × 4" as 3 × 4. It now matches only a bare `What is A op B?` with decimals allowed, and compares with a tolerance.
+- The test now rejects regional-indicator pairs (flag emoji), since Windows shows letters. Lesson pictures use 🗽 / 🐘 / 🚑 / ⚖️ instead of flags.
+- Real answer errors the review caught: dictionary order (brick comes before bridge), and a "check by adding" item whose explanation contradicted its answer. The automated test can't catch these, so reread what you write.
+
 ## FEATURE — Academy lesson engine (C1) + AdHoc topics (B) · 2026-10-31
 - Lessons reuse the Quiz Kit: `academy/js/lessons.js` turns a compact lesson (`learn` cards + question arrays, right answer first) into a Quiz Kit pack, so read-aloud, stars, Tracker and RewardKit come for free. One file per grade and subject, `academy/lessons/<g>-<s>.js`, loaded by script injection (works on file:// and in the APK) by both the Hub and `academy/lesson.html#u=<unitId>`. No manifest: a missing file just means "coming soon". Status: `academy/PROGRESS.md`.
 - Progress is `acad_progress` per learner `{unitId|"adhoc:<id>": {r, best, m}}`. The lesson page wraps `Tracker.complete` to catch the kit's `"<packId>-<mode>"` round reports. A Mixed Test with 2+ stars masters a unit. The Hub reads it raw as `k<kidId>::acad_progress`, the way RewardKit does.

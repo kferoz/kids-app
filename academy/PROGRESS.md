@@ -1,5 +1,9 @@
 # Academy build progress
 
+**All phases are complete (2026-10-31).** Every one of the 278 syllabus units has a lesson.
+Future work is review and improvement: content checks by a teacher, more questions per unit,
+or new units added at the END of a subject's list (ids come from position).
+
 The user asked (2026-10-31) to finish every Academy phase in one go, saving work so a
 fresh session can continue. **Read this file first when resuming.** Update it in the same
 commit as each step.
@@ -11,7 +15,7 @@ commit as each step.
 | A | Syllabus `js/syllabus.js` (278 units), Academy-first Hub, `academy/syllabus.html`, Admin 🎓 Academy tab | ✅ done |
 | C1 | Lesson engine: `academy/lesson.html`, `academy/js/lessons.js` (lesson → Quiz Kit pack), Hub Start buttons + progress | ✅ done |
 | B | AdHoc: `js/adhoc.js` store, Admin editor (new/edit/remove/restore/import/export), Hub list, player | ✅ done |
-| C2 | Lesson content: one file per grade and subject (42 files) | in progress, see below |
+| C2 | Lesson content: one file per grade and subject (42 files, 278 lessons, 2,032 questions) | ✅ done 2026-10-31 |
 
 ## How to add a lesson file
 
