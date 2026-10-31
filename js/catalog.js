@@ -49,6 +49,7 @@
     A("funfacts", "Fun Facts Explorer", "🔍", "funfacts/index.html", "funfacts", "science", "learn", ["kg", "g3"]),
     A("quiz-senses", "My Five Senses", "👀", "quiz/index.html#senses", "quiz", "science", "practice", ["pk", "kg"]),
     A("quiz-living", "Plants & Animals", "🌱", "quiz/index.html#living", "quiz", "science", "learn", ["g1", "g2"]),
+    A("quiz-sciencelab", "Science Explorers: Matter, Energy & Earth", "🔭", "quiz/index.html#sciencelab", "quiz", "science", "learn", ["g4", "g5"]),
     A("sci-testprep", "Science Test Prep", "🔬", "adventurepack/readingadventures/index.html#science", "readingadventures", "science", "tests", ["g3"]),
     A("sq-unit2-sci", "Unit 2 Test Prep", "🌪️", "adventurepack/stickerquest/index.html#unit2", "stickerquest", "science", "tests", ["g3"]),
 
