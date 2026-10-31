@@ -191,5 +191,62 @@ if (!Object.keys(bad.data).some(k => k.startsWith('cc_data_unreadable_') && bad.
   if (browser({ cc_data: JSON.stringify(old) }).S.work(pc.id).length !== 0) err('older data without work loads empty');
 }
 
+/* ---------- Phase 4: class feed + private notes ---------- */
+{ const b = browser(); const F = b.S; const fc = F.addClass('Room 3'); const [ana, bob, cal] = F.addStudents(fc.id, ['Ana', 'Bob', 'Cal']);
+  throws(() => F.post(fc.id, { text: '   ' }), 'an empty post');
+  throws(() => F.post(fc.id, { text: 'a'.repeat(F.MAX_POST + 1) }), 'a post over the limit');
+  const p1 = F.post(fc.id, { text: '  Field trip on Friday!  ' }).item;
+  if (p1.text !== 'Field trip on Friday!' || p1.media || Object.keys(p1.likes).length) err('a words-only post');
+  const p2 = F.post(fc.id, { media: 'm5' }).item;
+  if (p2.media !== 'm5' || p2.text !== '') err('a photo-only post');
+  // sharing work: approved only, once
+  const w = F.submit(fc.id, ana.id, { type: 'drawing', media: 'm7', text: 'Volcano' }).item;
+  throws(() => F.shareWork(fc.id, w.i), 'sharing work that is still waiting');
+  F.review(fc.id, w.i, 'approve');
+  const p3 = F.shareWork(fc.id, w.i, ' Look at this! ').item;
+  if (p3.w !== w.i || p3.s !== ana.id || p3.media !== 'm7' || p3.text !== 'Look at this!') err('shared work carries its student, picture and caption');
+  throws(() => F.shareWork(fc.id, w.i), 'sharing the same work twice');
+  if (F.sharedPost(fc.id, w.i) !== p3) err('sharedPost finds it');
+  const sb = F.submit(fc.id, bob.id, { type: 'journal', text: 'hi' }).item; F.review(fc.id, sb.i, 'send_back', 'more please');
+  throws(() => F.shareWork(fc.id, sb.i), 'sharing sent-back work');
+  const other = F.addClass('Other');
+  throws(() => F.shareWork(other.id, w.i), 'sharing work from another class');
+  // likes
+  if (!F.like(fc.id, p1.i, ana.id).liked || !F.like(fc.id, p1.i, bob.id).liked || !F.like(fc.id, p1.i, F.TEACHER).liked) err('likes turn on');
+  if (Object.keys(p1.likes).length !== 3) err('three likes');
+  if (F.like(fc.id, p1.i, ana.id).liked || p1.likes[ana.id]) err('a second tap takes the like back');
+  throws(() => F.like(fc.id, p1.i, 'nobody'), 'a like from outside the class');
+  throws(() => F.like(other.id, p1.i, ana.id), 'a like through another class');
+  F.archiveStudent(fc.id, cal.id);
+  throws(() => F.like(fc.id, p1.i, cal.id), 'a like from an archived student');
+  // order + hiding
+  const list = F.feed(fc.id); if (list.length !== 3 || list[0].t < list[2].t) err('feed is newest first');
+  F.hidePost(fc.id, p3.i);
+  if (F.feed(fc.id).length !== 2 || F.feed(fc.id, true).length !== 3) err('a hidden post leaves the feed but is kept');
+  throws(() => F.like(fc.id, p3.i, ana.id), 'liking a hidden post');
+  if (F.sharedPost(fc.id, w.i)) err('a hidden share no longer counts');
+  F.shareWork(fc.id, w.i); if (F.feed(fc.id).length !== 3) err('work can be shared again after its post is hidden');
+  // notes
+  throws(() => F.addNote(fc.id, ana.id, 'gossip', 'x'), 'a note with an unknown kind');
+  throws(() => F.addNote(fc.id, ana.id, 'praise', '  '), 'an empty note');
+  throws(() => F.addNote(fc.id, 'nobody', 'praise', 'x'), 'a note about a student outside the class');
+  throws(() => F.addNote(fc.id, ana.id, 'other', 'a'.repeat(F.MAX_NOTE_TEXT + 1)), 'a note over the limit');
+  const n1 = F.addNote(fc.id, ana.id, 'praise', 'Helped Bob with fractions.').item;
+  F.addNote(fc.id, bob.id, 'family', 'Called home about the trip.');
+  F.addNote(fc.id, cal.id, 'other', 'Moved schools; records kept.');
+  if (F.notes(fc.id).length !== 3 || F.notes(fc.id, { s: ana.id }).length !== 1 || F.notes(fc.id, { kind: 'family' }).length !== 1) err('notes filter by student and kind');
+  F.hideNote(fc.id, n1.i);
+  if (F.notes(fc.id, { s: ana.id }).length !== 0 || !b.data.cc_data.includes('Helped Bob')) err('a hidden note leaves the list but stays stored');
+  throws(() => F.hideNote(other.id, n1.i), 'hiding a note through another class');
+  const log = F.auditLog(fc.id, 500).map(e => e.a);
+  ['post_add', 'post_share', 'post_hide', 'like', 'unlike', 'note_add', 'note_hide'].forEach(a => { if (!log.includes(a)) err('audit has no ' + a); });
+  if (JSON.stringify(F.auditLog(fc.id, 500)).includes('Helped Bob')) err('the audit log never copies note text');
+  const again = browser({ cc_data: b.data.cc_data }).S;
+  if (again.feed(fc.id).length !== 3 || again.notes(fc.id).length !== 2 || Object.keys(again.feed(fc.id, true).find(p => p.i === p1.i).likes).length !== 2) err('feed, likes and notes survive reload');
+  const old = JSON.parse(b.data.cc_data); delete old.feed; delete old.notes;
+  const S3 = browser({ cc_data: JSON.stringify(old) }).S;
+  if (S3.feed(fc.id).length !== 0 || S3.notes(fc.id).length !== 0 || S3.work(fc.id).length !== 2) err('Phase 3 data without feed/notes loads, work kept');
+}
+
 console.log(fail ? `${fail} FAILED` : 'classroom store: all checks passed');
 process.exit(fail ? 1 : 0);

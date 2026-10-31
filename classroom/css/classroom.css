@@ -223,3 +223,21 @@ dialog::backdrop { background: rgba(43, 37, 64, .45); }
   .skills { grid-template-columns: repeat(2, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .card, .toast { transition: none; } .card.bump .pts { animation: none; } }
+
+/* ---------- Phase 4: feed + notes ---------- */
+.composer { background: var(--surface); border: 3px solid var(--line); border-radius: 20px; padding: 16px; display: grid; gap: 10px; max-width: 720px; }
+.composer h2 { margin: 0; }
+.works.feed { grid-template-columns: minmax(0, 640px); }
+.p-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.05rem; }
+.heart { font-size: 1.1rem; }
+.heart[aria-pressed="true"] { border-color: #e03131; }
+.post footer .hint { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.notes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; max-width: 720px; }
+.note { background: var(--surface); border: 3px solid var(--line); border-left-width: 8px; border-radius: 16px; padding: 12px; display: grid; gap: 8px; }
+.note header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.note header .av { font-size: 24px; }
+.note header time { margin-left: auto; color: var(--ink-2); font-size: .85rem; }
+.note.praise { border-left-color: var(--present); }
+.note.concern { border-left-color: var(--tardy); }
+.note.family { border-left-color: var(--accent); }
+.note .row-btns { justify-content: flex-end; }

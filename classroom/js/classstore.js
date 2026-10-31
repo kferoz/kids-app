@@ -19,6 +19,12 @@
    Portfolio (Phase 3): sub[] = {i, c, s, type, text, media?,
    t, st: pending|approved|sent_back, rt?, note?}. Pictures live
    in IndexedDB (media.js); a submission keeps only the id.
+
+   Feed and notes (Phase 4): feed[] = {i, c, t, text, media?,
+   w? (shared work), s? (its student), likes: {student|"teacher":
+   time}, hid?}. notes[] = {i, c, s, t, kind, text, hid?} are the
+   teacher's private notes, never shown in the Student space.
+   Posts and notes are hidden, never deleted.
    ============================================================ */
 (function (root) {
   "use strict";
@@ -48,7 +54,7 @@
   }
   function clean(s, max) { return String(s == null ? "" : s).replace(/\s+/g, " ").trim().slice(0, max || 40); }
 
-  function empty() { return { v: VERSION, classes: [], tx: [], audit: [], att: {}, sub: [] }; }
+  function empty() { return { v: VERSION, classes: [], tx: [], audit: [], att: {}, sub: [], feed: [], notes: [] }; }
   function load() {
     if (data) return data;
     var raw = null;
@@ -58,6 +64,7 @@
       data = JSON.parse(raw);
       if (!data || !Array.isArray(data.classes)) throw new Error("bad shape");
       data.tx = data.tx || []; data.audit = data.audit || []; data.att = data.att || {}; data.sub = data.sub || [];
+      data.feed = data.feed || []; data.notes = data.notes || [];
     } catch (e) {
       // Never throw away a teacher's records: park the unreadable copy, start fresh.
       try { store.setItem(KEY + "_unreadable_" + now(), raw); } catch (e2) {}
@@ -308,12 +315,107 @@
   }
   function pendingCount(classId) { return work(classId, { st: "pending" }).length; }
 
+  /* ---------- class feed ---------- */
+  var MAX_POST = 1000, TEACHER = "teacher";
+  function findPost(classId, postId) {
+    need(classId);
+    var p = load().feed.filter(function (x) { return x.i === postId && x.c === classId; })[0];
+    if (!p) throw new Error("That post is not in this class.");
+    return p;
+  }
+  // The teacher posts a class update: words, a picture (media id), or both.
+  function post(classId, p) {
+    need(classId); p = p || {};
+    var text = String(p.text == null ? "" : p.text).trim(), media = p.media ? String(p.media) : "";
+    if (!text && !media) throw new Error("Write something or add a photo.");
+    if (text.length > MAX_POST) throw new Error("That post is too long.");
+    var r = { i: uid("f"), c: classId, t: now(), text: text, likes: {} };
+    if (media) r.media = media;
+    load().feed.push(r);
+    audit("post_add", { c: classId, f: r.i, photo: !!media });
+    return { item: r, saved: save() };
+  }
+  // Approved work goes into the feed with its student's name. Once per piece while the post is showing.
+  function shareWork(classId, workId, caption) {
+    var c = need(classId), w = load().sub.filter(function (x) { return x.i === workId && x.c === classId; })[0];
+    if (!w) throw new Error("That work is not in this class.");
+    if (w.st !== "approved") throw new Error("Only approved work can go in the feed.");
+    if (sharedPost(classId, workId)) throw new Error("That work is already in the feed.");
+    caption = String(caption == null ? "" : caption).trim();
+    if (caption.length > MAX_NOTE) throw new Error("That caption is too long.");
+    var s = student(c, w.s) || {};
+    var r = { i: uid("f"), c: classId, t: now(), text: caption, w: w.i, s: w.s, likes: {} };
+    if (w.media) r.media = w.media;
+    load().feed.push(r);
+    audit("post_share", { c: classId, f: r.i, w: w.i, s: w.s, name: s.name, type: w.type });
+    return { item: r, saved: save() };
+  }
+  function sharedPost(classId, workId) {
+    return load().feed.filter(function (x) { return x.c === classId && x.w === workId && !x.hid; })[0] || null;
+  }
+  function hidePost(classId, postId) {
+    var p = findPost(classId, postId);
+    if (p.hid) return { item: p, saved: true };
+    p.hid = now();
+    audit("post_hide", { c: classId, f: postId });
+    return { item: p, saved: save() };
+  }
+  // A student (or "teacher") taps the heart: on, or off again. Returns whether it is now liked.
+  function like(classId, postId, who) {
+    var c = need(classId), p = findPost(classId, postId);
+    if (p.hid) throw new Error("That post was taken down.");
+    if (who !== TEACHER) { var s = student(c, who); if (!s || s.archived) throw new Error("That student is not in this class."); }
+    var on = !p.likes[who];
+    if (on) p.likes[who] = now(); else delete p.likes[who];
+    audit(on ? "like" : "unlike", { c: classId, f: postId, who: who });
+    return { liked: on, saved: save() };
+  }
+  // Newest first; hidden posts only with all = true.
+  function feed(classId, all) {
+    need(classId);
+    return load().feed.filter(function (p) { return p.c === classId && (all || !p.hid); })
+      .sort(function (a, b) { return b.t - a.t; });
+  }
+
+  /* ---------- teacher's notes about a student (private) ---------- */
+  var NOTE_KINDS = [
+    { code: "praise", name: "Praise", emoji: "👍" }, { code: "concern", name: "Concern", emoji: "⚠️" },
+    { code: "family", name: "Family contact", emoji: "🏠" }, { code: "other", name: "Other", emoji: "📝" }
+  ], MAX_NOTE_TEXT = 1000;
+  function addNote(classId, studentId, kind, text) {
+    var c = need(classId), s = student(c, studentId);
+    if (!s) throw new Error("That student is not in this class.");
+    if (!NOTE_KINDS.some(function (k) { return k.code === kind; })) throw new Error("Pick what kind of note.");
+    text = String(text == null ? "" : text).trim();
+    if (!text) throw new Error("Write the note first.");
+    if (text.length > MAX_NOTE_TEXT) throw new Error("That note is too long.");
+    var r = { i: uid("n"), c: classId, s: studentId, t: now(), kind: kind, text: text };
+    load().notes.push(r);
+    audit("note_add", { c: classId, n: r.i, s: studentId, name: s.name, kind: kind });
+    return { item: r, saved: save() };
+  }
+  function hideNote(classId, noteId) {
+    need(classId);
+    var r = load().notes.filter(function (x) { return x.i === noteId && x.c === classId; })[0];
+    if (!r) throw new Error("That note is not in this class.");
+    if (!r.hid) { r.hid = now(); audit("note_hide", { c: classId, n: noteId, s: r.s }); }
+    return { item: r, saved: save() };
+  }
+  // Newest first. f: {s, kind}
+  function notes(classId, f) {
+    need(classId); f = f || {};
+    return load().notes.filter(function (r) { return r.c === classId && !r.hid && (!f.s || r.s === f.s) && (!f.kind || r.kind === f.kind); })
+      .sort(function (a, b) { return b.t - a.t; });
+  }
+
   var ClassStore = {
     KEY: KEY, CRITTERS: CRITTERS, MAX_VALUE: MAX_VALUE, dayKey: dayKey,
     classes: classes, getClass: getClass, addClass: addClass, renameClass: renameClass, archiveClass: archiveClass,
     students: students, addStudents: addStudents, updateStudent: updateStudent, archiveStudent: archiveStudent,
     skills: skills, addSkill: addSkill, updateSkill: updateSkill, archiveSkill: archiveSkill,
     WORK: WORK, MAX_TEXT: MAX_TEXT, MAX_NOTE: MAX_NOTE, submit: submit, review: review, work: work, pendingCount: pendingCount,
+    MAX_POST: MAX_POST, TEACHER: TEACHER, post: post, shareWork: shareWork, sharedPost: sharedPost, hidePost: hidePost, like: like, feed: feed,
+    NOTE_KINDS: NOTE_KINDS, MAX_NOTE_TEXT: MAX_NOTE_TEXT, addNote: addNote, hideNote: hideNote, notes: notes,
     STATUSES: STATUSES, attendance: attendance, setAttendance: setAttendance, markRestPresent: markRestPresent,
     attendanceSummary: attendanceSummary, attendanceDays: attendanceDays, inRoom: inRoom,
     award: award, lastBatch: lastBatch, undo: undo, totals: totals, summary: summary, auditLog: auditLog,

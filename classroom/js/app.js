@@ -7,8 +7,10 @@
    Toolkit (Phase 2): attendance, random picker + group maker,
    and a live noise meter. Portfolio (Phase 3): a Student space
    where kids hand in journals, drawings and photos, and the
-   teacher's Work view to approve or send back. Data: ClassStore;
-   maths: ClassTools; pictures: ClassMedia.
+   teacher's Work view to approve or send back. Feed and notes
+   (Phase 4): class updates and shared approved work that students
+   can heart, and the teacher's private notes about each student.
+   Data: ClassStore; maths: ClassTools; pictures: ClassMedia.
    ============================================================ */
 (function () {
   "use strict";
@@ -294,12 +296,15 @@
 
   var ACTIONS = { class_add: "Class created", class_rename: "Class renamed", class_archive: "Class archived",
     student_add: "Students added", student_edit: "Student edited", student_archive: "Student removed",
-    skill_add: "Skill added", skill_edit: "Skill edited", skill_archive: "Skill removed", award: "Points", undo: "Undone" };
+    skill_add: "Skill added", skill_edit: "Skill edited", skill_archive: "Skill removed", award: "Points", undo: "Undone",
+    attendance: "Attendance", attendance_rest: "Attendance: rest marked present", submit: "Work handed in", work_approve: "Work approved",
+    work_send_back: "Work sent back", post_add: "Feed post", post_share: "Work shared to the feed", post_hide: "Feed post taken down",
+    like: "❤️ Gave a heart", unlike: "Took back a heart", note_add: "Note added", note_hide: "Note hidden" };
   function logLine(e) {
     var d = e.d || {}, txt = ACTIONS[e.a] || e.a;
     if (e.a === "award") txt = signed(d.v) + " " + (d.skill || "") + " · " + (d.whole ? "whole class, " : "") + plural(d.n, "student");
     else if (e.a === "student_add") txt += ": " + (d.names || []).join(", ");
-    else if (e.a === "student_archive" || e.a === "skill_archive" || e.a === "skill_add") txt += ": " + (d.name || "");
+    else if (/^(student_archive|skill_archive|skill_add|submit|post_share|note_add)$/.test(e.a) && d.name) txt += ": " + d.name;
     else if (e.a === "undo") txt += " · " + plural(d.n, "award");
     return txt;
   }
@@ -333,7 +338,7 @@
   }
 
   /* ---------- Phase 2: the toolkit views ---------- */
-  var VIEWS = ["points", "att", "pick", "noise", "work"], VIEW_KEY = "cc_lastView";
+  var VIEWS = ["points", "att", "pick", "noise", "work", "feed", "notes"], VIEW_KEY = "cc_lastView";
   function today() { return S.dayKey(Date.now()); }
   function stName(code) { return S.STATUSES.filter(function (x) { return x.code === code; })[0]; }
 
@@ -343,6 +348,8 @@
     else if (st.view === "pick") renderPicker();
     else if (st.view === "noise") renderNoise();
     else if (st.view === "work") renderWork();
+    else if (st.view === "feed") renderFeed();
+    else if (st.view === "notes") renderNotes();
   }
 
   /* attendance: tap a student to cycle Present → Absent → Tardy → Left early → not marked */
@@ -554,6 +561,8 @@
         return '<article class="work" data-w="' + w.i + '"><header><span class="av" aria-hidden="true">' + esc(k.avatar) + "</span><b>" + esc(k.name) + "</b>" +
           '<span class="w-kind">' + WORK_ICON[w.type] + " " + S.WORK[w.type] + "</span><time>" + esc(when(w.t)) + "</time></header>" + workBody(w) +
           '<footer><span class="w-st ' + w.st + '">' + BADGE[w.st] + "</span>" +
+          (w.st === "approved" ? (S.sharedPost(st.cls, w.i) ? '<span class="hint">📰 In the class feed</span>'
+            : '<button class="btn" type="button" data-share="' + w.i + '">📰 Share to the feed</button>') : "") +
           (w.st === "pending" ? '<span class="w-act"><button class="btn" type="button" data-back="' + w.i + '">↩️ Send back</button>' +
             '<button class="btn primary" type="button" data-ok="' + w.i + '">✅ Approve</button></span>' : "") + "</footer>" +
           '<div class="w-more" id="more-' + w.i + '"></div></article>';
@@ -573,6 +582,20 @@
         m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
         m.querySelector("[data-yes]").onclick = function () { doReview(id, "approve", ""); };
         m.querySelector("[data-yes]").focus();
+      };
+    });
+    $("tool").querySelectorAll("[data-share]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-share"), m = $("more-" + id), w = S.work(st.cls).filter(function (x) { return x.i === id; })[0];
+        m.innerHTML = '<div class="confirm"><span>Share this in the class feed? Everyone in the Student space will see it with ' + esc(kidById(w.s).name) + "'s name.</span>" +
+          '<label class="field">Add a few words (optional)<input id="cap-' + id + '" maxlength="' + S.MAX_NOTE + '" /></label>' +
+          '<div class="row-btns" style="justify-content:center"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" data-yes>📰 Share</button></div></div>';
+        m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
+        m.querySelector("[data-yes]").onclick = function () {
+          var r; try { r = S.shareWork(st.cls, id, $("cap-" + id).value); } catch (e) { toast(e.message); return; }
+          renderWork(); toast(r.saved ? "Shared to the class feed 📰" : "This device is out of room. Save a backup now.");
+        };
+        $("cap-" + id).focus();
       };
     });
     $("tool").querySelectorAll("[data-back]").forEach(function (b) {
@@ -613,6 +636,8 @@
     noiseStop();
     clearTimeout(toastT); $("toast").classList.remove("show");   // no teacher messages on the students' screen
     try { sessionStorage.setItem(KID, st.cls); sessionStorage.removeItem("adm_ok"); } catch (e) {}
+    // the teacher's screens leave the page too, so private notes are not even hidden in the students' page
+    dropUrls(); $("tool").innerHTML = ""; $("dlg").innerHTML = "";
     st.kid = null; $("app").hidden = true; $("kid").hidden = false; renderKid();
   }
   function leaveKid() {
@@ -642,8 +667,10 @@
       '<section class="kid-mine"><h2>📚 My work</h2>' + (mine.length ? '<div class="works">' + mine.map(function (w) {
         return '<article class="work"><header><span class="w-kind">' + WORK_ICON[w.type] + " " + S.WORK[w.type] + "</span><time>" + esc(when(w.t)) + "</time></header>" + workBody(w) +
           '<footer><span class="w-st ' + w.st + '">' + BADGE[w.st] + "</span></footer></article>";
-      }).join("") + "</div>" : '<p class="hint">Nothing yet. Your first piece will show here.</p>') + "</section>";
+      }).join("") + "</div>" : '<p class="hint">Nothing yet. Your first piece will show here.</p>') + "</section>" +
+      '<section class="kid-mine kid-feed"><h2>📰 Class feed</h2>' + feedList(st.kid) + "</section>";
     fillPics(host);
+    wireLikes(host, st.kid, renderKid);
     $("kidBack").onclick = function () { st.kid = null; renderKid(); };
     host.querySelectorAll("[data-kt]").forEach(function (b) { b.onclick = function () { st.kidTab = b.getAttribute("data-kt"); renderKid(); }; });
     renderKidForm(tab);
@@ -702,6 +729,136 @@
       M.put(picked).then(function (id) { sent(S.submit(st.cls, st.kid, { type: "photo", media: id, text: $("kCap").value })); })
         .catch(function (e) { $("kErr").textContent = e.message; $("kSend").disabled = false; });
     };
+  }
+
+  /* ---------- Phase 4: class feed + the teacher's private notes ---------- */
+  // One post card, for the teacher ("teacher") or a student (their id): who, when, the picture/words, hearts.
+  function postCard(p, viewer) {
+    var w = p.w ? S.work(st.cls).filter(function (x) { return x.i === p.w; })[0] : null, k = p.s ? kidById(p.s) : null;
+    var n = Object.keys(p.likes).length, mine = !!p.likes[viewer];
+    var who = Object.keys(p.likes).map(function (id) { return id === S.TEACHER ? "Teacher" : kidById(id).name; });
+    return '<article class="work post" data-p="' + p.i + '"><header>' +
+        (k ? '<span class="av" aria-hidden="true">' + esc(k.avatar) + "</span><b>" + esc(k.name) + '</b><span class="w-kind">' + WORK_ICON[w ? w.type : "drawing"] + " shared work</span>"
+           : '<span class="av" aria-hidden="true">🏫</span><b>Teacher</b><span class="w-kind">class update</span>') +
+        "<time>" + esc(when(p.t)) + "</time></header>" +
+      (w && w.type === "journal" ? '<p class="w-text">' + esc(w.text) + "</p>" : "") +
+      (p.media ? '<img class="w-pic" data-media="' + esc(p.media) + '" alt="' + (w ? esc(S.WORK[w.type]) : "Class photo") + '" />' : "") +
+      (w && w.type !== "journal" && w.text ? '<p class="w-cap">' + esc(w.text) + "</p>" : "") +
+      (p.text ? '<p class="p-text">' + esc(p.text) + "</p>" : "") +
+      '<footer><button class="btn heart" type="button" data-like="' + p.i + '" aria-pressed="' + mine + '" aria-label="' + (mine ? "Take back your heart" : "Give a heart") + ", " + plural(n, "heart") + '">' +
+        (mine ? "❤️" : "🤍") + " <b>" + n + "</b></button>" +
+        (viewer === S.TEACHER ? (who.length ? '<small class="hint">' + esc(who.join(", ")) + "</small>" : "") +
+          '<button class="btn" type="button" data-hide="' + p.i + '">🙈 Take down</button>' : "") +
+      '</footer><div class="w-more" id="pmore-' + p.i + '"></div></article>';
+  }
+  function feedList(viewer) {
+    var list = S.feed(st.cls);
+    return list.length ? '<div class="works feed">' + list.map(function (p) { return postCard(p, viewer); }).join("") + "</div>"
+      : '<p class="hint">No posts yet.' + (viewer === S.TEACHER ? " Share a class update, or approved work from 📥 Work." : " Your teacher will share news and great work here.") + "</p>";
+  }
+  // Hearts toggle; the redraw keeps focus on the same heart so a keyboard user does not lose their place.
+  function wireLikes(host, viewer, redraw) {
+    host.querySelectorAll("[data-like]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-like");
+        try { S.like(st.cls, id, viewer); } catch (e) { toast(e.message); return; }
+        redraw();
+        var again = document.querySelector('[data-like="' + id + '"]'); if (again) again.focus();
+      };
+    });
+  }
+
+  function renderFeed() {
+    dropUrls();
+    var picked = null;
+    $("tool").innerHTML =
+      '<section class="composer"><h2>📰 Share with the class</h2>' +
+        '<label class="field">Class update<textarea id="postText" maxlength="' + S.MAX_POST + '" placeholder="e.g. We planted beans today!"></textarea></label>' +
+        '<div class="row-btns" style="justify-content:flex-start"><label class="btn file-btn">📷 Add a photo<input type="file" id="postFile" accept="image/*" class="sr" /></label>' +
+          '<button class="btn" type="button" id="postNoPic" hidden>✕ Remove photo</button></div>' +
+        '<img id="postPrev" class="w-pic" alt="Photo to post" hidden />' +
+        '<p class="err" id="postErr"></p><div class="row-btns"><button class="btn primary" type="button" id="postGo">📰 Post</button></div>' +
+        "<p class=\"hint\">Students see the feed in the Student space and can give hearts. To share a student's work, approve it in 📥 Work, then tap 📰 Share.</p></section>" +
+      feedList(S.TEACHER);
+    fillPics($("tool"));
+    wireLikes($("tool"), S.TEACHER, renderFeed);
+    $("postFile").onchange = function () {
+      var file = this.files && this.files[0]; if (!file) return;
+      $("postErr").textContent = "";
+      M.shrink(file).then(function (b) {
+        picked = b; var u = URL.createObjectURL(b); urls.push(u); $("postPrev").src = u; $("postPrev").hidden = false; $("postNoPic").hidden = false;
+      }).catch(function (e) { picked = null; $("postErr").textContent = e.message; });
+    };
+    $("postNoPic").onclick = function () { picked = null; $("postFile").value = ""; $("postPrev").hidden = true; this.hidden = true; };
+    $("postGo").onclick = function () {
+      var text = $("postText").value;
+      if (!text.trim() && !picked) { $("postErr").textContent = "Write something or add a photo."; return; }
+      $("postGo").disabled = true;
+      (picked ? M.put(picked) : Promise.resolve("")).then(function (id) {
+        var r = S.post(st.cls, { text: text, media: id }); renderFeed();
+        toast(r.saved ? "Posted 📰" : "This device is out of room. Save a backup now.");
+      }).catch(function (e) { $("postErr").textContent = e.message; $("postGo").disabled = false; });
+    };
+    $("tool").querySelectorAll("[data-hide]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-hide"), m = $("pmore-" + id);
+        m.innerHTML = "<div class=\"confirm\"><span>Take this post down? Students won't see it any more. It stays in your backup.</span>" +
+          '<div class="row-btns" style="justify-content:center"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" data-yes>🙈 Take down</button></div></div>';
+        m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
+        m.querySelector("[data-yes]").onclick = function () { S.hidePost(st.cls, id); renderFeed(); toast("Post taken down"); };
+        m.querySelector("[data-yes]").focus();
+      };
+    });
+  }
+
+  function kindOf(code) { return S.NOTE_KINDS.filter(function (k) { return k.code === code; })[0]; }
+  function renderNotes() {
+    var kids = S.students(st.cls, true), active = S.students(st.cls), who = st.noteKid || "", kf = st.noteKind || "";
+    var list = S.notes(st.cls, { s: who, kind: kf }), newKind = st.newKind || "praise";
+    var opt = function (k, sel) { return '<option value="' + k.id + '"' + (k.id === sel ? " selected" : "") + ">" + esc(k.name) + (k.archived ? " (removed)" : "") + "</option>"; };
+    var aboutSel = active.some(function (k) { return k.id === who; }) ? who : (active[0] || {}).id;
+    $("tool").innerHTML =
+      '<section class="composer"><h2>📝 Write a note</h2>' +
+        '<p class="hint">🔒 Only for grown-ups. Notes never show in the Student space or the feed. They are in your backup file.</p>' +
+        '<label class="field">About<select id="noteFor">' + active.map(function (k) { return opt(k, aboutSel); }).join("") + "</select></label>" +
+        '<div class="chips" role="radiogroup" aria-label="Kind of note">' + S.NOTE_KINDS.map(function (k) {
+          return '<button class="chip" type="button" role="radio" data-nk="' + k.code + '" aria-checked="' + (k.code === newKind) + '" aria-pressed="' + (k.code === newKind) + '">' + k.emoji + " " + k.name + "</button>";
+        }).join("") + "</div>" +
+        '<label class="field">Note<textarea id="noteText" maxlength="' + S.MAX_NOTE_TEXT + '"></textarea></label>' +
+        '<p class="err" id="noteErr" role="alert"></p><div class="row-btns"><button class="btn primary" type="button" id="noteSave">💾 Save note</button></div></section>' +
+      '<div class="tool-head"><label class="field inline">Show<select id="noteKid"><option value="">All students</option>' + kids.map(function (k) { return opt(k, who); }).join("") + "</select></label></div>" +
+      '<div class="chips" role="group" aria-label="Kind">' + [["", "All"]].concat(S.NOTE_KINDS.map(function (k) { return [k.code, k.emoji + " " + k.name]; })).map(function (c) {
+        return '<button class="chip" type="button" data-kf="' + c[0] + '" aria-pressed="' + (kf === c[0]) + '">' + c[1] + "</button>";
+      }).join("") + "</div>" +
+      (list.length ? '<ul class="notes">' + list.map(function (n) {
+        var k = kidById(n.s), kd = kindOf(n.kind);
+        return '<li class="note ' + n.kind + '"><header><span class="av" aria-hidden="true">' + esc(k.avatar) + "</span><b>" + esc(k.name) + '</b><span class="w-kind">' + kd.emoji + " " + kd.name + "</span><time>" + esc(when(n.t)) + "</time></header>" +
+          '<p class="w-text">' + esc(n.text) + '</p><div class="row-btns"><button class="btn" type="button" data-nh="' + n.i + '">🙈 Hide</button></div><div class="w-more" id="nmore-' + n.i + '"></div></li>';
+      }).join("") + "</ul>"
+      : '<div class="empty"><div class="big">📝</div><h2>No notes here yet</h2><p>Jot down praise, concerns or calls home, one student at a time.</p></div>');
+    if (!active.length) { $("noteSave").disabled = true; $("noteErr").textContent = "Add students first."; }
+    $("noteKid").onchange = function () { st.noteKid = this.value; renderNotes(); };
+    $("tool").querySelectorAll("[data-kf]").forEach(function (b) { b.onclick = function () { st.noteKind = b.getAttribute("data-kf"); renderNotes(); }; });
+    $("tool").querySelectorAll("[data-nk]").forEach(function (b) {
+      b.onclick = function () {
+        st.newKind = b.getAttribute("data-nk");
+        $("tool").querySelectorAll("[data-nk]").forEach(function (x) { var on = x === b; x.setAttribute("aria-checked", String(on)); x.setAttribute("aria-pressed", String(on)); });
+      };
+    });
+    $("noteSave").onclick = function () {
+      var r; try { r = S.addNote(st.cls, $("noteFor").value, st.newKind || "praise", $("noteText").value); } catch (e) { $("noteErr").textContent = e.message; return; }
+      renderNotes(); toast(r.saved ? "Note saved 📝" : "This device is out of room. Save a backup now.");
+    };
+    $("tool").querySelectorAll("[data-nh]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-nh"), m = $("nmore-" + id);
+        m.innerHTML = '<div class="confirm"><span>Hide this note? It leaves this list but stays in your backup.</span>' +
+          '<div class="row-btns" style="justify-content:center"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" data-yes>🙈 Hide</button></div></div>';
+        m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
+        m.querySelector("[data-yes]").onclick = function () { S.hideNote(st.cls, id); renderNotes(); toast("Note hidden"); };
+        m.querySelector("[data-yes]").focus();
+      };
+    });
   }
 
   /* drawing pad: strokes are kept so Undo can redraw without the last one */

@@ -1,3 +1,11 @@
+## FEATURE — Class Corner Phase 4: class feed with hearts, private notes · 2026-10-31
+- The feed is stored as `cc_data.feed[]` = `{i,c,t,text,media?,w?,s?,likes:{studentId|"teacher": time},hid?}`. Teacher posts need words or a photo. `shareWork` takes approved work only, once while its post is showing; when that post is taken down, the work can be shared again. A journal post shows the work's text from `w`, so nothing is copied. Taking a post down sets `hid`; nothing is deleted, and the backup keeps it.
+- Hearts are a toggle per student (or "teacher"), stored as a map, so one student can't heart a post twice. Archived students can't give hearts. On a shared device a child can heart as any name; that is a screen-level guard, the same as the rest of the Student space.
+- Notes are stored as `cc_data.notes[]` = `{i,c,s,t,kind: praise|concern|family|other,text,hid?}`. The audit log records only the kind and the student, never the note text, so the readable 📜 Log can't leak it.
+- PRIVACY GOTCHA: when the Student space was entered, the Notes view stayed in the DOM under the hidden `#app`, so the text was still in the page. `enterKid()` now empties `#tool` and `#dlg`. The e2e test checks that `page.content()` has no note text.
+- e2e gotcha: a toast (2.6 s) sits over buttons near the bottom of the viewport, so clicks right after a toast land on it. Tests remove `.show` first.
+- Phase 3 data without `feed`/`notes` loads with empty lists, an additive change.
+
 ## FEATURE — Class Corner Phase 1: teacher points board (classroom/) · 2026-10-30
 - Built from a ClassDojo-style blueprint written for Next.js, Postgres and Socket.IO. The user chose to keep it on-device: no server, plain HTML/JS, works offline and in the APK. It is an original design (own name, critters), not a clone.
 - It is for a real school class: its own roster in `cc_data`, separate from the Hub's `hub_kids`. Its behavior points are separate from RewardKit stars and money, so needs-work points never take away earned rewards.
@@ -7,7 +15,7 @@
 - Gotcha: a refused edit redraws the dialog to restore the old value, and that redraw wiped the error message. `openSkills(msg)` shows it after the redraw. So `onclick = openSkills` must be wrapped, or the click event arrives as `msg`.
 - Gotcha: a toast hidden only by `translate(…140%)` still peeks above `bottom:18px`. Add visibility/opacity.
 - Hub: `.grownup-links` holds 🏫 Class and ⚙️ Admin. Both sit under the login overlay until a learner is picked, so e2e tests must set `hub_activeKid`.
-- Phases left: 4 Notes and class feed (on this device only).
+- All four phases are done (Phase 4 finished 2026-10-31).
 
 ## FEATURE — Class Corner Phase 3: portfolio, Student space, approvals · 2026-10-31
 - Work is stored as `cc_data.sub[]` = `{i,c,s,type: journal|drawing|photo, text, media?, t, st: pending|approved|sent_back, rt?, note?}`. Only pending work can be reviewed. Send back needs a note (≤300 characters), which the student sees. Journals can be up to 2000 characters. All of it is audited.
@@ -17,7 +25,6 @@
 - `start()` can run again after kid mode, so it is guarded by `started`. A second run would bind every button twice, and toggles would cancel out.
 - APK: `onShowFileChooser` follows the page's `accept` types. `image/*` opens a photo picker; Admin's `.json` restore still gets */*.
 - e2e: a click on a lower button scrolls the page, so measure the canvas (boundingBox) before every stroke. Edge headless can upload a hand-made PNG (built with zlib in Node, no image library).
-- Left: Phase 4, notes and the class feed (on this device). Approved work is meant to feed it.
 
 ## FEATURE — Class Corner Phase 2: attendance, picker and groups, noise meter · 2026-10-30
 - Attendance is stored as `cc_data.att[class][day][student]` = p/a/t/l: one record per student per day, with every change audited. Phase 1 data with no `att` field loads fine. Future dates are refused.
