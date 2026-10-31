@@ -188,7 +188,7 @@
     ".kb-news{list-style:none;padding:0;margin:8px 0}.kb-news li{background:#fff9db;border-radius:14px;padding:8px 10px;margin:6px 0;font-size:18px;text-align:left}.kb-news li span{font-size:30px;vertical-align:middle;margin-right:6px}" +
     ".kb-party.kb-gold h2{color:#e67700}.kb-gold .kb-ok{background:linear-gradient(135deg,#fcc419,#f08c00);box-shadow:0 5px 0 #c26100}" +
     "@keyframes kbBump{40%{transform:scale(1.25)}}@keyframes kbUp{to{transform:translateY(-46px);opacity:0}}" +
-    "@media (max-width:520px){.kb-home{width:44px;height:44px;font-size:22px;border-radius:14px}.kb-pocket{width:44px;height:44px;font-size:21px}.kb-party .kb-big{font-size:70px}}";
+    "@media (max-width:520px){.kb-home{width:44px;height:44px;font-size:22px;border-radius:14px}.kb-pocket{width:44px;height:44px;font-size:21px}.kb-party .kb-big{font-size:70px}.kb-stars{bottom:max(10px,env(safe-area-inset-bottom));right:calc(max(10px,env(safe-area-inset-right)) + 52px);min-height:44px;font-size:14px;padding:6px 9px}}";
 
   /* ---------- 🏠 floating Home ---------- */
   var homeBtn = null;

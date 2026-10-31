@@ -50,6 +50,7 @@
 - Level-ups and streak milestones always give a gift. Random surprises come only after `complete`, capped by `HubSettings.gifts.perDay`.
 - Popups wait for a `complete` or the next page so a question is never interrupted. Gotcha: KidBar's mount timer once fired mid-quiz; it now runs only when news already exists at load.
 - Streaks use calendar days (`daysBetween` via Date.UTC), so they are midnight- and DST-safe. A missed day shows 0 until the next star.
+- Gotcha: the `.kb-stars` chip sat 58px above the 🎒 pocket, mid-screen on phones, and covered page buttons (the quiz 🔊). At ≤520px it now sits beside the pocket in one bottom row. Page padding was not added: 25 apps include full-screen games. Check with a rect-overlap test at 320/375/1100px.
 - Gotcha: Git Bash `sed -i` turned the mixed-CRLF adventurepack pages (`.gitattributes -text`) into all-LF, a whole-file diff. Edit those with byte-safe Python (`rb`/`wb`).
 
 ## FEATURE — Phase 1: subject Hub from the catalog · 2026-10-30
