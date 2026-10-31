@@ -1,3 +1,14 @@
+## FEATURE — Class Corner Phase 1: teacher points board (classroom/) · 2026-10-30
+- Built from a ClassDojo-style blueprint written for Next.js, Postgres and Socket.IO. The user chose to keep it on-device: no server, plain HTML/JS, works offline and in the APK. It is an original design (own name, critters), not a clone.
+- It is for a real school class: its own roster in `cc_data`, separate from the Hub's `hub_kids`. Its behavior points are separate from RewardKit stars and money, so needs-work points never take away earned rewards.
+- `classroom/js/classstore.js`: every award is a record `{i,c,s,k,v,t,b,g?,u?}`. Totals, today and undo are computed from the records. Undo sets `u`. Students and skills are archived, never deleted. Every change goes to the audit log. Short keys keep a busy year under the ~5 MB localStorage limit. `save()` returns false when storage is full and the app asks for a backup. Unreadable data is parked in `cc_data_unreadable_<ts>`.
+- `award()` checks the class, every student (in this class and not archived) and the skill before writing, so a bad request stores nothing. Skill values are 1–10, and the skill type sets the sign.
+- It uses the same grown-up gate as Admin: the same `adm_ok` session flag and the same `hub_adminPin` hash, so passing one opens both.
+- Gotcha: a refused edit redraws the dialog to restore the old value, and that redraw wiped the error message. `openSkills(msg)` shows it after the redraw. So `onclick = openSkills` must be wrapped, or the click event arrives as `msg`.
+- Gotcha: a toast hidden only by `translate(…140%)` still peeks above `bottom:18px`. Add visibility/opacity.
+- Hub: `.grownup-links` holds 🏫 Class and ⚙️ Admin. Both sit under the login overlay until a learner is picked, so e2e tests must set `hub_activeKid`.
+- Phases left: 2 Teacher toolkit (attendance, picker/groups, noise meter), 3 Portfolio and approvals, 4 Notes and class feed (on this device only).
+
 ## FEATURE — Phases 6c–6e: G1–2 Plants & Animals, G1–2 Word Wizards, G4–5 Math Lab · 2026-10-30
 - GOTCHA: `QuizLogic.readText` ignores `audioText` on multiple_choice/choose_two, on purpose. Unit 2's bank auto-fills audioText with the choices in their *unshuffled* order, and `test/unit2-logic.js` checks the spoken choices follow the shown order. For a choice question whose prompt can't be spoken as is (a `___` blank, ×, ÷, a fraction), use `audioPrompt`: it replaces the prompt only, and the shuffled choices follow. The pack test fails audioText on a choice question.
 - Fractions ("3/4") go only where an audioText/audioPrompt speaks them ("three fourths"): some TTS voices read 3/4 as a date. Choice options are always read raw, so keep fractions out of them.

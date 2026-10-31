@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Corner</title>
+  <meta name="description" content="A teacher's class board: give behavior points for skills, award groups, and see today's summary. Stored only on this device." />
+  <link href="../fonts/fonts.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/classroom.css" />
+</head>
+<body>
+  <!-- Grown-up gate: the same math question or PIN as Admin (passing one opens both) -->
+  <div class="gate" id="gate" hidden>
+    <form class="gate-card" id="gateForm">
+      <div class="gate-icon">🏫</div>
+      <h1>Class Corner</h1>
+      <p id="gateQ"></p>
+      <input id="gateIn" type="password" autocomplete="off" aria-label="Answer" />
+      <button class="btn primary" type="submit">Open Class Corner</button>
+      <p class="gate-msg" id="gateMsg" role="alert"></p>
+      <a class="link" href="../index.html">← Back to the Hub</a>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+    <header class="top">
+      <a class="home" href="../index.html" title="Back to the Hub" aria-label="Back to the Hub">🎒</a>
+      <h1>🏫 Class Corner</h1>
+      <label class="class-pick">
+        <span class="sr">Class</span>
+        <select id="classSel"></select>
+      </label>
+      <div class="top-btns">
+        <button class="btn" id="newClass" type="button">＋ Class</button>
+        <button class="btn" id="editSkills" type="button">⚙️ Skills</button>
+        <button class="btn" id="showLog" type="button">📜 Log</button>
+      </div>
+    </header>
+
+    <section class="summary" id="summary" aria-live="polite"></section>
+
+    <div class="toolbar" id="toolbar">
+      <button class="btn" id="selectMode" type="button" aria-pressed="false">☑️ Select students</button>
+      <button class="btn" id="wholeClass" type="button">👥 Whole class</button>
+      <button class="btn" id="undo" type="button" disabled>↶ Undo last</button>
+      <button class="btn" id="roster" type="button">🧑‍🎓 Students</button>
+    </div>
+    <div class="selbar" id="selBar" hidden>
+      <span id="selCount"></span>
+      <button class="btn primary" id="selGive" type="button">Give points</button>
+      <button class="btn" id="selAll" type="button">Select all</button>
+      <button class="btn" id="selClear" type="button">Done</button>
+    </div>
+
+    <main id="board" class="board"></main>
+
+    <footer class="foot">Stored only on this device. <button class="link" id="backup" type="button">💾 Save a backup</button></footer>
+  </div>
+
+  <dialog id="dlg" aria-labelledby="dlgTitle"></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/classstore.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

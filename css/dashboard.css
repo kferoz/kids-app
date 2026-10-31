@@ -454,9 +454,9 @@ body {
   .tile:hover .tile-tip, .tile:focus-visible .tile-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* ---------- Admin link (top-right) ---------- */
+/* ---------- Grown-up links: Class Corner + Admin (top-right) ---------- */
+.grownup-links { position: absolute; top: 14px; right: 14px; z-index: 3; display: flex; gap: 8px; }
 .admin-link {
-  position: absolute; top: 14px; right: 14px; z-index: 3;
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--font-round); font-weight: 700; font-size: 0.9rem;
   text-decoration: none; color: var(--purple);
