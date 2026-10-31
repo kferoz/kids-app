@@ -37,7 +37,7 @@ AcademyLessons.add("g1-social", {
       ["m", "c2", "🌍", "Which two are continents?", ["Africa", "Asia"], ["Pacific", "Atlantic"], "Pacific and Atlantic are oceans."],
       ["m", "mc", "🦘", "Kangaroos live wild on which continent?", ["Australia", "Europe", "Antarctica"], "Kangaroos live in Australia."],
       ["m", "tf", "🌊", "The Atlantic is a continent.", false, "The Atlantic is an ocean."],
-      ["m", "mc", "🇮🇳", "India is on which continent?", ["Asia", "Africa", "Europe"], "India is in Asia."]
+      ["m", "mc", "🐘", "India is on which continent?", ["Asia", "Africa", "Europe"], "India is in Asia."]
     ] },
   4: { learn: [
       ["Timelines", "⏳", ["A timeline shows events in order.", "Past, present, future."], "Ben made a timeline: born, first steps, started school, today!"],

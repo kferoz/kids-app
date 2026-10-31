@@ -28,6 +28,7 @@ files.forEach(f => {
   const key = f.replace(/\.js$/, ''), [g, s] = key.split('-');
   if (!Y.GRADES.includes(g) || !Y.SUBJECTS.some(x => x.id === s)) { err(`${f}: not a grade-subject file name`); return; }
   try { vm.runInContext(fs.readFileSync(path.join(dir, f), 'utf8'), ctx, { filename: f }); } catch (e) { err(`${f}: ${e.message}`); return; }
+  if (/[\u{1F1E6}-\u{1F1FF}]{2}/u.test(fs.readFileSync(path.join(dir, f), 'utf8'))) err(`${f}: flag emoji show as letters on Windows`);
   const units = Y.units(g, s);
   AL.numbers(key).forEach(n => {
     const u = units[n - 1];
