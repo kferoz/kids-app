@@ -58,6 +58,7 @@
     A("homeschool-kg-math", "Homeschool Academy: Math", "🎓", "homeschool/index.html", "homeschool", "math", "learn", ["kg"]),
     A("homeschool-g3-math", "Homeschool Academy: Math", "🎓", "homeschool/index.html", "homeschool", "math", "learn", ["g3"]),
     A("quiz-numbers", "Number Fun: Add, Subtract & Tens", "🔢", "quiz/index.html#numbers", "quiz", "math", "practice", ["g1", "g2"]),
+    A("quiz-mathlab", "Math Lab: Big Numbers, Fractions & Decimals", "🧪", "quiz/index.html#mathlab", "quiz", "math", "practice", ["g4", "g5"]),
     A("multiply", "Times Table Takeoff", "✖️", "multiply/index.html", "multiply", "math", "practice", ["g3"]),
     A("grandprix-math", "Turbo Grand Prix", "🏁", "grandprix/index.html", "grandprix", "math", "games", ["g3"]),
     A("piratemath", "Pirate Math Quest", "🏴‍☠️", "adventurepack/piratemath/index.html#ch1", "piratemath", "math", "practice", ["g3"]),

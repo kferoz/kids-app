@@ -42,6 +42,7 @@ if (ids('g3', 'social').includes('quiz-helpers')) err('Community Helpers is for 
 if (!ids('g1', 'math').includes('quiz-numbers') || !ids('g2', 'math').includes('quiz-numbers') || ids('g3', 'math').includes('quiz-numbers') || ids('kg', 'math').includes('quiz-numbers')) err('Number Fun is for grades 1–2 only');
 if (!ids('g1', 'science').includes('quiz-living') || !ids('g2', 'science').includes('quiz-living') || ids('g3', 'science').includes('quiz-living') || ids('kg', 'science').includes('quiz-living')) err('Plants & Animals is for grades 1–2 only');
 if (!ids('g1', 'language', 'english').includes('quiz-words') || !ids('g2', 'language', 'english').includes('quiz-words') || ids('g3', 'language', 'english').includes('quiz-words') || ids('kg', 'language', 'english').includes('quiz-words')) err('Word Wizards is for grades 1–2 only');
+if (!ids('g4', 'math').includes('quiz-mathlab') || !ids('g5', 'math').includes('quiz-mathlab') || ids('g3', 'math').includes('quiz-mathlab') || !ids('g5', 'math').includes('multiply')) err('Math Lab is for grades 4–5, who still see the G3 band');
 if (!C.forLearner('g3', 'g3', 'language', 'tamil').length || !C.forLearner('pk', 'kg', 'language', 'tamil').length) err('Tamil Starter for every grade');
 
 console.log(fail ? `${fail} failure(s)` : 'phase1 subject hub: all checks passed');

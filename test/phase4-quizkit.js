@@ -80,28 +80,36 @@ packs.forEach(p => {
       if (L.isCorrect(c, other.id)) err(`${Q}: a wrong answer is marked right`);
     }
     if (typeof L.readText(c) !== 'string' || !L.readText(c)) err(`${Q}: nothing to read aloud`);
+    if ((q.type === 'multiple_choice' || q.type === 'choose_two') && (q.audioText || (q.audioPrompt && L.readText(c).indexOf(q.audioPrompt) !== 0))) err(`${Q}: a choice question speaks audioPrompt, not audioText`);
   });
   // Math packs: recompute every "a + b" / "a minus b" the answers depend on.
-  const calc = t => { const m = String(t).trim().match(/^(\d+) (\+|minus|−|-) (\d+)$/); return m ? (m[2] === '+' ? +m[1] + +m[3] : +m[1] - +m[3]) : null; };
+  // Also "a × b" and "a ÷ b" (a division with a remainder answers "q R r"); numbers may have thousands commas.
+  const OPS = { '+': (a, b) => a + b, 'minus': (a, b) => a - b, '−': (a, b) => a - b, '-': (a, b) => a - b,
+    '×': (a, b) => a * b, 'times': (a, b) => a * b, '÷': (a, b) => a / b, 'divided by': (a, b) => a / b };
+  const num = t => +String(t).replace(/,/g, '');
+  const calc = t => { const m = String(t).trim().match(/^([\d,]+) (\+|minus|−|-|×|times|÷|divided by) ([\d,]+)$/); return m ? OPS[m[2]](num(m[1]), num(m[3])) : null; };
+  // the answer text for a sum: "3 R2" for a division that leaves a remainder
+  const answerOf = t => { const m = String(t).trim().match(/^([\d,]+) (?:÷|divided by) ([\d,]+)$/); if (!m) return String(calc(t)); const a = num(m[1]), b = num(m[2]); return a % b ? Math.floor(a / b) + ' R' + (a % b) : String(a / b); };
+  const same = (text, t) => String(text).replace(/,/g, '') === answerOf(t);
   let sums = 0;
   qs.forEach(q => {
     const Q = `${P} ${q.id}`, optText = id => (q.options.find(o => o.id === id) || {}).text;
     let m;
     if (q.type === 'multiple_choice' && (m = q.prompt.match(/^What is (.+)\?$/)) && calc(m[1]) !== null) {
       sums++;
-      q.options.forEach(o => { if ((+o.text === calc(m[1])) !== (o.id === q.correctAnswer)) err(`${Q}: ${m[1]} = ${calc(m[1])}, key says ${optText(q.correctAnswer)}`); });
+      q.options.forEach(o => { if (same(o.text, m[1]) !== (o.id === q.correctAnswer)) err(`${Q}: ${m[1]} = ${answerOf(m[1])}, key says ${optText(q.correctAnswer)}`); });
     }
-    if (q.type === 'true_false_sentence' && (m = q.prompt.match(/^(.+) = (\d+)\.?$/)) && calc(m[1]) !== null) {
+    if (q.type === 'true_false_sentence' && (m = q.prompt.match(/^(.+) = ([\d,]+)\.?$/)) && calc(m[1]) !== null) {
       sums++;
-      if ((calc(m[1]) === +m[2]) !== (q.correctAnswer === 'T')) err(`${Q}: ${q.prompt} is ${calc(m[1]) === +m[2]}, key says ${q.correctAnswer}`);
+      if ((calc(m[1]) === num(m[2])) !== (q.correctAnswer === 'T')) err(`${Q}: ${q.prompt} is ${calc(m[1]) === num(m[2])}, key says ${q.correctAnswer}`);
     }
     if (q.type === 'matching' && q.items.every(i => calc(i.text) !== null)) {
       sums++;
-      q.items.forEach(i => { if (+optText(q.correctAnswers[i.id]) !== calc(i.text)) err(`${Q}: ${i.text} = ${calc(i.text)}, key says ${optText(q.correctAnswers[i.id])}`); });
+      q.items.forEach(i => { if (!same(optText(q.correctAnswers[i.id]), i.text)) err(`${Q}: ${i.text} = ${answerOf(i.text)}, key says ${optText(q.correctAnswers[i.id])}`); });
     }
-    if (q.type === 'choose_two' && (m = q.prompt.match(/(?:make|equal to) (\d+)/)) && q.options.every(o => calc(o.text) !== null)) {
+    if (q.type === 'choose_two' && (m = q.prompt.match(/(?:make|equal to) ([\d,]+)/)) && q.options.every(o => calc(o.text) !== null)) {
       sums++;
-      q.options.forEach(o => { if ((calc(o.text) === +m[1]) !== q.correctAnswers.includes(o.id)) err(`${Q}: ${o.text} = ${calc(o.text)} (want ${m[1]})`); });
+      q.options.forEach(o => { if ((calc(o.text) === num(m[1])) !== q.correctAnswers.includes(o.id)) err(`${Q}: ${o.text} = ${calc(o.text)} (want ${m[1]})`); });
     }
   });
   if (p.subject === 'math' && !sums) err(`${P}: a math pack with no sums the test can check`);

@@ -1,3 +1,10 @@
+## FEATURE — Phases 6c–6e: G1–2 Plants & Animals, G1–2 Word Wizards, G4–5 Math Lab · 2026-10-30
+- GOTCHA: `QuizLogic.readText` ignores `audioText` on multiple_choice/choose_two, on purpose. Unit 2's bank auto-fills audioText with the choices in their *unshuffled* order, and `test/unit2-logic.js` checks the spoken choices follow the shown order. For a choice question whose prompt can't be spoken as is (a `___` blank, ×, ÷, a fraction), use `audioPrompt`: it replaces the prompt only, and the shuffled choices follow. The pack test fails audioText on a choice question.
+- Fractions ("3/4") go only where an audioText/audioPrompt speaks them ("three fourths"): some TTS voices read 3/4 as a date. Choice options are always read raw, so keep fractions out of them.
+- Name sounds by example words ("the vowel sound in bed"), never "/e/": TTS says "slash".
+- The math checker also does × and ÷ (and "times"/"divided by"), strips thousands commas, and expects "q R r" for a division with a remainder.
+- G4/G5 learners get `quiz/packs/mathlab.js` plus their band-g3 apps (`Catalog.forLearner` adds the band). `readToMe: false` for G4–5 packs.
+
 ## FEATURE — Phase 6b: Grades 1–2 math, Number Fun pack · 2026-10-30
 - `quiz/packs/numbers.js` (g1, g2) is the first content written for grades 1–2; until now they only saw band-g3 apps. Catalog grades `["g1","g2"]`, so G3 doesn't get it.
 - `test/phase4-quizkit.js` recomputes math answer keys: "What is a + b?", "a minus b = c" true/false, all-expression matching, and "Which TWO make/equal N". A math pack with nothing checkable fails. Word problems and place value aren't parsed; check them by hand.

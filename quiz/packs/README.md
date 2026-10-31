@@ -50,7 +50,9 @@ Rules the test enforces:
 
 Write for the ear, too: say "minus", not "−", and name a sound by an example word ("the a in
 cat"), never "/a/", or read-aloud says "slash". When the screen text can't be spoken as is
-(a blank `___`, a symbol, emoji), add `audioText`.
+(a blank `___`, a symbol, emoji), add `audioText` to true/false and matching questions, and
+`audioPrompt` (the question only) to multiple choice and choose-two, whose choices are read
+after it in the order they are shown.
 
 ## Words in another language (Tamil, Arabic…)
 

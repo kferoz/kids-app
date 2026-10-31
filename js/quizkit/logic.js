@@ -93,9 +93,11 @@
   }
 
   // What 🔊 reads: the prompt and the choices in the order they are shown.
+  // Choice questions read their choices in the shown (shuffled) order, so audioText is not used here:
+  // Unit 2 fills it with the unshuffled choices. audioPrompt is a spoken stand-in for the prompt alone.
   function readText(q) {
     if (q.type !== "multiple_choice" && q.type !== "choose_two") return q.audioText;
-    return q.prompt + " " + q.options.map(function (o, i) { return (i ? "Or, " : "") + o.text.replace(/[.?]$/, "") + "?"; }).join(" ");
+    return (q.audioPrompt || q.prompt) + " " + q.options.map(function (o, i) { return (i ? "Or, " : "") + o.text.replace(/[.?]$/, "") + "?"; }).join(" ");
   }
 
   /* ---------- native-language words: {{வணக்கம்|vanakkam}} ----------
