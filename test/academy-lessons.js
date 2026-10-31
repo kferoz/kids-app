@@ -16,12 +16,13 @@ let lessons = 0, questions = 0;
 const sym = s => /[×÷]|\d\/\d/.test(s);
 // "What is 7 × 8?" style prompts: the first (right) choice must equal the sum.
 function recompute(q, u) {
-  const m = /(\d[\d,]*)\s*([×÷+−-])\s*(\d[\d,]*)\s*\?$/.exec(q.prompt);
-  if (!m || q.type !== 'multiple_choice' || !/^(What is|Work out)/.test(q.prompt)) return;
+  // only a bare "What is A op B?" (one operator, decimals allowed), so "2 + 3 × 4" style prompts are skipped
+  const m = /^(?:What is|Work out) (\d[\d,]*(?:\.\d+)?) ([×÷+−-]) (\d[\d,]*(?:\.\d+)?)\?$/.exec(q.prompt);
+  if (!m || q.type !== 'multiple_choice') return;
   const a = +m[1].replace(/,/g, ''), b = +m[3].replace(/,/g, '');
   const v = { '×': a * b, '÷': a / b, '+': a + b, '−': a - b, '-': a - b }[m[2]];
   const got = +String(q.options[0].text).replace(/,/g, '');
-  if (got !== v) err(`${u.id} ${q.id}: "${q.prompt}" should be ${v}, answer says ${q.options[0].text}`);
+  if (Math.abs(got - v) > 1e-9) err(`${u.id} ${q.id}: "${q.prompt}" should be ${v}, answer says ${q.options[0].text}`);
 }
 
 files.forEach(f => {

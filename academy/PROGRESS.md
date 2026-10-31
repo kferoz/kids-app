@@ -35,7 +35,7 @@ Nothing else needs wiring: the Hub and the lesson page load the file by name.
 | g2 | ✅ (8) | ✅ (8) | ✅ (7) | ✅ (7) | ☐ (6) | ☐ (6) |
 | g3 | ✅ (8) | ✅ (8) | ✅ (8) | ✅ (7) | ☐ (5) | ☐ (6) |
 | g4 | ✅ (8) | ✅ (8) | ✅ (7) | ✅ (7) | ☐ (5) | ☐ (6) |
-| g5 | ☐ (8) | ☐ (8) | ☐ (8) | ☐ (8) | ☐ (5) | ☐ (6) |
+| g5 | ✅ (8) | ✅ (8) | ✅ (8) | ✅ (8) | ☐ (5) | ☐ (6) |
 
 Order being followed: math, English, science and social for every grade first (core), then
 computing and health.
