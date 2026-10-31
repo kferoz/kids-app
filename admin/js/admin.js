@@ -44,6 +44,14 @@
           if (rs.length) out.push(p[1] + ": " + rs.length + (rs.length === 1 ? " round" : " rounds") + " · best " + "⭐".repeat(best));
         });
         return { label: out.length ? out.join(" · ") : "No quizzes yet" }; } },
+    { id: "academy", name: "Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "All subjects",
+      // academy/js/lessons.js: acad_progress {unitId | "adhoc:<id>": {r, best, m}}
+      progress: function (r, kid) {
+        var p = r.obj("acad_progress"), ids = Object.keys(p), Y = window.Syllabus;
+        var units = ids.filter(function (k) { return k.indexOf("adhoc:") !== 0; }), m = units.filter(function (k) { return p[k].m; }).length;
+        var mine = Y ? Y.SUBJECTS.reduce(function (n, sj) { return n + Y.units(kid.grade, sj.id).length; }, 0) : 0;
+        var own = units.filter(function (k) { return k.indexOf(kid.grade + "-") === 0 && p[k].m; }).length, ad = ids.length - units.length;
+        return { done: own, total: mine || undefined, label: m + " units mastered (" + own + " of " + mine + " in their grade) · " + units.length + " started" + (ad ? " · " + ad + " AdHoc topics tried" : "") }; } },
     { id: "funfacts", name: "Fun Facts Explorer", emoji: "🔍", grades: ["kg", "g3"], subject: "Discovery",
       progress: function (r) { return { label: r.num("ff_stars") + " ⭐ · " + r.arr("ff_trophies").length + " trophies" }; } },
     { id: "grammar", name: "Grammar Galaxy", emoji: "🪐", grades: ["g3"], subject: "Grammar & Writing",
@@ -458,12 +466,138 @@
     var on = H.get().adhoc.enabled;
     var ad = section(host, "🧪 AdHoc subject",
       "A subject of your own for one-off topics and practice tests, like \"Volcano test on Friday\". Learners see it on the Hub only while it is switched on.");
-    ad.insertAdjacentHTML("beforeend", '<label class="switch-row"><input type="checkbox" id="adhocOn"' + (on ? " checked" : "") + "> Show the AdHoc subject on the Hub</label>" +
-      '<p class="muted small-note">Writing your own topics, lessons and questions comes in the next update.</p>');
+    ad.insertAdjacentHTML("beforeend", '<label class="switch-row"><input type="checkbox" id="adhocOn"' + (on ? " checked" : "") + "> Show the AdHoc subject on the Hub</label>");
     ad.querySelector("#adhocOn").addEventListener("change", function (e) {
       H.set({ adhoc: { enabled: e.target.checked } });
       audit("academy_settings", { adhoc: e.target.checked });
       toast(e.target.checked ? "AdHoc is on the Hub" : "AdHoc is hidden");
+      renderTab();
+    });
+    if (window.AdhocStore) { if (S.adhocDraft) renderAdhocEditor(ad); else renderAdhocList(ad, on); }
+  }
+
+  /* AdHoc topics (js/adhoc.js): a list with on/off, edit, remove (hide) and restore, plus export/import */
+  var GRADE_SHORT = { pk: "Pre-K", kg: "KG", g1: "G1", g2: "G2", g3: "G3", g4: "G4", g5: "G5" };
+  function renderAdhocList(sec, on) {
+    var A = window.AdhocStore, all = A.list(true), live = all.filter(function (t) { return !t.hid; }), gone = all.filter(function (t) { return t.hid; });
+    var html = '<h4 class="money-h">Your topics</h4>' + (live.length
+      ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Topic</th><th>Grades</th><th>Questions</th><th>Shown</th><th></th></tr></thead><tbody>' +
+        live.map(function (t) {
+          return "<tr><td>" + esc(t.emoji) + " <b>" + esc(t.title) + "</b></td><td>" + (t.grades.length ? t.grades.map(function (g) { return GRADE_SHORT[g]; }).join(", ") : "All") + "</td>" +
+            "<td>" + t.questions.length + '</td><td><label class="switch-row"><input type="checkbox" data-on="' + esc(t.id) + '"' + (t.on !== false ? " checked" : "") + '> <span class="sr-only">Show ' + esc(t.title) + "</span></label></td>" +
+            '<td><button class="btn small" data-edit="' + esc(t.id) + '">✏️ Edit</button> <button class="btn small" data-rm="' + esc(t.id) + '">🙈 Remove</button></td></tr>';
+        }).join("") + "</tbody></table></div>"
+      : '<p class="muted">No topics yet. Make one for a test coming up, a trip, or anything your learners need.</p>') +
+      (on || !live.length ? "" : '<p class="muted small-note">The AdHoc switch is off, so learners don\'t see these yet.</p>') +
+      '<div class="row-actions"><button class="btn primary" id="ahNew">＋ New topic</button>' +
+      (live.length ? '<button class="btn" id="ahExport">⬇️ Export topics</button>' : "") +
+      '<label class="btn">⬆️ Import topics<input type="file" id="ahImport" accept="application/json,.json" hidden></label></div>' +
+      (gone.length ? '<details class="ah-gone"><summary>Removed topics (' + gone.length + ")</summary><ul>" + gone.map(function (t) {
+        return "<li>" + esc(t.emoji) + " " + esc(t.title) + ' <button class="btn small" data-back="' + esc(t.id) + '">↩️ Restore</button></li>';
+      }).join("") + "</ul></details>" : "");
+    sec.insertAdjacentHTML("beforeend", html);
+    sec.querySelectorAll("[data-on]").forEach(function (c) {
+      c.addEventListener("change", function () { A.setOn(c.getAttribute("data-on"), c.checked); audit("adhoc_topic", { id: c.getAttribute("data-on"), on: c.checked }); toast(c.checked ? "Topic shown" : "Topic hidden"); });
+    });
+    sec.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.addEventListener("click", function () { S.adhocDraft = JSON.parse(JSON.stringify(A.get(b.getAttribute("data-edit")))); renderTab(); });
+    });
+    sec.querySelectorAll("[data-rm]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = A.get(b.getAttribute("data-rm"));
+        if (!confirm("Remove \"" + t.title + "\"? Learners stop seeing it. You can restore it from Removed topics.")) return;
+        A.remove(t.id); audit("adhoc_topic", { id: t.id, removed: true }); toast("Topic removed"); renderTab();
+      });
+    });
+    sec.querySelectorAll("[data-back]").forEach(function (b) {
+      b.addEventListener("click", function () { A.restore(b.getAttribute("data-back")); audit("adhoc_topic", { id: b.getAttribute("data-back"), restored: true }); toast("Topic restored"); renderTab(); });
+    });
+    sec.querySelector("#ahNew").addEventListener("click", function () {
+      S.adhocDraft = { title: "", emoji: "🧪", grades: [], on: true, notes: "", questions: [{ type: "mc", prompt: "", choices: ["", "", ""], answer: 0, explain: "" }, { type: "tf", prompt: "", answer: true, explain: "" }] };
+      renderTab();
+    });
+    var ex = sec.querySelector("#ahExport");
+    if (ex) ex.addEventListener("click", function () { download("adhoc-topics-" + dayKey(Date.now()) + ".json", A.exportJSON(), "application/json"); audit("adhoc_export", {}); });
+    sec.querySelector("#ahImport").addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      var rd = new FileReader();
+      rd.onload = function () {
+        var r = A.importJSON(String(rd.result));
+        if (r.error) { toast(r.error); return; }
+        audit("adhoc_import", r); toast(r.added + " topics added" + (r.skipped ? ", " + r.skipped + " skipped" : "")); renderTab();
+      };
+      rd.readAsText(f);
+    });
+  }
+
+  // The editor works on S.adhocDraft; typing updates it in place, and only adding/removing/changing a kind redraws.
+  function renderAdhocEditor(sec) {
+    var A = window.AdhocStore, d = S.adhocDraft;
+    function qHtml(q, i) {
+      var body = q.type === "tf"
+        ? '<div class="ah-tf" role="radiogroup" aria-label="Right answer"><label><input type="radio" name="tf' + i + '" data-q="' + i + '" data-f="tf" value="1"' + (q.answer ? " checked" : "") + "> True</label>" +
+          '<label><input type="radio" name="tf' + i + '" data-q="' + i + '" data-f="tf" value="0"' + (!q.answer ? " checked" : "") + "> False</label></div>"
+        : '<div class="ah-choices">' + q.choices.map(function (c, k) {
+            return '<div class="ah-choice"><input type="radio" name="mc' + i + '" data-q="' + i + '" data-f="answer" value="' + k + '"' + (q.answer === k ? " checked" : "") + ' aria-label="Answer ' + (k + 1) + ' is right">' +
+              '<input type="text" maxlength="' + A.MAX.choice + '" data-q="' + i + '" data-f="choice" data-k="' + k + '" value="' + esc(c) + '" placeholder="Answer ' + (k + 1) + '"></div>';
+          }).join("") + (q.choices.length < 4 ? '<button class="btn small" data-addch="' + i + '">＋ Answer</button>' : "") +
+          (q.choices.length > 2 ? '<button class="btn small" data-rmch="' + i + '">− Answer</button>' : "") +
+          '<p class="muted small-note">Tick the right answer. Choices are shuffled for learners.</p></div>';
+      return '<fieldset class="ah-q"><legend>Question ' + (i + 1) + "</legend>" +
+        '<div class="ah-row"><select data-q="' + i + '" data-f="type" aria-label="Kind of question"><option value="mc"' + (q.type === "mc" ? " selected" : "") + '>Multiple choice</option><option value="tf"' + (q.type === "tf" ? " selected" : "") + ">True or false</option></select>" +
+        '<button class="btn small" data-rmq="' + i + '"' + (d.questions.length <= 2 ? " disabled" : "") + ">🗑️ Remove question</button></div>" +
+        '<label class="ah-field">' + (q.type === "tf" ? "Sentence (true or false)" : "Question") + '<input type="text" maxlength="' + A.MAX.prompt + '" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '"></label>' +
+        body + '<label class="ah-field">Explanation shown after answering (optional)<input type="text" maxlength="' + A.MAX.explain + '" data-q="' + i + '" data-f="explain" value="' + esc(q.explain || "") + '"></label></fieldset>';
+    }
+    var html = '<div class="ah-edit"><h4 class="money-h">' + (d.id ? "Edit topic" : "New topic") + "</h4>" +
+      '<div class="ah-row"><label class="ah-field grow">Title<input type="text" id="ahTitle" maxlength="' + A.MAX.title + '" value="' + esc(d.title) + '" placeholder="e.g. Volcano test on Friday"></label>' +
+      '<label class="ah-field">Emoji<input type="text" id="ahEmoji" maxlength="8" value="' + esc(d.emoji) + '" style="width:5em"></label></div>' +
+      '<fieldset class="ah-grades"><legend>Grades (none ticked = everyone)</legend>' + A.GRADES.map(function (g) {
+        return '<label><input type="checkbox" data-grade="' + g + '"' + (d.grades.indexOf(g) >= 0 ? " checked" : "") + "> " + GRADE_SHORT[g] + "</label>";
+      }).join("") + "</fieldset>" +
+      '<label class="ah-field">Learn first: one fact per line (shown as a Learn card)<textarea id="ahNotes" rows="4" maxlength="' + A.MAX.notes + '">' + esc(d.notes) + "</textarea></label>" +
+      d.questions.map(qHtml).join("") +
+      '<div class="row-actions"><button class="btn" id="ahAddMc">＋ Multiple choice</button><button class="btn" id="ahAddTf">＋ True or false</button></div>' +
+      '<p class="gate-msg" id="ahErr" role="alert"></p>' +
+      '<div class="row-actions"><button class="btn primary" id="ahSave">💾 Save topic</button><button class="btn" id="ahCancel">Cancel</button></div></div>';
+    sec.insertAdjacentHTML("beforeend", html);
+    var box = sec.querySelector(".ah-edit");
+    box.querySelector("#ahTitle").addEventListener("input", function (e) { d.title = e.target.value; });
+    box.querySelector("#ahEmoji").addEventListener("input", function (e) { d.emoji = e.target.value; });
+    box.querySelector("#ahNotes").addEventListener("input", function (e) { d.notes = e.target.value; });
+    box.querySelectorAll("[data-grade]").forEach(function (c) {
+      c.addEventListener("change", function () { d.grades = A.GRADES.filter(function (g) { var x = box.querySelector('[data-grade="' + g + '"]'); return x && x.checked; }); });
+    });
+    box.addEventListener("input", function (e) {
+      var el = e.target, i = el.getAttribute("data-q"), f = el.getAttribute("data-f"); if (i == null) return;
+      var q = d.questions[+i];
+      if (f === "prompt") q.prompt = el.value; else if (f === "explain") q.explain = el.value; else if (f === "choice") q.choices[+el.getAttribute("data-k")] = el.value;
+    });
+    box.addEventListener("change", function (e) {
+      var el = e.target, i = el.getAttribute("data-q"), f = el.getAttribute("data-f"); if (i == null) return;
+      var q = d.questions[+i];
+      if (f === "answer") q.answer = +el.value;
+      else if (f === "tf") q.answer = el.value === "1";
+      else if (f === "type") {
+        d.questions[+i] = el.value === "tf" ? { type: "tf", prompt: q.prompt, answer: true, explain: q.explain } : { type: "mc", prompt: q.prompt, choices: ["", "", ""], answer: 0, explain: q.explain };
+        renderTab();
+      }
+    });
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      var i;
+      if ((i = b.getAttribute("data-rmq")) != null) { d.questions.splice(+i, 1); renderTab(); }
+      else if ((i = b.getAttribute("data-addch")) != null) { d.questions[+i].choices.push(""); renderTab(); }
+      else if ((i = b.getAttribute("data-rmch")) != null) { var q = d.questions[+i]; q.choices.pop(); if (q.answer >= q.choices.length) q.answer = 0; renderTab(); }
+    });
+    box.querySelector("#ahAddMc").addEventListener("click", function () { d.questions.push({ type: "mc", prompt: "", choices: ["", "", ""], answer: 0, explain: "" }); renderTab(); });
+    box.querySelector("#ahAddTf").addEventListener("click", function () { d.questions.push({ type: "tf", prompt: "", answer: true, explain: "" }); renderTab(); });
+    box.querySelector("#ahCancel").addEventListener("click", function () { S.adhocDraft = null; renderTab(); });
+    box.querySelector("#ahSave").addEventListener("click", function () {
+      var r = A.save(d);
+      if (r.error) { box.querySelector("#ahErr").textContent = r.error; return; }
+      audit("adhoc_topic", { id: r.topic.id, saved: true, questions: r.topic.questions.length });
+      S.adhocDraft = null; toast("Topic saved"); renderTab();
     });
   }
 

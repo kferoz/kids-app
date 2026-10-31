@@ -18,6 +18,9 @@
      Routes live in the hash so Back works: "" home, #apps,
      #s=math, #s=languages&l=arabic. Old #s=language links still
      work (English, or World Languages for Tamil and Arabic).
+     A subject page loads academy/lessons/<grade>-<subject>.js and
+     gives each unit with a lesson a Start button and the learner's
+     progress (acad_progress, read raw like RewardKit does).
    ============================================================ */
 (function () {
   "use strict";
@@ -85,6 +88,23 @@
     else renderAcademySubject(kid, subj);
   }
   function adhocOn() { return !!(window.HubSettings && HubSettings.get().adhoc.enabled); }
+  // The learner's lesson progress (academy/js/lessons.js), read from their namespaced key.
+  function progressOf(kid) {
+    var s = null; try { s = JSON.parse(localStorage.getItem("k" + kid.id + "::acad_progress")); } catch (e) {}
+    return s && typeof s === "object" ? s : {};
+  }
+  // Load one lesson file (once); done runs either way.
+  var lessonFiles = {};
+  function loadLessons(key, done) {
+    if (!window.AcademyLessons || lessonFiles[key] === "done") { done(); return; }
+    var waiting = lessonFiles[key] || (lessonFiles[key] = []);
+    waiting.push(done);
+    if (waiting.length > 1) return;
+    var sc = document.createElement("script");
+    sc.src = "academy/lessons/" + key + ".js";
+    sc.onload = sc.onerror = function () { lessonFiles[key] = "done"; waiting.forEach(function (f) { f(); }); };
+    document.head.appendChild(sc);
+  }
   // The learner's catalog apps for an Academy subject (own grade or band).
   function appsFor(kid, subj, lang) {
     var Y = window.Syllabus;
@@ -118,11 +138,13 @@
     var html = '<section class="icon-section"><h2 class="zone-title"><span class="zone-emoji">🎓</span> My Academy <span class="zone-age">' + g.short + "</span></h2>" +
       '<div class="subject-grid">';
     Y.SUBJECTS.forEach(function (s) {
-      var n = Y.units(kid.grade, s.id).length, apps = appsFor(kid, s).length;
+      var n = Y.units(kid.grade, s.id).length, apps = appsFor(kid, s).length, pre = kid.grade + "-" + s.id + "-", prog = progressOf(kid);
+      var got = Object.keys(prog).filter(function (k) { return k.indexOf(pre) === 0 && prog[k].m; }).length;
       html += '<a class="subj-card" href="#s=' + s.id + '" style="--sc:' + s.color + '">' +
         '<span class="subj-emoji">' + s.emoji + "</span>" +
         '<span class="subj-name">' + s.name + "</span>" +
-        '<span class="subj-count">' + n + " units" + (apps ? " · " + apps + (apps === 1 ? " app" : " apps") : "") + "</span></a>";
+        '<span class="subj-count">' + n + " units" + (apps ? " · " + apps + (apps === 1 ? " app" : " apps") : "") + "</span>" +
+        (got ? '<span class="subj-done">🏅 ' + got + " mastered</span>" : "") + "</a>";
     });
     Y.EXTRAS.forEach(function (s) {
       if (s.setting && !adhocOn()) return;
@@ -171,6 +193,7 @@
         '<div class="unit-top"><span class="unit-emoji" aria-hidden="true">' + u.emoji + '</span>' +
           '<div><span class="unit-num">Unit ' + u.n + "</span><h3 class=\"unit-title\">" + escapeHtml(u.title) + "</h3></div></div>" +
         '<ul class="unit-goals">' + u.goals.map(function (q) { return "<li>" + escapeHtml(q) + "</li>"; }).join("") + "</ul>" +
+        '<div class="unit-go" data-unit="' + u.id + '" hidden></div>' +
         (acts.length ? '<div class="unit-acts"><span class="unit-label">Practise with</span><div class="act-grid">' + acts.map(actCard).join("") + "</div></div>"
           : '<p class="unit-soon">📘 Lessons for this unit are coming soon.</p>') +
         '<details class="unit-std"><summary>For grown-ups: curriculum links</summary><dl>' +
@@ -180,6 +203,22 @@
     var rest = apps.filter(function (it) { return !used[it.id]; });
     if (rest.length) html += '<h3 class="more-title">✨ More practice</h3>' + bySection(rest, "h4");
     $("subjectHub").innerHTML = subjHead(s, '<span class="subj-sub">' + g.short + " · " + units.length + " units</span>") + html;
+    var shown = location.hash;
+    loadLessons(kid.grade + "-" + s.id, function () { if (location.hash === shown) fillLessons(kid); });
+  }
+  // Units that have a lesson: a Start / Practise-again button and the learner's best Mixed Test.
+  function fillLessons(kid) {
+    var AL = window.AcademyLessons, prog = progressOf(kid);
+    document.querySelectorAll(".unit-go[data-unit]").forEach(function (box) {
+      var id = box.getAttribute("data-unit"), card = box.parentNode;
+      if (!AL.get(id)) return;
+      var r = prog[id], title = card.querySelector(".unit-title").textContent;
+      box.hidden = false;
+      box.innerHTML = '<a class="unit-start' + (r && r.m ? " done" : "") + '" href="academy/lesson.html#u=' + id + '" data-app="academy" data-app-name="' + escapeHtml(title) + '">' +
+        (r && r.m ? "🔁 Practise again" : r ? "▶️ Keep going" : "▶️ Start lesson") + "</a>" +
+        (r && r.m ? '<span class="unit-badge">🏅 Mastered ' + "⭐".repeat(r.best || 0) + "</span>" : r && r.best ? '<span class="unit-badge try">Best test ' + "⭐".repeat(r.best) + "</span>" : "");
+      var soon = card.querySelector(".unit-soon"); if (soon) soon.hidden = true;
+    });
   }
 
   // World Languages: language chips (Tamil, Arabic), then that language's apps by section.
@@ -198,11 +237,18 @@
     $("subjectHub").innerHTML = subjHead(s) + html;
   }
 
-  // AdHoc: topics and tests a grown-up writes in Admin (the editor comes in the next phase).
+  // AdHoc: topics and practice tests a grown-up writes in Admin → 🎓 Academy (js/adhoc.js).
   function renderAdhoc(s) {
-    $("subjectHub").innerHTML = subjHead(s) +
-      '<section class="icon-section subj-empty"><div class="subj-empty-emoji">🧪</div>' +
-      "<p><b>No topics yet.</b></p><p>Your grown-up can add special topics and practice tests here.</p></section>";
+    var kid = DB.active(), list = window.AdhocStore ? AdhocStore.forGrade(kid.grade) : [], prog = progressOf(kid);
+    $("subjectHub").innerHTML = subjHead(s) + (list.length
+      ? '<div class="act-grid adhoc-list">' + list.map(function (t) {
+          var r = prog["adhoc:" + t.id];
+          return '<a class="act-card adhoc-card" href="academy/lesson.html#adhoc=' + encodeURIComponent(t.id) + '" data-app="academy" data-app-name="' + escapeHtml(t.title) + '">' +
+            '<span class="act-icon"><span>' + escapeHtml(t.emoji) + '</span></span><span class="act-text"><span class="act-name">' + escapeHtml(t.title) + "</span>" +
+            '<span class="act-tip">' + t.questions.length + " questions" + (r && r.m ? " · 🏅 " + "⭐".repeat(r.best || 0) : r ? " · started" : "") + "</span></span></a>";
+        }).join("") + "</div>"
+      : '<section class="icon-section subj-empty"><div class="subj-empty-emoji">🧪</div>' +
+        "<p><b>No topics yet.</b></p><p>Your grown-up can add special topics and practice tests here.</p></section>");
   }
 
   /* ---------- action tracking ---------- */

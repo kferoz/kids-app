@@ -1,0 +1,28 @@
+/* Academy lesson page shell (the quiz itself is styled by ../js/quizkit/quizkit.css). */
+:root{
+  --bg:#F4F1FF; --ink:#2E2650; --card:#FFFFFF; --muted:#5F5A86; --good:#23A35C; --line:#E2DCF7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:500 18px/1.5 "Nunito","Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;min-height:100vh;
+  background:radial-gradient(circle at 12% 8%,#E3DBFF 0,transparent 40%),radial-gradient(circle at 92% 85%,#D7F5EA 0,transparent 45%),var(--bg)}
+.top{display:flex;align-items:center;gap:14px;padding:14px 16px;max-width:980px;margin:0 auto}
+.top h1{flex:1;margin:0;font:700 clamp(22px,4.6vw,32px)/1.1 "Fredoka","Trebuchet MS",sans-serif;text-wrap:balance}
+.top small{display:block;font:700 15px "Nunito",sans-serif;color:var(--muted);letter-spacing:.02em}
+.home{flex:none;width:52px;height:52px;display:grid;place-items:center;font-size:26px;text-decoration:none;background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink)}
+.home:focus-visible,.next:focus-visible{outline:3px solid #6C4CF1;outline-offset:3px}
+#stage{max-width:980px;margin:0 auto;padding:0 16px 96px}
+.goals{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:10px 14px;margin:0 0 14px}
+.goals b{display:block;font:700 16px "Fredoka",sans-serif}
+.goals ul{margin:4px 0 0;padding-left:1.2em}
+.goals li{font-weight:600}
+.badge{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;background:#E6F7EA;color:#1E7A3C;font-weight:800;font-size:15px}
+.quiz-card{background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:20px;box-shadow:0 6px 0 var(--ink)}
+.next{display:inline-flex;align-items:center;gap:6px;min-height:48px;margin-top:16px;padding:8px 18px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:999px;font:700 17px "Fredoka",sans-serif;text-decoration:none}
+.empty{text-align:center;padding:30px 10px}
+.empty .big{font-size:64px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;
+  padding:12px 22px;font:600 18px "Fredoka",sans-serif;box-shadow:0 6px 0 rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s;pointer-events:none;z-index:60}
+.toast.off{opacity:0}
+@media (max-width:520px){.quiz-card{padding:14px}.top{padding:12px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
