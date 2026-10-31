@@ -12,6 +12,8 @@ const hub = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 if (typeof C.forLearner !== 'function') err('Catalog.forLearner missing');
 if (!/<script src="js\/catalog\.js"><\/script>[\s\S]*<script src="js\/hub\.js">/.test(hub)) err('index.html must load catalog.js before hub.js');
+if (!/<script src="js\/catalog\.js"><\/script>\s*<script src="js\/syllabus\.js"><\/script>[\s\S]*<script src="js\/hub\.js">/.test(hub)) err('index.html must load syllabus.js (after catalog.js) before hub.js');
+if (!hub.includes('href="academy/syllabus.html"')) err('Hub links the syllabus page');
 ['id="viewBar"', 'id="subjectHub"', 'id="allApps"'].forEach(id => { if (!hub.includes(id)) err('index.html missing ' + id); });
 
 Object.keys(BAND).forEach(g => {

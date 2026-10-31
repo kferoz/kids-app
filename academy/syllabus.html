@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academy Syllabus</title>
+  <meta name="description" content="The Academy's PreK–5 syllabus for Math, English, Science, Social Studies, Computing and Health & Life Skills, combined from the US, UK and Swedish national curricula." />
+  <link href="../fonts/fonts.css" rel="stylesheet" />
+  <style>
+    :root { --ink: #2d2a4a; --ink-2: #5d587e; --page: #fbf8ff; --card: #fff; --line: #e6e0f5; --accent: #6c4bd8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.5 "Nunito", system-ui, sans-serif; }
+    h1, h2, h3 { font-family: "Baloo 2", "Fredoka", system-ui, sans-serif; line-height: 1.15; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+    .top h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.3rem); flex: 1; min-width: 220px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--card); color: var(--ink); font: 700 1rem "Nunito", system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+    .btn:focus-visible, .chip:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .lead { color: var(--ink-2); font-weight: 600; max-width: 820px; }
+    .card { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 14px 16px; margin: 14px 0; }
+    .card h2 { margin: 0 0 8px; font-size: 1.35rem; }
+    .tbl-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 520px; }
+    th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .9rem; color: var(--ink-2); }
+    .principles { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .principles li { background: var(--page); border-radius: 14px; padding: 10px 12px; }
+    .principles b { display: block; }
+    .bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    .chip { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 2px solid var(--line); background: var(--card); font: 700 .95rem "Nunito", system-ui, sans-serif; color: var(--ink); cursor: pointer; }
+    .chip[aria-pressed="true"] { border-color: var(--accent); background: #efe9ff; }
+    .subj { margin-top: 18px; }
+    .subj h3 { font-size: 1.3rem; margin: 0 0 4px; }
+    .subj > p { margin: 0 0 8px; color: var(--ink-2); }
+    .units { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+    .unit { background: var(--card); border: 2px solid var(--line); border-left: 8px solid var(--sc); border-radius: 16px; padding: 10px 12px; }
+    .unit h4 { margin: 0 0 4px; font-size: 1.05rem; }
+    .unit h4 small { color: var(--ink-2); font-weight: 800; }
+    .unit ul { margin: 4px 0 6px; padding-left: 1.2em; }
+    .refs { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: .85rem; color: var(--ink-2); margin: 0; }
+    .refs dt { font-weight: 800; }
+    .refs dd { margin: 0; overflow-wrap: anywhere; }
+    .apps { font-size: .85rem; font-weight: 700; color: var(--accent); margin: 6px 0 0; }
+    .count { color: var(--ink-2); font-weight: 700; }
+    @media (max-width: 520px) { .units { grid-template-columns: 1fr; } }
+    @media print {
+      .top .btn, .bar, .no-print { display: none !important; }
+      body { background: #fff; } .unit, .card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="btn" href="../index.html">← Hub</a>
+      <h1>🎓 Academy Syllabus</h1>
+      <button class="btn" type="button" id="print">🖨️ Print</button>
+    </header>
+    <p class="lead">One PreK–Grade 5 syllabus for six subjects. It follows the US grade-by-grade standards, adds the UK's earlier fluency targets and ancient history, and Sweden's inquiry, problem solving, democracy, sustainability, source criticism and coding. Each unit lists its "I can…" goals and where it sits in all three curricula.</p>
+
+    <section class="card">
+      <h2>How the grades line up</h2>
+      <div class="tbl-wrap"><table id="match"><thead><tr><th>Here</th><th>United States</th><th>England</th><th>Sweden</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>What we took from each country</h2>
+      <ul class="principles" id="principles"></ul>
+    </section>
+
+    <nav class="bar" id="grades" aria-label="Grade"></nav>
+    <nav class="bar" id="subjects" aria-label="Subject"></nav>
+    <p class="count" id="count" aria-live="polite"></p>
+    <main id="out"></main>
+  </div>
+
+  <script src="../js/catalog.js"></script>
+  <script src="../js/syllabus.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var Y = window.Syllabus, C = window.Catalog, $ = function (id) { return document.getElementById(id); };
+    var NAMES = { pk: "Pre-K", kg: "Kindergarten", g1: "Grade 1", g2: "Grade 2", g3: "Grade 3", g4: "Grade 4", g5: "Grade 5" };
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    var KEY = "acad_syllabusView", st = { g: "kg", s: "all" };
+    try { var v = JSON.parse(localStorage.getItem(KEY)); if (v && NAMES[v.g]) st = v; } catch (e) {}
+
+    $("match").tBodies[0].innerHTML = Y.GRADES.map(function (g) {
+      var m = Y.MATCH[g]; return "<tr><th>" + NAMES[g] + "</th><td>" + esc(m.us) + "</td><td>" + esc(m.uk) + "</td><td>" + esc(m.se) + "</td></tr>";
+    }).join("");
+    $("principles").innerHTML = Y.PRINCIPLES.map(function (p) { return "<li>" + p[0] + " <b>" + esc(p[1]) + "</b>" + esc(p[2]) + "</li>"; }).join("");
+
+    function draw() {
+      try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
+      $("grades").innerHTML = Y.GRADES.map(function (g) { return '<button class="chip" type="button" data-g="' + g + '" aria-pressed="' + (st.g === g) + '">' + NAMES[g] + "</button>"; }).join("");
+      $("subjects").innerHTML = [{ id: "all", name: "All subjects", emoji: "📚" }].concat(Y.SUBJECTS).map(function (s) {
+        return '<button class="chip" type="button" data-s="' + s.id + '" aria-pressed="' + (st.s === s.id) + '">' + s.emoji + " " + s.name + "</button>";
+      }).join("");
+      var subs = Y.SUBJECTS.filter(function (s) { return st.s === "all" || st.s === s.id; }), n = 0;
+      $("out").innerHTML = subs.map(function (s) {
+        var list = Y.units(st.g, s.id); n += list.length;
+        return '<section class="subj"><h3>' + s.emoji + " " + s.name + " · " + NAMES[st.g] + "</h3><p>" + esc(s.about) + '</p><div class="units">' + list.map(function (u) {
+          var apps = u.acts.map(function (id) { var it = C.ITEMS.filter(function (x) { return x.id === id; })[0]; return it ? it.title : ""; }).filter(Boolean);
+          return '<article class="unit" style="--sc:' + s.color + '"><h4><small>Unit ' + u.n + "</small> " + u.emoji + " " + esc(u.title) + "</h4><ul>" +
+            u.goals.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") + '</ul><dl class="refs"><dt>US</dt><dd>' + esc(u.us) + "</dd><dt>UK</dt><dd>" + esc(u.uk) +
+            "</dd><dt>SE</dt><dd>" + esc(u.se) + "</dd></dl>" + (apps.length ? '<p class="apps">🧩 ' + esc(apps.join(" · ")) + "</p>" : "") + "</article>";
+        }).join("") + "</div></section>";
+      }).join("");
+      $("count").textContent = n + " units shown";
+    }
+    $("grades").addEventListener("click", function (e) { var b = e.target.closest("[data-g]"); if (b) { st.g = b.getAttribute("data-g"); draw(); } });
+    $("subjects").addEventListener("click", function (e) { var b = e.target.closest("[data-s]"); if (b) { st.s = b.getAttribute("data-s"); draw(); } });
+    $("print").addEventListener("click", function () { window.print(); });
+    draw();
+  })();
+  </script>
+</body>
+</html>

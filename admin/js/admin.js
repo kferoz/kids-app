@@ -211,7 +211,7 @@
   var TABS = [
     { id: "overview", label: "📊 Overview" }, { id: "students", label: "👧 Students" },
     { id: "progress", label: "📈 Progress" }, { id: "suggest", label: "💡 Suggestions" },
-    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "data", label: "💾 Data" }
+    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "academy", label: "🎓 Academy" }, { id: "data", label: "💾 Data" }
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.innerHTML = "";
@@ -236,9 +236,9 @@
   function renderTab() {
     C.hideTip();
     var host = $("panel");
-    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars";
+    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars" || S.tab === "academy";
     var fn = { overview: renderOverview, students: renderStudents, progress: renderProgress, suggest: renderSuggest,
-               forecast: renderForecast, log: renderLog, dollars: renderDollars, data: renderData }[S.tab];
+               forecast: renderForecast, log: renderLog, dollars: renderDollars, academy: renderAcademy, data: renderData }[S.tab];
     host.innerHTML = "";
     fn(host);
   }
@@ -434,8 +434,36 @@
     sec.querySelector("#mReset").addEventListener("click", function () {
       if (!confirm("Reset currency, amounts, learner switches and challenge levels to the defaults?")) return;
       var cur = H.get();
-      H.reset(); H.set({ gifts: cur.gifts });   // keep the gifts setting
+      H.reset(); H.set({ gifts: cur.gifts, adhoc: cur.adhoc });   // reset clears the whole key: keep gifts and AdHoc
       audit("money_settings", { what: "reset" }); toast("Money settings reset"); renderTab();
+    });
+  }
+
+  /* ---------- 🎓 Academy: the syllabus (js/syllabus.js) and the AdHoc subject switch ---------- */
+  function renderAcademy(host) {
+    var Y = window.Syllabus, H = window.HubSettings;
+    if (Y) {
+      var sec = section(host, "🎓 Academy syllabus",
+        "The Hub opens on the Academy: six subjects for every grade from Pre-K to Grade 5, in numbered units with \"I can\" goals. It is built from the US, UK (England) and Swedish national curricula; every unit lists where it sits in all three.");
+      var NAMES = { pk: "Pre-K", kg: "KG", g1: "Grade 1", g2: "Grade 2", g3: "Grade 3", g4: "Grade 4", g5: "Grade 5" }, total = 0;
+      var rows = Y.GRADES.map(function (g) {
+        return "<tr><td><b>" + NAMES[g] + "</b></td>" + Y.SUBJECTS.map(function (sj) { var n = Y.units(g, sj.id).length; total += n; return "<td>" + n + "</td>"; }).join("") + "</tr>";
+      }).join("");
+      sec.insertAdjacentHTML("beforeend", '<p><a class="btn primary" href="../academy/syllabus.html">📚 Open the full syllabus</a></p>' +
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Units</th>' + Y.SUBJECTS.map(function (sj) { return "<th>" + sj.emoji + " " + esc(sj.name) + "</th>"; }).join("") +
+        "</tr></thead><tbody>" + rows + "</tbody></table></div>" +
+        '<p class="muted small-note">' + total + " units in all. Lessons are being added unit by unit; until then each unit shows the apps that already practise it.</p>");
+    }
+    if (!H) return;
+    var on = H.get().adhoc.enabled;
+    var ad = section(host, "🧪 AdHoc subject",
+      "A subject of your own for one-off topics and practice tests, like \"Volcano test on Friday\". Learners see it on the Hub only while it is switched on.");
+    ad.insertAdjacentHTML("beforeend", '<label class="switch-row"><input type="checkbox" id="adhocOn"' + (on ? " checked" : "") + "> Show the AdHoc subject on the Hub</label>" +
+      '<p class="muted small-note">Writing your own topics, lessons and questions comes in the next update.</p>');
+    ad.querySelector("#adhocOn").addEventListener("change", function (e) {
+      H.set({ adhoc: { enabled: e.target.checked } });
+      audit("academy_settings", { adhoc: e.target.checked });
+      toast(e.target.checked ? "AdHoc is on the Hub" : "AdHoc is hidden");
     });
   }
 

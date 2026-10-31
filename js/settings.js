@@ -13,6 +13,8 @@
            no entry pays its own level, "big" by default)
    gifts   surprise gifts are virtual only (stickers, critters,
            avatar items, bonus tickets), capped per day
+   adhoc   the Academy's AdHoc subject (grown-ups' own topics and
+           tests): enabled shows it on the Hub; off by default
 
    Admin → 💰 Money edits these; the Dollar Bank (js/dollars.js)
    reads them; RewardKit reads gifts.perDay. With nothing changed,
@@ -39,7 +41,8 @@
       perKid: {},
       levelOf: {}
     },
-    gifts: { virtualOnly: true, perDay: 3 }
+    gifts: { virtualOnly: true, perDay: 3 },
+    adhoc: { enabled: false }
   };
 
   function clone(v) { return JSON.parse(JSON.stringify(v)); }

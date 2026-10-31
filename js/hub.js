@@ -6,12 +6,18 @@
      (filter chips are hidden while a learner is logged in).
    • Tracks actions (which app a kid opens) into KidsDB (hub_events).
    • Filter chips work only when nobody is logged in.
-   • Subject Hub: a logged-in learner starts on subject cards
-     (Science, Math, Social Studies, Language, from js/catalog.js);
-     each subject lists its activities by Learn / Stories / Practice /
-     Tests / Games. "All My Apps" (#apps) is the old grade grid.
+   • Academy: a logged-in learner starts on the Academy's subjects
+     (js/syllabus.js: Math, English, Science, Social Studies,
+     Computing, Health & Life Skills), then World Languages, the
+     grown-ups' AdHoc subject when Admin switches it on, and the
+     Fun Zone. A subject page is its numbered units for the
+     learner's grade, each with "I can" goals and the apps
+     (js/catalog.js) that practise it; apps not on a unit follow
+     under "More practice" by Learn / Stories / Practice / Tests /
+     Games. "All My Apps" (#apps) is the old grade grid.
      Routes live in the hash so Back works: "" home, #apps,
-     #s=math, #s=language&l=arabic.
+     #s=math, #s=languages&l=arabic. Old #s=language links still
+     work (English, or World Languages for Tamil and Arabic).
    ============================================================ */
 (function () {
   "use strict";
@@ -69,8 +75,20 @@
     $("subjectHub").hidden = !subjects;
     showKidGrade();
     if (!subjects) return;
-    var subj = r.s && C.subject(r.s);
-    if (subj && subj.id !== "fun") renderSubject(kid, subj, r.l); else renderSubjectHome(kid);
+    var Y = window.Syllabus, id = r.s;
+    if (id === "language") id = r.l && r.l !== "english" ? "languages" : "english";   // links from before the Academy
+    var subj = Y && id && Y.subject(id);
+    if (subj && subj.setting && !adhocOn()) subj = null;
+    if (!subj) renderSubjectHome(kid);
+    else if (subj.id === "languages") renderLanguages(kid, subj, r.l);
+    else if (subj.id === "adhoc") renderAdhoc(subj);
+    else renderAcademySubject(kid, subj);
+  }
+  function adhocOn() { return !!(window.HubSettings && HubSettings.get().adhoc.enabled); }
+  // The learner's catalog apps for an Academy subject (own grade or band).
+  function appsFor(kid, subj, lang) {
+    var Y = window.Syllabus;
+    return mine(kid).filter(function (it) { return Y.catalogMatch(subj, it) && (!lang || it.lang === lang); });
   }
   function mine(kid, subject, lang) {
     return window.Catalog.forLearner(kid.grade, DB.band(kid.grade), subject, lang);
@@ -94,21 +112,27 @@
         (tip ? '<span class="act-tip">' + escapeHtml(tip) + "</span>" : "") + "</span></a>";
   }
 
-  // Home: one big card per subject, then the Fun Zone.
+  // Home: the Academy's subjects, World Languages, AdHoc (when on), then the Fun Zone.
   function renderSubjectHome(kid) {
-    var C = window.Catalog, g = DB.GRADES[kid.grade] || DB.GRADES.kg;
-    var html = '<section class="icon-section"><h2 class="zone-title"><span class="zone-emoji">📚</span> My Subjects <span class="zone-age">' + g.short + "</span></h2>" +
+    var Y = window.Syllabus, g = DB.GRADES[kid.grade] || DB.GRADES.kg;
+    var html = '<section class="icon-section"><h2 class="zone-title"><span class="zone-emoji">🎓</span> My Academy <span class="zone-age">' + g.short + "</span></h2>" +
       '<div class="subject-grid">';
-    C.SUBJECTS.forEach(function (s) {
-      if (s.id === "fun") return;
-      var n = mine(kid, s.id).length;
-      var langs = s.langs ? '<span class="subj-langs">' + s.langs.map(function (l) { return "<span>" + l.emoji + " " + l.name + "</span>"; }).join("") + "</span>" : "";
-      var body = '<span class="subj-emoji">' + s.emoji + "</span>" +
+    Y.SUBJECTS.forEach(function (s) {
+      var n = Y.units(kid.grade, s.id).length, apps = appsFor(kid, s).length;
+      html += '<a class="subj-card" href="#s=' + s.id + '" style="--sc:' + s.color + '">' +
+        '<span class="subj-emoji">' + s.emoji + "</span>" +
         '<span class="subj-name">' + s.name + "</span>" +
-        '<span class="subj-count">' + (n ? n + (n === 1 ? " activity" : " activities") : "Coming soon ✨") + "</span>" + langs;
-      html += n
-        ? '<a class="subj-card" href="#s=' + s.id + '" style="--sc:' + s.color + '">' + body + "</a>"
-        : '<div class="subj-card soon" style="--sc:' + s.color + '" aria-disabled="true">' + body + "</div>";
+        '<span class="subj-count">' + n + " units" + (apps ? " · " + apps + (apps === 1 ? " app" : " apps") : "") + "</span></a>";
+    });
+    Y.EXTRAS.forEach(function (s) {
+      if (s.setting && !adhocOn()) return;
+      var body = '<span class="subj-emoji">' + s.emoji + "</span>" + '<span class="subj-name">' + s.name + "</span>";
+      if (s.langs) {
+        var langs = window.Catalog.SUBJECTS.filter(function (c) { return c.id === "language"; })[0].langs.filter(function (l) { return s.langs.indexOf(l.id) >= 0; });
+        body += '<span class="subj-count">' + appsFor(kid, s).length + " apps</span>" +
+          '<span class="subj-langs">' + langs.map(function (l) { return "<span>" + l.emoji + " " + l.name + "</span>"; }).join("") + "</span>";
+      } else body += '<span class="subj-count">Tests and topics from your grown-up</span>';
+      html += '<a class="subj-card extra" href="#s=' + s.id + '" style="--sc:' + s.color + '">' + body + "</a>";
     });
     html += "</div></section>";
     var fun = mine(kid, "fun");
@@ -119,35 +143,66 @@
     $("subjectHub").innerHTML = html;
   }
 
-  // One subject: language chips (Language only), then its activities by section.
-  function renderSubject(kid, s, langId) {
-    var C = window.Catalog, html = "", items, lang = null;
-    if (s.langs) {
-      lang = s.langs.filter(function (l) { return l.id === langId; })[0] ||
-             s.langs.filter(function (l) { return mine(kid, s.id, l.id).length; })[0] || s.langs[0];
-      html += '<nav class="filter-bar lang-bar" aria-label="Choose a language">' + s.langs.map(function (l) {
-        return '<a class="filter-chip' + (l === lang ? " active" : "") + '" href="#s=' + s.id + "&l=" + l.id + '">' +
-          l.emoji + " " + l.name + (l.native !== l.name ? ' <span class="native" lang="' + (l.id === "tamil" ? "ta" : "ar") + '">' + l.native + "</span>" : "") + "</a>";
-      }).join("") + "</nav>";
-    }
-    items = mine(kid, s.id, lang && lang.id);
-    C.SECTIONS.forEach(function (sec) {
+  function subjHead(s, sub) {
+    return '<div class="subj-head" style="--sc:' + s.color + '">' +
+      '<a class="kid-btn" href="#">← Academy</a>' +
+      '<h2 class="subj-title"><span>' + s.emoji + "</span> " + s.name + "</h2>" + (sub || "") + "</div>";
+  }
+  // Apps grouped by Learn / Stories / Practice / Tests / Games.
+  function bySection(items, h) {
+    var html = "";
+    window.Catalog.SECTIONS.forEach(function (sec) {
       var list = items.filter(function (it) { return it.section === sec.id; });
       if (!list.length) return;
-      html += '<section class="icon-section subj-section"><h3 class="sec-title"><span>' + sec.emoji + "</span> " + sec.name + "</h3>" +
+      html += '<section class="icon-section subj-section"><' + h + ' class="sec-title"><span>' + sec.emoji + "</span> " + sec.name + "</" + h + ">" +
         '<div class="act-grid">' + list.map(actCard).join("") + "</div></section>";
     });
-    if (!items.length) {
-      html += '<section class="icon-section subj-empty"><div class="subj-empty-emoji">' + (lang ? lang.emoji : s.emoji) + "</div>" +
-        "<p><b>" + (lang ? lang.name : s.name) + " is coming soon!</b></p>" +
-        (lang && lang.id === "tamil" ? '<p lang="ta" class="native-big">வணக்கம்!</p>' : "") +
+    return html;
+  }
+
+  // One Academy subject: the grade's numbered units, then apps that are on no unit.
+  function renderAcademySubject(kid, s) {
+    var Y = window.Syllabus, g = DB.GRADES[kid.grade] || DB.GRADES.kg, units = Y.units(kid.grade, s.id);
+    var apps = appsFor(kid, s), byId = {}, used = {};
+    apps.forEach(function (it) { byId[it.id] = it; });
+    var html = '<p class="unit-intro">' + escapeHtml(s.about) + "</p>" + '<ol class="unit-path">' + units.map(function (u) {
+      var acts = u.acts.filter(function (id) { return byId[id]; }).map(function (id) { used[id] = 1; return byId[id]; });
+      return '<li class="unit-card" id="' + u.id + '" style="--sc:' + s.color + '">' +
+        '<div class="unit-top"><span class="unit-emoji" aria-hidden="true">' + u.emoji + '</span>' +
+          '<div><span class="unit-num">Unit ' + u.n + "</span><h3 class=\"unit-title\">" + escapeHtml(u.title) + "</h3></div></div>" +
+        '<ul class="unit-goals">' + u.goals.map(function (q) { return "<li>" + escapeHtml(q) + "</li>"; }).join("") + "</ul>" +
+        (acts.length ? '<div class="unit-acts"><span class="unit-label">Practise with</span><div class="act-grid">' + acts.map(actCard).join("") + "</div></div>"
+          : '<p class="unit-soon">📘 Lessons for this unit are coming soon.</p>') +
+        '<details class="unit-std"><summary>For grown-ups: curriculum links</summary><dl>' +
+          "<dt>US</dt><dd>" + escapeHtml(u.us) + "</dd><dt>UK</dt><dd>" + escapeHtml(u.uk) + "</dd><dt>Sweden</dt><dd>" + escapeHtml(u.se) + "</dd></dl></details>" +
+        "</li>";
+    }).join("") + "</ol>";
+    var rest = apps.filter(function (it) { return !used[it.id]; });
+    if (rest.length) html += '<h3 class="more-title">✨ More practice</h3>' + bySection(rest, "h4");
+    $("subjectHub").innerHTML = subjHead(s, '<span class="subj-sub">' + g.short + " · " + units.length + " units</span>") + html;
+  }
+
+  // World Languages: language chips (Tamil, Arabic), then that language's apps by section.
+  function renderLanguages(kid, s, langId) {
+    var langs = window.Catalog.SUBJECTS.filter(function (c) { return c.id === "language"; })[0].langs.filter(function (l) { return s.langs.indexOf(l.id) >= 0; });
+    var lang = langs.filter(function (l) { return l.id === langId; })[0] ||
+               langs.filter(function (l) { return appsFor(kid, s, l.id).length; })[0] || langs[0];
+    var html = '<nav class="filter-bar lang-bar" aria-label="Choose a language">' + langs.map(function (l) {
+      return '<a class="filter-chip' + (l === lang ? " active" : "") + '" href="#s=languages&l=' + l.id + '">' +
+        l.emoji + " " + l.name + ' <span class="native" lang="' + (l.id === "tamil" ? "ta" : "ar") + '">' + l.native + "</span></a>";
+    }).join("") + "</nav>";
+    var items = appsFor(kid, s, lang.id);
+    html += items.length ? bySection(items, "h3")
+      : '<section class="icon-section subj-empty"><div class="subj-empty-emoji">' + lang.emoji + "</div><p><b>" + lang.name + " is coming soon!</b></p>" +
         "<p>New lessons are on the way. Try another subject for now.</p></section>";
-    }
-    $("subjectHub").innerHTML =
-      '<div class="subj-head" style="--sc:' + s.color + '">' +
-        '<a class="kid-btn" href="#">← Subjects</a>' +
-        '<h2 class="subj-title"><span>' + s.emoji + "</span> " + s.name + "</h2>" +
-      "</div>" + html;
+    $("subjectHub").innerHTML = subjHead(s) + html;
+  }
+
+  // AdHoc: topics and tests a grown-up writes in Admin (the editor comes in the next phase).
+  function renderAdhoc(s) {
+    $("subjectHub").innerHTML = subjHead(s) +
+      '<section class="icon-section subj-empty"><div class="subj-empty-emoji">🧪</div>' +
+      "<p><b>No topics yet.</b></p><p>Your grown-up can add special topics and practice tests here.</p></section>";
   }
 
   /* ---------- action tracking ---------- */

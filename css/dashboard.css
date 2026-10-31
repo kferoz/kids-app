@@ -588,3 +588,28 @@ a.subj-card:focus-visible { outline: 4px solid var(--sc); outline-offset: 3px; }
   position: absolute; right: -8px; top: -10px; font-size: 1.5rem; line-height: 1;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25)); transform: rotate(12deg);
 }
+
+/* ---------- Academy: numbered units on a subject page ---------- */
+.subj-sub { font-weight: 700; color: #5d587e; }
+.subj-card.extra { border-style: dashed; }
+.unit-intro { margin: 0 0 12px; color: #5d587e; font-weight: 600; max-width: 760px; }
+.unit-path { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: unit; }
+.unit-card { background: #fff; border-radius: 22px; border: 3px solid #ece7fb; border-left-width: 10px; border-left-color: var(--sc); padding: 14px 16px; display: grid; gap: 10px; box-shadow: 0 6px 16px rgba(60, 40, 120, .08); }
+.unit-top { display: flex; align-items: center; gap: 12px; }
+.unit-emoji { font-size: 2.2rem; width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: #f6f3ff; flex: none; }
+.unit-num { font-weight: 800; font-size: .85rem; letter-spacing: .04em; text-transform: uppercase; color: #5d587e; }
+.unit-title { font-family: var(--font-round); font-weight: 800; font-size: 1.25rem; line-height: 1.15; margin: 0; }
+.unit-goals { margin: 0; padding-left: 1.3em; display: grid; gap: 3px; font-weight: 600; }
+.unit-goals li::marker { content: "✔️ "; }
+.unit-label { display: block; font-weight: 800; font-size: .9rem; margin-bottom: 6px; color: #5d587e; }
+.unit-soon { margin: 0; font-weight: 700; color: #5d587e; }
+.unit-std summary { cursor: pointer; font-weight: 700; color: #5d587e; font-size: .9rem; min-height: 32px; display: flex; align-items: center; }
+.unit-std dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 6px 0 0; font-size: .9rem; }
+.unit-std dt { font-weight: 800; }
+.unit-std dd { margin: 0; overflow-wrap: anywhere; }
+.more-title { font-family: var(--font-round); font-weight: 800; font-size: 1.3rem; margin: 22px 0 6px; }
+@media (max-width: 520px) {
+  .unit-card { padding: 12px; border-left-width: 7px; }
+  .unit-emoji { width: 46px; height: 46px; font-size: 1.8rem; }
+  .unit-title { font-size: 1.1rem; }
+}
