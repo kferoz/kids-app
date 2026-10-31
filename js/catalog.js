@@ -80,6 +80,7 @@
     A("homeschool-kg-eng", "Homeschool Academy: English", "🎓", "homeschool/index.html", "homeschool", "language", "learn", ["kg"], "english"),
     A("homeschool-g3-eng", "Homeschool Academy: English", "🎓", "homeschool/index.html", "homeschool", "language", "learn", ["g3"], "english"),
     A("readingadventures", "Reading Adventures", "📖", "adventurepack/readingadventures/index.html", "readingadventures", "language", "stories", ["kg", "g3"], "english"),
+    A("quiz-words", "Word Wizards", "🪄", "quiz/index.html#words", "quiz", "language", "practice", ["g1", "g2"], "english"),
     A("reading", "Reading Trail", "🦉", "reading/index.html", "reading", "language", "learn", ["g3"], "english"),
     A("readrocket", "Read-Aloud Rocket", "🚀", "readrocket/index.html", "readrocket", "language", "stories", ["g3"], "english"),
     A("detectives", "Reading Detectives", "🦝", "detectives/index.html", "detectives", "language", "stories", ["g3"], "english"),

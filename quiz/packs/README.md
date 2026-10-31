@@ -48,6 +48,10 @@ Rules the test enforces:
 - Sentences have 12 words or fewer, so they read well aloud.
 - Every answer id exists. Matching has one option per item, with no option used twice.
 
+Write for the ear, too: say "minus", not "−", and name a sound by an example word ("the a in
+cat"), never "/a/", or read-aloud says "slash". When the screen text can't be spoken as is
+(a blank `___`, a symbol, emoji), add `audioText`.
+
 ## Words in another language (Tamil, Arabic…)
 
 Write each one as `{{native script|spelling}}`, e.g. `{{வணக்கம்|vanakkam}}`, and set `native`
