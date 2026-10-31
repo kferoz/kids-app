@@ -70,6 +70,7 @@
 
     /* ---- Social Studies ---- */
     A("quiz-helpers", "Community Helpers", "🚒", "quiz/index.html#helpers", "quiz", "social", "learn", ["pk", "kg"]),
+    A("quiz-community", "My Community & World", "🏘️", "quiz/index.html#community", "quiz", "social", "learn", ["g1", "g2"]),
     A("quiz-worldlab", "World Explorers: Maps, Government & Money", "🧭", "quiz/index.html#worldlab", "quiz", "social", "learn", ["g4", "g5"]),
     A("sq-unit2-soc", "Unit 2 Test Prep", "🏛️", "adventurepack/stickerquest/index.html#unit2", "stickerquest", "social", "tests", ["g3"]),
     A("billofrights", "Why We Have the Bill of Rights", "📜", "adventurepack/billofrights/index.html", "billofrights", "social", "stories", ["g3"]),

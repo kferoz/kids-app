@@ -64,7 +64,7 @@ QuizPacks.add((() => {
       {id:"we3", topic:3, difficulty:"easy", type:"multiple_choice", picture:"🌍",
         prompt:"How many continents are there?", options:opts("Five", "Six", "Seven"), correctAnswer:"C",
         explanation:"There are seven continents."},
-      {id:"we4", topic:3, difficulty:"easy", type:"multiple_choice", picture:"🇮🇳",
+      {id:"we4", topic:3, difficulty:"easy", type:"multiple_choice", picture:"🌏",
         prompt:"On which continent is India?", options:opts("Asia", "Africa", "Europe"), correctAnswer:"A",
         explanation:"India is in Asia, the biggest continent."},
       {id:"we5", topic:4, difficulty:"easy", type:"multiple_choice", picture:"📜",

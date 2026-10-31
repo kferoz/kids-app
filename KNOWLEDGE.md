@@ -3,6 +3,8 @@
 - Fractions ("3/4") go only where an audioText/audioPrompt speaks them ("three fourths"): some TTS voices read 3/4 as a date. Choice options are always read raw, so keep fractions out of them.
 - Name sounds by example words ("the vowel sound in bed"), never "/e/": TTS says "slash".
 - The math checker also does × and ÷ (and "times"/"divided by"), strips thousands commas, and expects "q R r" for a division with a remainder.
+- GOTCHA: Windows has no flag emoji, so 🇺🇸 and 🇮🇳 render as the letters "US" and "IN" ("US United States"). Android draws them. Packs use no flags; use 🌏 or words instead.
+- 6h/6i: every grade PK–G5 now has its own pack in all four subjects. Matching works with 2 items (community cm2).
 - G4/G5 learners get `quiz/packs/mathlab.js` plus their band-g3 apps (`Catalog.forLearner` adds the band). `readToMe: false` for G4–5 packs.
 
 ## FEATURE — Phase 6b: Grades 1–2 math, Number Fun pack · 2026-10-30
