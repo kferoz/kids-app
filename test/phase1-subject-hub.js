@@ -44,6 +44,7 @@ if (!ids('g1', 'science').includes('quiz-living') || !ids('g2', 'science').inclu
 if (!ids('g1', 'language', 'english').includes('quiz-words') || !ids('g2', 'language', 'english').includes('quiz-words') || ids('g3', 'language', 'english').includes('quiz-words') || ids('kg', 'language', 'english').includes('quiz-words')) err('Word Wizards is for grades 1–2 only');
 if (!ids('g4', 'math').includes('quiz-mathlab') || !ids('g5', 'math').includes('quiz-mathlab') || ids('g3', 'math').includes('quiz-mathlab') || !ids('g5', 'math').includes('multiply')) err('Math Lab is for grades 4–5, who still see the G3 band');
 if (!ids('g4', 'science').includes('quiz-sciencelab') || !ids('g5', 'science').includes('quiz-sciencelab') || ids('g3', 'science').includes('quiz-sciencelab')) err('Science Explorers is for grades 4–5');
+if (!ids('g4', 'language', 'english').includes('quiz-readinglab') || !ids('g5', 'language', 'english').includes('quiz-readinglab') || ids('g3', 'language', 'english').includes('quiz-readinglab')) err('Reading Rangers is for grades 4–5');
 if (!C.forLearner('g3', 'g3', 'language', 'tamil').length || !C.forLearner('pk', 'kg', 'language', 'tamil').length) err('Tamil Starter for every grade');
 
 console.log(fail ? `${fail} failure(s)` : 'phase1 subject hub: all checks passed');

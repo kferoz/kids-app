@@ -90,6 +90,7 @@
     A("grammar", "Grammar Galaxy", "🪐", "grammar/index.html", "grammar", "language", "practice", ["g3"], "english"),
     A("treasure", "Grammar Treasure Hunt", "🗺️", "treasure/index.html", "treasure", "language", "games", ["g3"], "english"),
     A("writestudio", "Sentence Studio", "✏️", "writestudio/index.html", "writestudio", "language", "learn", ["g3"], "english"),
+    A("quiz-readinglab", "Reading Rangers: Words & Meaning", "📚", "quiz/index.html#readinglab", "quiz", "language", "practice", ["g4", "g5"], "english"),
     A("grandprix-eng", "Turbo Grand Prix", "🏁", "grandprix/index.html", "grandprix", "language", "games", ["g3"], "english"),
 
     /* ---- Language: Arabic ---- */
