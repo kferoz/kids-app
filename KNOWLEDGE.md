@@ -7,7 +7,16 @@
 - Gotcha: a refused edit redraws the dialog to restore the old value, and that redraw wiped the error message. `openSkills(msg)` shows it after the redraw. So `onclick = openSkills` must be wrapped, or the click event arrives as `msg`.
 - Gotcha: a toast hidden only by `translate(…140%)` still peeks above `bottom:18px`. Add visibility/opacity.
 - Hub: `.grownup-links` holds 🏫 Class and ⚙️ Admin. Both sit under the login overlay until a learner is picked, so e2e tests must set `hub_activeKid`.
-- Phases left: 2 Teacher toolkit (attendance, picker/groups, noise meter), 3 Portfolio and approvals, 4 Notes and class feed (on this device only).
+- Phases left: 3 Portfolio and approvals, 4 Notes and class feed (on this device only).
+
+## FEATURE — Class Corner Phase 2: attendance, picker and groups, noise meter · 2026-10-30
+- Attendance is stored as `cc_data.att[class][day][student]` = p/a/t/l: one record per student per day, with every change audited. Phase 1 data with no `att` field loads fine. Future dates are refused.
+- `inRoom()`: before attendance is taken that day, everyone counts. After that, only present or tardy students. The picker and the group maker both use it.
+- `classroom/js/tools.js` holds the pure maths: shuffle, `makeGroups` and `level`. Groups have at most `size` students and differ by at most 1 in size. Nobody is left alone (3 by 2 makes one group of 3). `level` maps RMS dB from -60…0 to 0–100.
+- APK: the WebView never granted `getUserMedia`, because Phonics Pals uses the native SpeechRecognizer instead. `onPermissionRequest` now grants AUDIO_CAPTURE only, asking for RECORD_AUDIO at runtime first (REQ_WEB_MIC = 8). The manifest gains MODIFY_AUDIO_SETTINGS, which WebView audio capture needs. Pages on `file:///android_asset` count as secure, so `navigator.mediaDevices` exists. Not yet tried on a real tablet.
+- The mic turns off whenever the noise view is left, the class changes, the page is hidden, or on pagehide. A reload never reopens the noise view. Nothing is recorded or stored except the limit (`cc_noiseLimit`).
+- Gotcha: a full-panel "Too loud!" overlay covered Stop and the slider during an alarm. It now covers only the meter, with `pointer-events:none`.
+- e2e: Edge's `--use-fake-device-for-media-stream` beeps about once a second, so sample the peak level, not one reading. `--deny-permission-prompts` tests the refused-mic message.
 
 ## FEATURE — Phases 6c–6e: G1–2 Plants & Animals, G1–2 Word Wizards, G4–5 Math Lab · 2026-10-30
 - GOTCHA: `QuizLogic.readText` ignores `audioText` on multiple_choice/choose_two, on purpose. Unit 2's bank auto-fills audioText with the choices in their *unshuffled* order, and `test/unit2-logic.js` checks the spoken choices follow the shown order. For a choice question whose prompt can't be spoken as is (a `___` blank, ×, ÷, a fraction), use `audioPrompt`: it replaces the prompt only, and the shuffled choices follow. The pack test fails audioText on a choice question.

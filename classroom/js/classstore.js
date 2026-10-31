@@ -11,6 +11,10 @@
    Short keys on awards keep a busy year under the ~5 MB
    localStorage limit:  {i id, c class, s student, k skill,
    v value, t time, b batch, g group?, u undone?}
+
+   Attendance (Phase 2): att[class][day][student] = one of
+   STATUSES' codes. One record per student per day, so a busy
+   year stays small; every change is audited.
    ============================================================ */
 (function (root) {
   "use strict";
@@ -25,6 +29,10 @@
     ["🗣️", "Talking out of turn", "neg", -1], ["🙊", "Disrespect", "neg", -1]
   ];
 
+  var STATUSES = [
+    { code: "p", name: "Present", emoji: "✅" }, { code: "a", name: "Absent", emoji: "❌" },
+    { code: "t", name: "Tardy", emoji: "⏰" }, { code: "l", name: "Left early", emoji: "🚪" }
+  ];
   var data = null, store = root.localStorage;
 
   function uid(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -36,7 +44,7 @@
   }
   function clean(s, max) { return String(s == null ? "" : s).replace(/\s+/g, " ").trim().slice(0, max || 40); }
 
-  function empty() { return { v: VERSION, classes: [], tx: [], audit: [] }; }
+  function empty() { return { v: VERSION, classes: [], tx: [], audit: [], att: {} }; }
   function load() {
     if (data) return data;
     var raw = null;
@@ -45,7 +53,7 @@
     try {
       data = JSON.parse(raw);
       if (!data || !Array.isArray(data.classes)) throw new Error("bad shape");
-      data.tx = data.tx || []; data.audit = data.audit || [];
+      data.tx = data.tx || []; data.audit = data.audit || []; data.att = data.att || {};
     } catch (e) {
       // Never throw away a teacher's records: park the unreadable copy, start fresh.
       try { store.setItem(KEY + "_unreadable_" + now(), raw); } catch (e2) {}
@@ -199,11 +207,69 @@
     return a.slice(-(limit || 100)).reverse();
   }
 
+  /* ---------- attendance ---------- */
+  var DAY = /^\d{4}-\d{2}-\d{2}$/;
+  function checkDay(day) {
+    if (!DAY.test(day || "")) throw new Error("Pick a date.");
+    if (day > dayKey(now())) throw new Error("Attendance can't be taken for a future day.");
+    return day;
+  }
+  // {studentId: code} for one day (a copy)
+  function attendance(classId, day) {
+    need(classId); var a = (load().att[classId] || {})[checkDay(day)] || {}, out = {};
+    for (var k in a) out[k] = a[k];
+    return out;
+  }
+  // status: a STATUSES code, or "" to clear the mark
+  function setAttendance(classId, day, studentId, status) {
+    var c = need(classId), s = student(c, studentId);
+    checkDay(day);
+    if (!s || s.archived) throw new Error("That student is not in this class.");
+    if (status && !STATUSES.some(function (x) { return x.code === status; })) throw new Error("Unknown attendance mark.");
+    var att = load().att, cls = att[classId] = att[classId] || {}, d = cls[day] = cls[day] || {}, was = d[studentId] || "";
+    if (was === status) return { saved: true, changed: false };
+    if (status) d[studentId] = status; else delete d[studentId];
+    audit("attendance", { c: classId, day: day, s: studentId, name: s.name, from: was, to: status || "" });
+    return { saved: save(), changed: true };
+  }
+  // Marks every unmarked student present. Returns how many were marked.
+  function markRestPresent(classId, day) {
+    var have = attendance(classId, day), n = 0;
+    var att = load().att, cls = att[classId] = att[classId] || {}, d = cls[day] = cls[day] || {};
+    students(classId).forEach(function (s) { if (!have[s.id]) { d[s.id] = "p"; n++; } });
+    if (n) { audit("attendance_rest", { c: classId, day: day, n: n }); save(); }
+    return n;
+  }
+  // Counts for one day: {p, a, t, l, none, roster}
+  function attendanceSummary(classId, day) {
+    var a = attendance(classId, day), out = { p: 0, a: 0, t: 0, l: 0, none: 0 }, roster = students(classId);
+    roster.forEach(function (s) { if (a[s.id]) out[a[s.id]]++; else out.none++; });
+    out.roster = roster.length; return out;
+  }
+  // Days with any marks, newest first: [{day, p, a, t, l}]
+  function attendanceDays(classId, limit) {
+    var cls = load().att[classId] || {};
+    return Object.keys(cls).sort().reverse().slice(0, limit || 14).map(function (day) {
+      var o = { day: day, p: 0, a: 0, t: 0, l: 0 };
+      for (var k in cls[day]) o[cls[day][k]]++;
+      return o;
+    }).filter(function (o) { return o.p + o.a + o.t + o.l; });
+  }
+  // Who is in the room for the picker and groups: everyone, unless attendance was taken
+  // that day, then only present or tardy students.
+  function inRoom(classId, day) {
+    var a = attendance(classId, day || dayKey(now())), taken = false;
+    for (var k in a) { taken = true; break; }
+    return students(classId).filter(function (s) { return !taken || a[s.id] === "p" || a[s.id] === "t"; });
+  }
+
   var ClassStore = {
     KEY: KEY, CRITTERS: CRITTERS, MAX_VALUE: MAX_VALUE, dayKey: dayKey,
     classes: classes, getClass: getClass, addClass: addClass, renameClass: renameClass, archiveClass: archiveClass,
     students: students, addStudents: addStudents, updateStudent: updateStudent, archiveStudent: archiveStudent,
     skills: skills, addSkill: addSkill, updateSkill: updateSkill, archiveSkill: archiveSkill,
+    STATUSES: STATUSES, attendance: attendance, setAttendance: setAttendance, markRestPresent: markRestPresent,
+    attendanceSummary: attendanceSummary, attendanceDays: attendanceDays, inRoom: inRoom,
     award: award, lastBatch: lastBatch, undo: undo, totals: totals, summary: summary, auditLog: auditLog,
     exportJSON: function () { return JSON.stringify(load(), null, 1); },
     reload: function () { data = null; return load(); },

@@ -4,8 +4,9 @@
     package="com.kidsapp.learninghub">
 
   <uses-permission android:name="android.permission.INTERNET" />
-  <!-- Phonics Pals "read it to me" listener -->
+  <!-- Phonics Pals "read it to me" listener; Class Corner noise meter (WebView getUserMedia) -->
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
   <!-- Android 11+: needed to see the speech-recognition and text-to-speech engines -->
   <queries>

@@ -98,5 +98,58 @@ if (!Object.keys(bad.data).some(k => k.startsWith('cc_data_unreadable_') && bad.
   const r = f.S.award(fc.id, [kim.id], f.S.skills(fc.id, 'pos')[0].id);
   if (r.saved !== false) err('award on a full device should say saved:false'); }
 
+/* ---------- Phase 2: attendance ---------- */
+{ const b = browser(); const A = b.S; const ac = A.addClass('Att');
+  const [s1, s2, s3, s4] = A.addStudents(ac.id, ['Amy', 'Bo', 'Cal', 'Dot']);
+  const today = A.dayKey(Date.now()), yest = A.dayKey(Date.now() - 86400000), tomorrow = A.dayKey(Date.now() + 86400000);
+  if (A.inRoom(ac.id).length !== 4) err('before attendance, everyone is in the room');
+  A.setAttendance(ac.id, today, s1.id, 'p'); A.setAttendance(ac.id, today, s2.id, 'a'); A.setAttendance(ac.id, today, s3.id, 't');
+  let sm = A.attendanceSummary(ac.id, today);
+  if (sm.p !== 1 || sm.a !== 1 || sm.t !== 1 || sm.l !== 0 || sm.none !== 1 || sm.roster !== 4) err('attendance summary: ' + JSON.stringify(sm));
+  if (A.inRoom(ac.id).map(s => s.name).join() !== 'Amy,Cal') err('in the room = present or tardy once attendance is taken');
+  if (A.markRestPresent(ac.id, today) !== 1 || A.attendance(ac.id, today)[s4.id] !== 'p') err('mark the rest present');
+  if (A.markRestPresent(ac.id, today) !== 0) err('mark the rest twice does nothing');
+  if (A.setAttendance(ac.id, today, s1.id, 'p').changed) err('same mark is not a change');
+  A.setAttendance(ac.id, today, s1.id, 'l');
+  if (A.attendance(ac.id, today)[s1.id] !== 'l') err('change a mark');
+  A.setAttendance(ac.id, today, s1.id, '');
+  if (s1.id in A.attendance(ac.id, today)) err('clear a mark');
+  throws(() => A.setAttendance(ac.id, tomorrow, s1.id, 'p'), 'attendance for a future day');
+  throws(() => A.setAttendance(ac.id, 'soon', s1.id, 'p'), 'attendance with a bad date');
+  throws(() => A.setAttendance(ac.id, today, s1.id, 'x'), 'an unknown mark');
+  throws(() => A.setAttendance(ac.id, today, 'nobody', 'p'), 'attendance for a student outside the class');
+  A.setAttendance(ac.id, yest, s2.id, 'p');
+  const days = A.attendanceDays(ac.id);
+  if (days.length !== 2 || days[0].day !== today || days[1].day !== yest || days[1].p !== 1) err('attendance history newest first: ' + JSON.stringify(days));
+  if (A.inRoom(ac.id, yest).length !== 1) err('in the room on another day');
+  const log = A.auditLog(ac.id, 500).map(e => e.a);
+  if (!log.includes('attendance') || !log.includes('attendance_rest')) err('attendance is audited');
+  const again = browser({ cc_data: b.data.cc_data }).S;
+  if (JSON.stringify(again.attendance(ac.id, today)) !== JSON.stringify(A.attendance(ac.id, today))) err('attendance survives reload');
+  // Phase 1 data (no att field) still loads
+  const old = JSON.parse(b.data.cc_data); delete old.att;
+  const o = browser({ cc_data: JSON.stringify(old) }).S;
+  if (Object.keys(o.attendance(ac.id, today)).length !== 0) err('old data without attendance loads empty');
+}
+
+/* ---------- Phase 2: toolkit maths ---------- */
+{ const T = require(path.join(ROOT, 'classroom/js/tools.js'));
+  let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const ids = [...Array(25).keys()];
+  const sh = T.shuffle(ids, rnd);
+  if (sh.length !== 25 || [...sh].sort((a, b) => a - b).join() !== ids.join() || sh.join() === ids.join()) err('shuffle keeps everyone, changes the order');
+  for (const [n, size, want] of [[7, 3, '3,2,2'], [3, 2, '3'], [5, 2, '3,2'], [24, 4, '4,4,4,4,4,4'], [1, 3, '1'], [10, 3, '3,3,2,2']]) {
+    const g = T.makeGroups([...Array(n).keys()], size, rnd), got = g.map(x => x.length).join();
+    if (got !== want) err(`${n} students in groups of ${size}: ${got}, want ${want}`);
+    if (g.flat().length !== n || new Set(g.flat()).size !== n) err(`groups of ${size} lose or repeat someone`);
+  }
+  if (T.makeGroups([], 3).length !== 0) err('no students, no groups');
+  if (T.level(new Float32Array(512)) !== 0) err('silence is level 0');
+  if (T.level(new Float32Array(512).fill(1)) !== 100) err('full scale is level 100');
+  const mid = T.level(new Float32Array(512).fill(0.03162));   // -30 dB
+  if (mid !== 50) err('-30 dB is level 50, got ' + mid);
+  if (T.level([]) !== 0) err('no samples, level 0');
+}
+
 console.log(fail ? `${fail} FAILED` : 'classroom store: all checks passed');
 process.exit(fail ? 1 : 0);

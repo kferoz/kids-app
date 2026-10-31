@@ -20,6 +20,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -50,6 +51,7 @@ import java.util.Set;
 public class MainActivity extends Activity {
   private static final String START_URL = "file:///android_asset/www/index.html";
   private static final int REQ_MIC = 7;
+  private static final int REQ_WEB_MIC = 8;
   private static final int REQ_FILE = 8;
   private ValueCallback<Uri[]> fileCallback;   // Admin "Restore from backup" file picker
 
@@ -64,6 +66,7 @@ public class MainActivity extends Activity {
   private boolean srEnded = true;
   private String srToken = "";        // the page's id for the live session, echoed in every event
   private String[] pendingSr;         // start args waiting on the mic permission
+  private PermissionRequest pendingWebMic;   // a page's getUserMedia (Class Corner noise meter) waiting on it
 
   @Override
   protected void onCreate(Bundle saved) {
@@ -103,6 +106,23 @@ public class MainActivity extends Activity {
       }
     });
     web.setWebChromeClient(new WebChromeClient() {
+      // getUserMedia from our own pages: microphone only, after Android's own permission
+      @Override
+      public void onPermissionRequest(final PermissionRequest req) {
+        runOnUiThread(() -> {
+          boolean audio = false;
+          for (String r : req.getResources()) if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) audio = true;
+          if (!audio) { req.deny(); return; }
+          if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            req.grant(new String[] { PermissionRequest.RESOURCE_AUDIO_CAPTURE });
+          } else {
+            if (pendingWebMic != null) pendingWebMic.deny();
+            pendingWebMic = req;
+            requestPermissions(new String[] { Manifest.permission.RECORD_AUDIO }, REQ_WEB_MIC);
+          }
+        });
+      }
+
       @Override
       public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams params) {
         if (fileCallback != null) fileCallback.onReceiveValue(null);
@@ -333,6 +353,13 @@ public class MainActivity extends Activity {
 
   @Override
   public void onRequestPermissionsResult(int req, String[] perms, int[] results) {
+    boolean granted = results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED;
+    if (req == REQ_WEB_MIC) {
+      PermissionRequest r = pendingWebMic;
+      pendingWebMic = null;
+      if (r != null) { if (granted) r.grant(new String[] { PermissionRequest.RESOURCE_AUDIO_CAPTURE }); else r.deny(); }
+      return;
+    }
     if (req != REQ_MIC || pendingSr == null) return;
     String[] args = pendingSr;
     pendingSr = null;

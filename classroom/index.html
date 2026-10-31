@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Corner</title>
-  <meta name="description" content="A teacher's class board: give behavior points for skills, award groups, and see today's summary. Stored only on this device." />
+  <meta name="description" content="A teacher's class board: behavior points, attendance, a random picker and group maker, and a noise meter. Stored only on this device." />
   <link href="../fonts/fonts.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/classroom.css" />
 </head>
@@ -37,6 +37,13 @@
       </div>
     </header>
 
+    <nav class="views" id="views" role="tablist" aria-label="Class tools">
+      <button class="view" role="tab" type="button" data-view="points">⭐ Points</button>
+      <button class="view" role="tab" type="button" data-view="att">✅ Attendance</button>
+      <button class="view" role="tab" type="button" data-view="pick">🎲 Picker &amp; groups</button>
+      <button class="view" role="tab" type="button" data-view="noise">🔊 Noise meter</button>
+    </nav>
+
     <section class="summary" id="summary" aria-live="polite"></section>
 
     <div class="toolbar" id="toolbar">
@@ -53,6 +60,7 @@
     </div>
 
     <main id="board" class="board"></main>
+    <section id="tool" class="tool" hidden></section>
 
     <footer class="foot">Stored only on this device. <button class="link" id="backup" type="button">💾 Save a backup</button></footer>
   </div>
@@ -61,6 +69,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="js/classstore.js"></script>
+  <script src="js/tools.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
