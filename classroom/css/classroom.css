@@ -174,6 +174,42 @@ dialog::backdrop { background: rgba(43, 37, 64, .45); }
 @keyframes flash { from { opacity: 1; } to { opacity: .82; } }
 @media (prefers-reduced-motion: reduce) { .loud, .pick-show.landed { animation: none; } }
 
+/* ---------- Phase 3: Work view + Student space ---------- */
+.badge { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--absent); color: #fff; font-size: .8rem; }
+.works { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.work { background: var(--surface); border: 3px solid var(--line); border-radius: 20px; padding: 12px; display: grid; gap: 8px; align-content: start; }
+.work header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.work header .av { font-size: 28px; }
+.work header time { margin-left: auto; color: var(--ink-2); font-size: .85rem; }
+.w-kind { font-weight: 700; color: var(--ink-2); }
+.w-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--page); border-radius: 12px; padding: 10px; max-height: 260px; overflow: auto; }
+.w-pic { display: block; width: 100%; max-height: 320px; object-fit: contain; background: var(--page); border-radius: 12px; }
+.w-cap { margin: 0; font-weight: 700; }
+.w-note { margin: 0; background: var(--tardy-wash); color: var(--tardy); border-radius: 12px; padding: 8px 10px; }
+.work footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.w-st { font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--zero-wash); color: var(--zero); }
+.w-st.approved { background: var(--present-wash); color: var(--present); }
+.w-st.sent_back { background: var(--tardy-wash); color: var(--tardy); }
+.w-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.kid { min-height: 100vh; background: linear-gradient(180deg, #fff1d6, var(--page) 40%); padding-bottom: 32px; }
+.kid-top { max-width: 1000px; margin: 0 auto; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.kid-top h1 { font-size: 1.7rem; margin-right: auto; }
+.kid-pts { font: 700 1.1rem var(--head); padding: 6px 14px; border-radius: 999px; background: var(--zero-wash); color: var(--zero); }
+.kid-pts.pos { background: var(--pos-wash); color: var(--pos); } .kid-pts.neg { background: var(--neg-wash); color: var(--neg); }
+.kid-names { max-width: 1000px; }
+.kid-names .card { min-height: 140px; }
+.kid-send, .kid-mine { max-width: 1000px; margin: 0 auto 16px; padding: 0 16px; display: grid; gap: 10px; }
+.kid-send { background: var(--surface); border: 3px solid var(--line); border-radius: 24px; padding: 16px; margin: 0 16px 16px; }
+@media (min-width: 1032px) { .kid-send { margin: 0 auto 16px; } }
+.kid-tab[aria-selected="true"] { background: var(--wash); border-color: var(--accent); color: var(--accent); }
+.kid-send textarea { min-height: 160px; font-size: 1.1rem; }
+.pad-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--line); cursor: pointer; }
+.swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--ink); }
+.pad { display: block; width: 100%; max-width: 720px; margin: 0 auto; aspect-ratio: 4 / 3; background: #fff; border: 3px solid var(--line); border-radius: 16px; touch-action: none; cursor: crosshair; }
+.file-btn { display: inline-flex; align-items: center; justify-content: center; width: fit-content; position: relative; }
+.file-btn:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+
 /* ---------- toast ---------- */
 .toast { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 140%); visibility: hidden; opacity: 0; display: flex; gap: 10px; align-items: center; background: var(--ink); color: #fff; border-radius: 999px; padding: 8px 10px 8px 18px; font-weight: 700; transition: transform .2s ease, opacity .2s ease, visibility .2s; z-index: 10; max-width: calc(100vw - 32px); }
 .toast.show { transform: translate(-50%, 0); visibility: visible; opacity: 1; }

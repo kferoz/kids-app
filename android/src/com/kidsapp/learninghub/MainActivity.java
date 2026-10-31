@@ -128,10 +128,13 @@ public class MainActivity extends Activity {
         if (fileCallback != null) fileCallback.onReceiveValue(null);
         fileCallback = cb;
         try {
+          // Class Corner photos ask for image/*; Admin's backup import asks for anything
+          boolean image = false;
+          for (String t : params.getAcceptTypes()) if (t != null && t.startsWith("image/")) image = true;
           Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
           pick.addCategory(Intent.CATEGORY_OPENABLE);
-          pick.setType("*/*");                       // .json backups have no reliable MIME type on Android
-          startActivityForResult(Intent.createChooser(pick, "Choose a backup file"), REQ_FILE);
+          pick.setType(image ? "image/*" : "*/*");   // .json backups have no reliable MIME type on Android
+          startActivityForResult(Intent.createChooser(pick, image ? "Choose a photo" : "Choose a backup file"), REQ_FILE);
           return true;
         } catch (Exception e) {
           fileCallback = null;

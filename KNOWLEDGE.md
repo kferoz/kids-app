@@ -7,7 +7,17 @@
 - Gotcha: a refused edit redraws the dialog to restore the old value, and that redraw wiped the error message. `openSkills(msg)` shows it after the redraw. So `onclick = openSkills` must be wrapped, or the click event arrives as `msg`.
 - Gotcha: a toast hidden only by `translate(…140%)` still peeks above `bottom:18px`. Add visibility/opacity.
 - Hub: `.grownup-links` holds 🏫 Class and ⚙️ Admin. Both sit under the login overlay until a learner is picked, so e2e tests must set `hub_activeKid`.
-- Phases left: 3 Portfolio and approvals, 4 Notes and class feed (on this device only).
+- Phases left: 4 Notes and class feed (on this device only).
+
+## FEATURE — Class Corner Phase 3: portfolio, Student space, approvals · 2026-10-31
+- Work is stored as `cc_data.sub[]` = `{i,c,s,type: journal|drawing|photo, text, media?, t, st: pending|approved|sent_back, rt?, note?}`. Only pending work can be reviewed. Send back needs a note (≤300 characters), which the student sees. Journals can be up to 2000 characters. All of it is audited.
+- Pictures live in IndexedDB `ClassCornerMedia` (`classroom/js/media.js`). localStorage can't hold them, so a submission keeps only the media id. Photos are shrunk to 1280px JPEG; drawings are 800×600 PNG. `navigator.storage.persist()` is requested. Backups add `media: {id: dataURL}`, so one file holds everything.
+- The Student space is a kid mode on the same device, set by sessionStorage `cc_kid` = class id. Entering it removes `adm_ok`, so leaving asks the grown-up question again. A reload stays in kid mode with no gate. Each student sees only their own work. Kid vs teacher is a screen-level guard, not real security (on-device, no accounts).
+- GOTCHA: the gate's password box kept the previous answer when it reopened, so the right answer got appended to dots and failed. `gate()` now clears it. The first gate of a session hid this.
+- `start()` can run again after kid mode, so it is guarded by `started`. A second run would bind every button twice, and toggles would cancel out.
+- APK: `onShowFileChooser` follows the page's `accept` types. `image/*` opens a photo picker; Admin's `.json` restore still gets */*.
+- e2e: a click on a lower button scrolls the page, so measure the canvas (boundingBox) before every stroke. Edge headless can upload a hand-made PNG (built with zlib in Node, no image library).
+- Left: Phase 4, notes and the class feed (on this device). Approved work is meant to feed it.
 
 ## FEATURE — Class Corner Phase 2: attendance, picker and groups, noise meter · 2026-10-30
 - Attendance is stored as `cc_data.att[class][day][student]` = p/a/t/l: one record per student per day, with every change audited. Phase 1 data with no `att` field loads fine. Future dates are refused.

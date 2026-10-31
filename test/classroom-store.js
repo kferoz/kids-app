@@ -151,5 +151,45 @@ if (!Object.keys(bad.data).some(k => k.startsWith('cc_data_unreadable_') && bad.
   if (T.level([]) !== 0) err('no samples, level 0');
 }
 
+/* ---------- Phase 3: portfolio + approvals ---------- */
+{ const b = browser(); const P = b.S; const pc = P.addClass('Art'); const [ana, bob] = P.addStudents(pc.id, ['Ana', 'Bob']);
+  const j = P.submit(pc.id, ana.id, { type: 'journal', text: '  I saw a rainbow today.  ' }).item;
+  if (j.st !== 'pending' || j.text !== 'I saw a rainbow today.' || j.media) err('a journal entry is saved pending, trimmed');
+  const d = P.submit(pc.id, bob.id, { type: 'drawing', media: 'm1', text: 'My cat' }).item;
+  if (d.media !== 'm1' || d.text !== 'My cat') err('a drawing keeps its media id and caption');
+  if (P.submit(pc.id, ana.id, { type: 'journal', text: 'x', media: 'm9' }).item.media) err('a journal never keeps a media id');
+  throws(() => P.submit(pc.id, ana.id, { type: 'journal', text: '   ' }), 'an empty journal');
+  throws(() => P.submit(pc.id, ana.id, { type: 'photo' }), 'a photo with no picture');
+  throws(() => P.submit(pc.id, ana.id, { type: 'drawing' }), 'a drawing with no picture');
+  throws(() => P.submit(pc.id, ana.id, { type: 'video', media: 'm' }), 'an unknown kind of work');
+  throws(() => P.submit(pc.id, ana.id, { type: 'journal', text: 'a'.repeat(P.MAX_TEXT + 1) }), 'a journal over the limit');
+  throws(() => P.submit(pc.id, ana.id, { type: 'photo', media: 'm', text: 'a'.repeat(P.MAX_NOTE + 1) }), 'a caption over the limit');
+  throws(() => P.submit(pc.id, 'nobody', { type: 'journal', text: 'hi' }), 'work from a student outside the class');
+  if (P.pendingCount(pc.id) !== 3) err('3 pending');
+  // review
+  throws(() => P.review(pc.id, j.i, 'send_back', '  '), 'send back without a note');
+  throws(() => P.review(pc.id, j.i, 'delete'), 'an unknown review action');
+  const other = P.addClass('Other');
+  throws(() => P.review(other.id, j.i, 'approve'), "review from another class");
+  P.review(pc.id, j.i, 'approve');
+  if (j.st !== 'approved' || !j.rt) err('approve');
+  throws(() => P.review(pc.id, j.i, 'send_back', 'again'), 'review twice');
+  P.review(pc.id, d.i, 'send_back', 'Add some colour please');
+  if (d.st !== 'sent_back' || d.note !== 'Add some colour please') err('send back keeps the note');
+  if (P.pendingCount(pc.id) !== 1) err('1 pending after two reviews');
+  if (P.work(pc.id, { st: 'approved' }).length !== 1 || P.work(pc.id, { s: bob.id }).length !== 1) err('filter by status and student');
+  const all = P.work(pc.id); if (all.length !== 3 || all[0].t < all[2].t) err('work is newest first');
+  // archived student: work stays, no new work
+  P.archiveStudent(pc.id, bob.id);
+  throws(() => P.submit(pc.id, bob.id, { type: 'journal', text: 'hi' }), 'work from an archived student');
+  if (P.work(pc.id, { s: bob.id }).length !== 1) err("an archived student's work stays");
+  const log = P.auditLog(pc.id, 500).map(e => e.a);
+  ['submit', 'work_approve', 'work_send_back'].forEach(a => { if (!log.includes(a)) err('audit has no ' + a); });
+  const again = browser({ cc_data: b.data.cc_data }).S;
+  if (again.work(pc.id).length !== 3 || again.work(pc.id, { st: 'sent_back' })[0].note !== 'Add some colour please') err('work survives reload');
+  const old = JSON.parse(b.data.cc_data); delete old.sub;
+  if (browser({ cc_data: JSON.stringify(old) }).S.work(pc.id).length !== 0) err('older data without work loads empty');
+}
+
 console.log(fail ? `${fail} FAILED` : 'classroom store: all checks passed');
 process.exit(fail ? 1 : 0);

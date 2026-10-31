@@ -5,7 +5,10 @@
    needs-work skill; select several (or the whole class) → one
    skill to all, after a confirm; every award can be undone.
    Toolkit (Phase 2): attendance, random picker + group maker,
-   and a live noise meter. Data: ClassStore; maths: ClassTools.
+   and a live noise meter. Portfolio (Phase 3): a Student space
+   where kids hand in journals, drawings and photos, and the
+   teacher's Work view to approve or send back. Data: ClassStore;
+   maths: ClassTools; pictures: ClassMedia.
    ============================================================ */
 (function () {
   "use strict";
@@ -27,6 +30,7 @@
     var g = $("gate"), pin = null; try { pin = localStorage.getItem("hub_adminPin"); } catch (e) {}
     var a = 6 + Math.floor(Math.random() * 7), b = 7 + Math.floor(Math.random() * 6);
     g.hidden = false;
+    $("gateIn").value = ""; $("gateMsg").textContent = "";   // it opens again after the Student space
     $("gateQ").textContent = pin ? "Enter the admin PIN" : "Grown-ups only: what is " + a + " × " + b + "?";
     $("gateIn").setAttribute("inputmode", "numeric");
     $("gateForm").onsubmit = function (ev) {
@@ -60,7 +64,7 @@
     }
     $("classSel").innerHTML = list.map(function (c) { return '<option value="' + c.id + '"' + (c.id === st.cls ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join("");
     var has = !!st.cls;
-    ["classSel", "editSkills", "showLog"].forEach(function (id) { $(id).disabled = !has; });
+    ["classSel", "editSkills", "showLog", "kidMode"].forEach(function (id) { $(id).disabled = !has; });
     $("classSel").parentNode.hidden = !has;
     var pts = !has || st.view === "points";
     $("views").hidden = !has;
@@ -68,6 +72,7 @@
     $("toolbar").hidden = !has || !pts; $("summary").hidden = !has || !pts;
     $("board").hidden = !pts; $("tool").hidden = pts;
     if (!has) { $("selBar").hidden = true; renderEmptyClass(); return; }
+    renderBadge();
     if (!pts) { $("selBar").hidden = true; renderTool(); return; }
     noiseStop();
     renderSummary(); renderBoard(); renderSel();
@@ -306,8 +311,18 @@
       }).join("") + "</ul>" : "<p>Nothing yet.</p>") + "<p><small>The newest 100 changes for this class.</small></p></div>");
   }
 
+  // Everything in cc_data, plus each picture as a data: URL under "media", so one file holds it all.
   function backup() {
-    var name = "class-corner-backup-" + S.dayKey(Date.now()) + ".json", text = S.exportJSON();
+    toast("Saving a backup…");
+    M.all().then(function (items) {
+      return Promise.all(items.map(function (m) { return M.dataURL(m.blob).then(function (u) { return [m.id, u]; }); }));
+    }).catch(function () { return []; }).then(function (pairs) {
+      var out = JSON.parse(S.exportJSON()); out.media = {};
+      pairs.forEach(function (p) { out.media[p[0]] = p[1]; });
+      saveFile("class-corner-backup-" + S.dayKey(Date.now()) + ".json", JSON.stringify(out));
+    });
+  }
+  function saveFile(name, text) {
     if (window.AndroidBridge && AndroidBridge.saveFile) {
       var where = AndroidBridge.saveFile(name, text, "application/json");
       toast(where ? "Saved to " + where : "Could not save the file"); return;
@@ -318,7 +333,7 @@
   }
 
   /* ---------- Phase 2: the toolkit views ---------- */
-  var VIEWS = ["points", "att", "pick", "noise"], VIEW_KEY = "cc_lastView";
+  var VIEWS = ["points", "att", "pick", "noise", "work"], VIEW_KEY = "cc_lastView";
   function today() { return S.dayKey(Date.now()); }
   function stName(code) { return S.STATUSES.filter(function (x) { return x.code === code; })[0]; }
 
@@ -327,6 +342,7 @@
     if (st.view === "att") renderAttendance();
     else if (st.view === "pick") renderPicker();
     else if (st.view === "noise") renderNoise();
+    else if (st.view === "work") renderWork();
   }
 
   /* attendance: tap a student to cycle Present → Absent → Tardy → Left early → not marked */
@@ -495,9 +511,231 @@
     st.noiseMsg = "";
   }
 
+  /* ---------- Phase 3: portfolio — pictures, the teacher's Work view, the Student space ---------- */
+  var M = window.ClassMedia, KID = "cc_kid", WORK_ICON = { journal: "✏️", drawing: "🎨", photo: "📷" };
+  var urls = [];
+  function dropUrls() { urls.forEach(function (u) { URL.revokeObjectURL(u); }); urls = []; }
+  // Fills every <img data-media="id"> inside host from picture storage.
+  function fillPics(host) {
+    host.querySelectorAll("img[data-media]").forEach(function (img) {
+      M.get(img.getAttribute("data-media")).then(function (b) {
+        if (!b) { img.alt = "Picture missing on this device"; return; }
+        var u = URL.createObjectURL(b); urls.push(u); img.src = u;
+      }).catch(function () { img.alt = "Picture could not load"; });
+    });
+  }
+  function when(t) { return new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); }
+  function kidById(id) { return S.students(st.cls, true).filter(function (k) { return k.id === id; })[0] || { name: "?", avatar: "❔" }; }
+  var BADGE = { pending: "⏳ Waiting for teacher", approved: "✅ Approved", sent_back: "↩️ Sent back" };
+  function workBody(w) {
+    return (w.type === "journal" ? '<p class="w-text">' + esc(w.text) + "</p>"
+      : '<img class="w-pic" data-media="' + esc(w.media) + '" alt="' + esc(S.WORK[w.type]) + '" />' + (w.text ? '<p class="w-cap">' + esc(w.text) + "</p>" : "")) +
+      (w.note ? '<p class="w-note"><b>Teacher says:</b> ' + esc(w.note) + "</p>" : "");
+  }
+
+  /* the teacher's queue: approve, or send back with a note */
+  function renderWork() {
+    dropUrls();
+    var f = st.workFilter || "pending", who = st.workKid || "", kids = S.students(st.cls, true);
+    var counts = { pending: S.work(st.cls, { st: "pending", s: who }).length, approved: S.work(st.cls, { st: "approved", s: who }).length,
+      sent_back: S.work(st.cls, { st: "sent_back", s: who }).length };
+    var list = S.work(st.cls, { st: f === "all" ? "" : f, s: who });
+    var chips = [["pending", "⏳ Waiting", counts.pending], ["approved", "✅ Approved", counts.approved], ["sent_back", "↩️ Sent back", counts.sent_back], ["all", "All", counts.pending + counts.approved + counts.sent_back]];
+    $("tool").innerHTML =
+      '<div class="tool-head"><label class="field inline">Student <select id="workKid"><option value="">All students</option>' +
+        kids.map(function (k) { return '<option value="' + k.id + '"' + (k.id === who ? " selected" : "") + ">" + esc(k.name) + (k.archived ? " (removed)" : "") + "</option>"; }).join("") +
+      '</select></label><button class="btn" type="button" id="toKid">🎒 Open the Student space</button></div>' +
+      '<div class="chips" role="group" aria-label="Show">' + chips.map(function (c) {
+        return '<button class="chip" type="button" data-wf="' + c[0] + '" aria-pressed="' + (f === c[0]) + '">' + c[1] + " <b>" + c[2] + "</b></button>";
+      }).join("") + "</div>" +
+      (who && f === "approved" ? '<p class="hint">' + esc(kidById(who).name) + "'s portfolio: their approved work.</p>" : "") +
+      (list.length ? '<div class="works">' + list.map(function (w) {
+        var k = kidById(w.s);
+        return '<article class="work" data-w="' + w.i + '"><header><span class="av" aria-hidden="true">' + esc(k.avatar) + "</span><b>" + esc(k.name) + "</b>" +
+          '<span class="w-kind">' + WORK_ICON[w.type] + " " + S.WORK[w.type] + "</span><time>" + esc(when(w.t)) + "</time></header>" + workBody(w) +
+          '<footer><span class="w-st ' + w.st + '">' + BADGE[w.st] + "</span>" +
+          (w.st === "pending" ? '<span class="w-act"><button class="btn" type="button" data-back="' + w.i + '">↩️ Send back</button>' +
+            '<button class="btn primary" type="button" data-ok="' + w.i + '">✅ Approve</button></span>' : "") + "</footer>" +
+          '<div class="w-more" id="more-' + w.i + '"></div></article>';
+      }).join("") + "</div>"
+      : '<div class="empty"><div class="big">📥</div><h2>' + (f === "pending" ? "Nothing waiting" : "No work here yet") + "</h2>" +
+        "<p>Students hand in journals, drawings and photos from the Student space.</p></div>");
+    fillPics($("tool"));
+    $("workKid").onchange = function () { st.workKid = this.value; renderWork(); };
+    $("toKid").onclick = askKidMode;
+    $("tool").querySelectorAll("[data-wf]").forEach(function (b) { b.onclick = function () { st.workFilter = b.getAttribute("data-wf"); renderWork(); }; });
+    $("tool").querySelectorAll("[data-ok]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-ok"), w = S.work(st.cls).filter(function (x) { return x.i === id; })[0];
+        $("more-" + id).innerHTML = '<div class="confirm"><span>Approve ' + esc(kidById(w.s).name) + "'s " + S.WORK[w.type].toLowerCase() + "? It goes into their portfolio.</span>" +
+          '<div class="row-btns" style="justify-content:center"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" data-yes>Yes, approve</button></div></div>';
+        var m = $("more-" + id);
+        m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
+        m.querySelector("[data-yes]").onclick = function () { doReview(id, "approve", ""); };
+        m.querySelector("[data-yes]").focus();
+      };
+    });
+    $("tool").querySelectorAll("[data-back]").forEach(function (b) {
+      b.onclick = function () {
+        var id = b.getAttribute("data-back"), m = $("more-" + id);
+        m.innerHTML = '<div class="confirm"><label class="field">What should they fix? (they will see this)<textarea maxlength="' + S.MAX_NOTE + '" id="note-' + id + '"></textarea></label>' +
+          '<p class="err" id="noteErr-' + id + '"></p><div class="row-btns"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" data-send>↩️ Send back</button></div></div>';
+        m.querySelector("[data-x]").onclick = function () { m.innerHTML = ""; };
+        m.querySelector("[data-send]").onclick = function () {
+          try { S.review(st.cls, id, "send_back", $("note-" + id).value); } catch (e) { $("noteErr-" + id).textContent = e.message; return; }
+          renderWork(); render(); toast("Sent back with your note");
+        };
+        $("note-" + id).focus();
+      };
+    });
+  }
+  function doReview(id, action, note) {
+    var r; try { r = S.review(st.cls, id, action, note); } catch (e) { toast(e.message); return; }
+    if (!r.saved) toast("This device is out of room. Save a backup now.");
+    render(); toast(action === "approve" ? "Approved ✅" : "Sent back");
+  }
+  function renderBadge() {
+    var n = st.cls ? S.pendingCount(st.cls) : 0, b = $("workBadge");
+    b.hidden = !n; b.textContent = n; b.setAttribute("aria-label", n + " waiting");
+  }
+
+  /* the Student space: kids hand in work on this device; leaving needs the grown-up gate */
+  function askKidMode() {
+    dialog('<div class="dlg"><div class="dlg-head"><h2 id="dlgTitle">🎒 Student space</h2><button class="x" type="button" aria-label="Close">✕</button></div>' +
+      "<p>Students pick their name and hand in a journal entry, a drawing or a photo for you to review. They can't see the teacher screens.</p>" +
+      "<p>To come back, you'll answer the grown-up question again.</p>" +
+      '<div class="row-btns"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="button" id="kidGo">Hand it to students</button></div></div>', function (d) {
+      d.querySelector("[data-x]").onclick = function () { d.close(); };
+      $("kidGo").onclick = function () { d.close(); enterKid(); };
+    });
+  }
+  function enterKid() {
+    noiseStop();
+    clearTimeout(toastT); $("toast").classList.remove("show");   // no teacher messages on the students' screen
+    try { sessionStorage.setItem(KID, st.cls); sessionStorage.removeItem("adm_ok"); } catch (e) {}
+    st.kid = null; $("app").hidden = true; $("kid").hidden = false; renderKid();
+  }
+  function leaveKid() {
+    try { sessionStorage.removeItem(KID); } catch (e) {}
+    dropUrls(); $("kid").hidden = true; $("kid").innerHTML = "";
+    gate(start);
+  }
+  function renderKid() {
+    dropUrls();
+    var host = $("kid"), kids = S.students(st.cls);
+    if (!st.kid) {
+      host.innerHTML = '<header class="kid-top"><h1>🎒 Who are you?</h1><button class="btn" type="button" id="kidExit">🔒 Teacher</button></header>' +
+        (kids.length ? '<div class="board kid-names">' + kids.map(function (k) {
+          return '<button class="card" type="button" data-kid="' + k.id + '"><span class="av" aria-hidden="true">' + esc(k.avatar) + '</span><span class="nm">' + esc(k.name) + "</span></button>";
+        }).join("") + "</div>" : '<div class="empty"><div class="big">🧑‍🎓</div><h2>No students in this class yet</h2></div>');
+      $("kidExit").onclick = leaveKid;
+      host.querySelectorAll("[data-kid]").forEach(function (b) { b.onclick = function () { st.kid = b.getAttribute("data-kid"); st.kidTab = "journal"; renderKid(); }; });
+      return;
+    }
+    var k = kidById(st.kid), pts = S.totals(st.cls)[st.kid] || 0, mine = S.work(st.cls, { s: st.kid }), tab = st.kidTab || "journal";
+    host.innerHTML = '<header class="kid-top"><button class="btn" type="button" id="kidBack">← Not me</button>' +
+        '<h1><span aria-hidden="true">' + esc(k.avatar) + "</span> Hi, " + esc(k.name) + "!</h1>" +
+        '<span class="kid-pts ' + tone(pts) + '">⭐ ' + signed(pts) + " class points</span></header>" +
+      '<section class="kid-send"><h2>📤 Hand in my work</h2><div class="tabs" role="tablist">' +
+        ["journal", "drawing", "photo"].map(function (t) { return '<button class="tab kid-tab" role="tab" type="button" data-kt="' + t + '" aria-selected="' + (t === tab) + '">' + WORK_ICON[t] + " " + S.WORK[t] + "</button>"; }).join("") +
+      '</div><div id="kidForm"></div></section>' +
+      '<section class="kid-mine"><h2>📚 My work</h2>' + (mine.length ? '<div class="works">' + mine.map(function (w) {
+        return '<article class="work"><header><span class="w-kind">' + WORK_ICON[w.type] + " " + S.WORK[w.type] + "</span><time>" + esc(when(w.t)) + "</time></header>" + workBody(w) +
+          '<footer><span class="w-st ' + w.st + '">' + BADGE[w.st] + "</span></footer></article>";
+      }).join("") + "</div>" : '<p class="hint">Nothing yet. Your first piece will show here.</p>') + "</section>";
+    fillPics(host);
+    $("kidBack").onclick = function () { st.kid = null; renderKid(); };
+    host.querySelectorAll("[data-kt]").forEach(function (b) { b.onclick = function () { st.kidTab = b.getAttribute("data-kt"); renderKid(); }; });
+    renderKidForm(tab);
+  }
+  function sent(r) {
+    if (!r.saved) toast("This device is out of room. Ask your teacher to save a backup.");
+    else toast("Sent to your teacher! ⏳");
+    renderKid();
+  }
+  function renderKidForm(tab) {
+    var f = $("kidForm");
+    if (tab === "journal") {
+      f.innerHTML = '<label class="field">What did you learn or make today?<textarea id="kjText" maxlength="' + S.MAX_TEXT + '"></textarea></label>' +
+        '<p class="err" id="kErr"></p><div class="row-btns"><button class="btn primary big" type="button" id="kSend">📤 Send to my teacher</button></div>';
+      $("kSend").onclick = function () {
+        try { sent(S.submit(st.cls, st.kid, { type: "journal", text: $("kjText").value })); } catch (e) { $("kErr").textContent = e.message; }
+      };
+      return;
+    }
+    if (tab === "drawing") {
+      f.innerHTML = '<div class="pad-tools" role="group" aria-label="Colours">' + PAD_COLORS.map(function (c, i) {
+          return '<button class="swatch" type="button" data-c="' + c[0] + '" aria-label="' + c[1] + '" aria-pressed="' + (i === 0) + '" style="background:' + c[0] + '"></button>';
+        }).join("") +
+        '<button class="btn" type="button" data-size="4" aria-pressed="false">Thin</button><button class="btn" type="button" data-size="10" aria-pressed="true">Thick</button>' +
+        '<button class="btn" type="button" id="padUndo">↶ Undo</button><button class="btn" type="button" id="padClear">🧽 Clear</button></div>' +
+        '<canvas id="pad" class="pad" width="800" height="600" aria-label="Drawing space"></canvas>' +
+        '<label class="field">Title (optional)<input id="kCap" maxlength="' + S.MAX_NOTE + '" /></label>' +
+        '<p class="err" id="kErr"></p><div class="row-btns"><button class="btn primary big" type="button" id="kSend">📤 Send to my teacher</button></div>';
+      var pad = drawPad($("pad"));
+      f.querySelectorAll("[data-c]").forEach(function (b) { b.onclick = function () { pad.color = b.getAttribute("data-c"); f.querySelectorAll("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
+      f.querySelectorAll("[data-size]").forEach(function (b) { b.onclick = function () { pad.size = +b.getAttribute("data-size"); f.querySelectorAll("[data-size]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
+      $("padUndo").onclick = pad.undo; $("padClear").onclick = pad.clear;
+      $("kSend").onclick = function () {
+        if (pad.empty()) { $("kErr").textContent = "Draw something first."; return; }
+        $("kSend").disabled = true;
+        pad.blob().then(M.put).then(function (id) { sent(S.submit(st.cls, st.kid, { type: "drawing", media: id, text: $("kCap").value })); })
+          .catch(function (e) { $("kErr").textContent = e.message; $("kSend").disabled = false; });
+      };
+      return;
+    }
+    var picked = null;
+    f.innerHTML = '<label class="btn big file-btn">📷 Choose a photo<input type="file" id="kFile" accept="image/*" class="sr" /></label>' +
+      '<img id="kPrev" class="w-pic" alt="Your photo" hidden />' +
+      '<label class="field">What is it? (optional)<input id="kCap" maxlength="' + S.MAX_NOTE + '" /></label>' +
+      '<p class="err" id="kErr"></p><div class="row-btns"><button class="btn primary big" type="button" id="kSend">📤 Send to my teacher</button></div>';
+    $("kFile").onchange = function () {
+      var file = this.files && this.files[0]; if (!file) return;
+      $("kErr").textContent = "";
+      M.shrink(file).then(function (b) {
+        picked = b; var u = URL.createObjectURL(b); urls.push(u); $("kPrev").src = u; $("kPrev").hidden = false;
+      }).catch(function (e) { picked = null; $("kErr").textContent = e.message; });
+    };
+    $("kSend").onclick = function () {
+      if (!picked) { $("kErr").textContent = "Choose a photo first."; return; }
+      $("kSend").disabled = true;
+      M.put(picked).then(function (id) { sent(S.submit(st.cls, st.kid, { type: "photo", media: id, text: $("kCap").value })); })
+        .catch(function (e) { $("kErr").textContent = e.message; $("kSend").disabled = false; });
+    };
+  }
+
+  /* drawing pad: strokes are kept so Undo can redraw without the last one */
+  var PAD_COLORS = [["#2b2540", "Black"], ["#e03131", "Red"], ["#f08c00", "Orange"], ["#fcc419", "Yellow"], ["#2f9e44", "Green"], ["#1c7ed6", "Blue"], ["#7048e8", "Purple"], ["#a0522d", "Brown"]];
+  function drawPad(cv) {
+    var g = cv.getContext("2d"), strokes = [], cur = null, pad = { color: PAD_COLORS[0][0], size: 10 };
+    function xy(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
+    function line(s) {
+      g.strokeStyle = s.c; g.lineWidth = s.w; g.lineCap = g.lineJoin = "round"; g.beginPath();
+      g.moveTo(s.p[0][0], s.p[0][1]); s.p.forEach(function (q) { g.lineTo(q[0], q[1]); });
+      if (s.p.length === 1) g.lineTo(s.p[0][0] + 0.1, s.p[0][1]);    // a tap makes a dot
+      g.stroke();
+    }
+    function redraw() { g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height); strokes.forEach(line); }
+    cv.addEventListener("pointerdown", function (e) { e.preventDefault(); cv.setPointerCapture(e.pointerId); cur = { c: pad.color, w: pad.size, p: [xy(e)] }; line(cur); });
+    cv.addEventListener("pointermove", function (e) { if (!cur) return; cur.p.push(xy(e)); line({ c: cur.c, w: cur.w, p: cur.p.slice(-2) }); });
+    function end() { if (cur) { strokes.push(cur); cur = null; } }
+    cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+    pad.undo = function () { strokes.pop(); redraw(); };
+    pad.clear = function () { strokes = []; redraw(); };
+    pad.empty = function () { return !strokes.length; };
+    pad.blob = function () { return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error("Could not save the drawing.")); }, "image/png"); }); };
+    redraw();
+    return pad;
+  }
+
   /* ---------- wire up ---------- */
+  var started = false;
   function start() {
     $("app").hidden = false;
+    if (started) { render(); return; }   // back from the Student space: already wired up
+    started = true;
+    M.persist();
+    $("kidMode").onclick = askKidMode;
     $("classSel").onchange = function () { pickClass(this.value); };
     $("newClass").onclick = openNewClass;
     $("editSkills").onclick = function () { openSkills(); };
@@ -531,6 +769,11 @@
     render();
   }
 
-  document.addEventListener("DOMContentLoaded", function () { gate(start); });
+  document.addEventListener("DOMContentLoaded", function () {
+    // a reload inside the Student space stays there, with no gate
+    var kidCls = null; try { kidCls = sessionStorage.getItem(KID); } catch (e) {}
+    if (kidCls && S.getClass(kidCls)) { st.cls = kidCls; $("kid").hidden = false; renderKid(); }
+    else gate(start);
+  });
   window.__cc = { state: function () { return st; }, level: function () { return st.noise ? +$("lvl").textContent : null; } };   // for tests
 })();

@@ -15,6 +15,10 @@
    Attendance (Phase 2): att[class][day][student] = one of
    STATUSES' codes. One record per student per day, so a busy
    year stays small; every change is audited.
+
+   Portfolio (Phase 3): sub[] = {i, c, s, type, text, media?,
+   t, st: pending|approved|sent_back, rt?, note?}. Pictures live
+   in IndexedDB (media.js); a submission keeps only the id.
    ============================================================ */
 (function (root) {
   "use strict";
@@ -44,7 +48,7 @@
   }
   function clean(s, max) { return String(s == null ? "" : s).replace(/\s+/g, " ").trim().slice(0, max || 40); }
 
-  function empty() { return { v: VERSION, classes: [], tx: [], audit: [], att: {} }; }
+  function empty() { return { v: VERSION, classes: [], tx: [], audit: [], att: {}, sub: [] }; }
   function load() {
     if (data) return data;
     var raw = null;
@@ -53,7 +57,7 @@
     try {
       data = JSON.parse(raw);
       if (!data || !Array.isArray(data.classes)) throw new Error("bad shape");
-      data.tx = data.tx || []; data.audit = data.audit || []; data.att = data.att || {};
+      data.tx = data.tx || []; data.audit = data.audit || []; data.att = data.att || {}; data.sub = data.sub || [];
     } catch (e) {
       // Never throw away a teacher's records: park the unreadable copy, start fresh.
       try { store.setItem(KEY + "_unreadable_" + now(), raw); } catch (e2) {}
@@ -263,11 +267,53 @@
     return students(classId).filter(function (s) { return !taken || a[s.id] === "p" || a[s.id] === "t"; });
   }
 
+  /* ---------- portfolio ---------- */
+  var WORK = { journal: "Journal", drawing: "Drawing", photo: "Photo" }, MAX_TEXT = 2000, MAX_NOTE = 300;
+  // A student hands in work: a journal entry (text), or a drawing/photo (a media id, optional caption).
+  function submit(classId, studentId, w) {
+    var c = need(classId), s = student(c, studentId);
+    if (!s || s.archived) throw new Error("That student is not in this class.");
+    w = w || {};
+    if (!WORK[w.type]) throw new Error("Unknown kind of work.");
+    var text = String(w.text == null ? "" : w.text).trim(), media = w.media ? String(w.media) : "";
+    if (w.type === "journal" && !text) throw new Error("Write something first.");
+    if (w.type !== "journal" && !media) throw new Error(w.type === "photo" ? "Choose a photo first." : "Draw something first.");
+    if (text.length > (w.type === "journal" ? MAX_TEXT : MAX_NOTE)) throw new Error("That is too long.");
+    var r = { i: uid("w"), c: classId, s: studentId, type: w.type, text: text, t: now(), st: "pending" };
+    if (media && w.type !== "journal") r.media = media;
+    load().sub.push(r);
+    audit("submit", { c: classId, w: r.i, s: studentId, name: s.name, type: r.type });
+    return { item: r, saved: save() };
+  }
+  // The teacher approves, or sends back with a note saying what to fix. Only pending work.
+  function review(classId, workId, action, note) {
+    need(classId);
+    var r = load().sub.filter(function (x) { return x.i === workId && x.c === classId; })[0];
+    if (!r) throw new Error("That work is not in this class.");
+    if (r.st !== "pending") throw new Error("That work was already reviewed.");
+    if (action !== "approve" && action !== "send_back") throw new Error("Approve or send back.");
+    note = String(note == null ? "" : note).trim();
+    if (action === "send_back" && !note) throw new Error("Say what to fix before sending it back.");
+    if (note.length > MAX_NOTE) throw new Error("That note is too long.");
+    r.st = action === "approve" ? "approved" : "sent_back"; r.rt = now();
+    if (note) r.note = note; else delete r.note;
+    audit(action === "approve" ? "work_approve" : "work_send_back", { c: classId, w: workId, s: r.s, type: r.type, note: note });
+    return { item: r, saved: save() };
+  }
+  // Newest first. f: {st, s} filters by status and student.
+  function work(classId, f) {
+    need(classId); f = f || {};
+    return load().sub.filter(function (r) { return r.c === classId && (!f.st || r.st === f.st) && (!f.s || r.s === f.s); })
+      .sort(function (a, b) { return b.t - a.t; });
+  }
+  function pendingCount(classId) { return work(classId, { st: "pending" }).length; }
+
   var ClassStore = {
     KEY: KEY, CRITTERS: CRITTERS, MAX_VALUE: MAX_VALUE, dayKey: dayKey,
     classes: classes, getClass: getClass, addClass: addClass, renameClass: renameClass, archiveClass: archiveClass,
     students: students, addStudents: addStudents, updateStudent: updateStudent, archiveStudent: archiveStudent,
     skills: skills, addSkill: addSkill, updateSkill: updateSkill, archiveSkill: archiveSkill,
+    WORK: WORK, MAX_TEXT: MAX_TEXT, MAX_NOTE: MAX_NOTE, submit: submit, review: review, work: work, pendingCount: pendingCount,
     STATUSES: STATUSES, attendance: attendance, setAttendance: setAttendance, markRestPresent: markRestPresent,
     attendanceSummary: attendanceSummary, attendanceDays: attendanceDays, inRoom: inRoom,
     award: award, lastBatch: lastBatch, undo: undo, totals: totals, summary: summary, auditLog: auditLog,
