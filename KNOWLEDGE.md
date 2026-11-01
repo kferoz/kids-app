@@ -5,6 +5,7 @@
 - GOTCHA (test recompute): the first regex took `(\d[\d,]*)` from the end of the prompt, so "4.7 × 100" was checked as 7 × 100 and "2 + 3 × 4" as 3 × 4. It now matches only a bare `What is A op B?` with decimals allowed, and compares with a tolerance.
 - The test now rejects regional-indicator pairs (flag emoji), since Windows shows letters. Lesson pictures use 🗽 / 🐘 / 🚑 / ⚖️ instead of flags.
 - Real answer errors the review caught: dictionary order (brick comes before bridge), and a "check by adding" item whose explanation contradicted its answer. The automated test can't catch these, so reread what you write.
+- `academy/lesson.html` re-renders on `hashchange`, so one browser page can step through all 278 `#u=` units; the Edge sweep did this to confirm each opens a Mixed Test question.
 
 ## FEATURE — Academy lesson engine (C1) + AdHoc topics (B) · 2026-10-31
 - Lessons reuse the Quiz Kit: `academy/js/lessons.js` turns a compact lesson (`learn` cards + question arrays, right answer first) into a Quiz Kit pack, so read-aloud, stars, Tracker and RewardKit come for free. One file per grade and subject, `academy/lessons/<g>-<s>.js`, loaded by script injection (works on file:// and in the APK) by both the Hub and `academy/lesson.html#u=<unitId>`. No manifest: a missing file just means "coming soon". Status: `academy/PROGRESS.md`.
