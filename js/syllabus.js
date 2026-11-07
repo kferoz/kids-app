@@ -47,6 +47,9 @@
   // Kept from the Hub: Tamil and Arabic (Sweden's mother-tongue tuition idea), the grown-ups' AdHoc subject, the Fun Zone.
   var EXTRAS = [
     { id: "languages", name: "World Languages", emoji: "🗣️", color: "#cc5de8", catalog: "language", langs: ["tamil", "arabic"] },
+    // A card that opens its own app (href) for the listed grades only.
+    { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", color: "#f59f00", href: "spellingbee/index.html", grades: ["g3"],
+      note: "Bee words, honeycombs and contests" },
     { id: "adhoc",     name: "AdHoc",           emoji: "🧪", color: "#868e96", setting: "adhoc" }
   ];
   var GRADES = ["pk", "kg", "g1", "g2", "g3", "g4", "g5"];

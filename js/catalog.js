@@ -87,6 +87,7 @@
     A("quiz-words", "Word Wizards", "🪄", "quiz/index.html#words", "quiz", "language", "practice", ["g1", "g2"], "english"),
     A("reading", "Reading Trail", "🦉", "reading/index.html", "reading", "language", "learn", ["g3"], "english"),
     A("readrocket", "Read-Aloud Rocket", "🚀", "readrocket/index.html", "readrocket", "language", "stories", ["g3"], "english"),
+    A("spellingbee", "Spelling Bee", "🐝", "spellingbee/index.html", "spellingbee", "language", "practice", ["g3"], "english"),
     A("detectives", "Reading Detectives", "🦝", "detectives/index.html", "detectives", "language", "stories", ["g3"], "english"),
     A("clueisland", "Clue Island", "🧭", "clueisland/index.html", "clueisland", "language", "stories", ["g3"], "english"),
     A("grammar", "Grammar Galaxy", "🪐", "grammar/index.html", "grammar", "language", "practice", ["g3"], "english"),

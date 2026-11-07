@@ -71,6 +71,10 @@
         var ph = Object.keys(c).filter(function (k) { return c[k] && c[k].passed; }).length, best = r.num("rr_bestWcpm");
         var wr = r.arr("rr_writing").length;
         return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") + (wr ? " · " + wr + " written answers" : "") }; } },
+    { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", grades: ["g3"], subject: "Spelling",
+      progress: function (r) { var w = r.obj("sb_words"), m = Object.keys(w).filter(function (k) { return w[k] && w[k].m >= 2; }).length;
+        var t = r.obj("sb_tests"), tn = Object.keys(t).length, jar = r.arr("sb_jar").length;
+        return { done: Math.min(m, 250), total: 250, label: m + " words mastered · " + r.arr("sb_stickers").length + " stickers" + (tn ? " · " + tn + " practice tests" : "") + (jar ? " · " + jar + " in the Tricky Jar" : "") }; } },
     { id: "writestudio", name: "Sentence Studio", emoji: "✏️", grades: ["g3"], subject: "Grammar & Writing",
       progress: function (r) { var l = r.obj("ws_lessons"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length, j = r.arr("ws_journal").length;
         return { done: d, total: 10, label: d + " of 10 writing lessons · " + j + " pieces in the Writing Book · " + r.num("ws_selfFix") + " self-fixes" }; } },
@@ -219,7 +223,7 @@
   var TABS = [
     { id: "overview", label: "📊 Overview" }, { id: "students", label: "👧 Students" },
     { id: "progress", label: "📈 Progress" }, { id: "suggest", label: "💡 Suggestions" },
-    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "academy", label: "🎓 Academy" }, { id: "data", label: "💾 Data" }
+    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "academy", label: "🎓 Academy" }, { id: "spelling", label: "🐝 Spelling Bee" }, { id: "data", label: "💾 Data" }
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.innerHTML = "";
@@ -244,9 +248,9 @@
   function renderTab() {
     C.hideTip();
     var host = $("panel");
-    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars" || S.tab === "academy";
+    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars" || S.tab === "academy" || S.tab === "spelling";
     var fn = { overview: renderOverview, students: renderStudents, progress: renderProgress, suggest: renderSuggest,
-               forecast: renderForecast, log: renderLog, dollars: renderDollars, academy: renderAcademy, data: renderData }[S.tab];
+               forecast: renderForecast, log: renderLog, dollars: renderDollars, academy: renderAcademy, spelling: renderSpelling, data: renderData }[S.tab];
     host.innerHTML = "";
     fn(host);
   }
@@ -599,6 +603,119 @@
       audit("adhoc_topic", { id: r.topic.id, saved: true, questions: r.topic.questions.length });
       S.adhocDraft = null; toast("Topic saved"); renderTab();
     });
+  }
+
+  /* ---------- 🐝 Spelling Bee: grown-ups' word sets (js/spellbee-store.js) + each learner's results ---------- */
+  function renderSpelling(host) {
+    var P = window.SpellStore;
+    var intro = section(host, "🐝 Spelling Bee",
+      "Buzzy's Spelling Bee (3rd grade) comes with the 2026–27 school study words for grades 1–5 (250 words). Add your own word sets here for one-off practice tests, like this week's class list or the words for the school bee. They show up in the app under 🧪 Practice tests.");
+    intro.insertAdjacentHTML("beforeend", '<p><a class="btn" href="../spellingbee/index.html">🐝 Open the Spelling Bee app</a></p>');
+    if (!P) return;
+    var sec = section(host, "📝 Word sets for practice tests", "Learners can Learn the words, unscramble them, take a scored test or play a Bee Contest with 3 hearts.");
+    if (S.spellDraft) renderSpellEditor(sec); else renderSpellList(sec);
+    renderSpellResults(host);
+  }
+  function renderSpellList(sec) {
+    var P = window.SpellStore, all = P.list(true), live = all.filter(function (t) { return !t.hid; }), gone = all.filter(function (t) { return t.hid; });
+    var html = (live.length
+      ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Word set</th><th>Grades</th><th>Words</th><th>Shown</th><th></th></tr></thead><tbody>' +
+        live.map(function (t) {
+          return "<tr><td>" + esc(t.emoji) + " <b>" + esc(t.title) + '</b><br><small class="muted">' + esc(t.words.slice(0, 6).map(function (w) { return w.w; }).join(", ")) + (t.words.length > 6 ? "…" : "") + "</small></td>" +
+            "<td>" + (t.grades.length ? t.grades.map(function (g) { return GRADE_SHORT[g]; }).join(", ") : "All") + "</td><td>" + t.words.length + "</td>" +
+            '<td><label class="switch-row"><input type="checkbox" data-son="' + esc(t.id) + '"' + (t.on !== false ? " checked" : "") + '> <span class="sr-only">Show ' + esc(t.title) + "</span></label></td>" +
+            '<td><button class="btn small" data-sedit="' + esc(t.id) + '">✏️ Edit</button> <button class="btn small" data-srm="' + esc(t.id) + '">🙈 Remove</button></td></tr>';
+        }).join("") + "</tbody></table></div>"
+      : '<p class="muted">No word sets yet. Make one for a spelling test coming up, or the words your learner keeps missing.</p>') +
+      '<div class="row-actions"><button class="btn primary" id="sbNew">＋ New word set</button>' +
+      (live.length ? '<button class="btn" id="sbExport">⬇️ Export sets</button>' : "") +
+      '<label class="btn">⬆️ Import sets<input type="file" id="sbImport" accept="application/json,.json" hidden></label></div>' +
+      (gone.length ? '<details class="ah-gone"><summary>Removed sets (' + gone.length + ")</summary><ul>" + gone.map(function (t) {
+        return "<li>" + esc(t.emoji) + " " + esc(t.title) + ' <button class="btn small" data-sback="' + esc(t.id) + '">↩️ Restore</button></li>';
+      }).join("") + "</ul></details>" : "");
+    sec.insertAdjacentHTML("beforeend", html);
+    sec.querySelectorAll("[data-son]").forEach(function (c) {
+      c.addEventListener("change", function () { P.setOn(c.getAttribute("data-son"), c.checked); audit("spellbee_set", { id: c.getAttribute("data-son"), on: c.checked }); toast(c.checked ? "Word set shown" : "Word set hidden"); });
+    });
+    sec.querySelectorAll("[data-sedit]").forEach(function (b) {
+      b.addEventListener("click", function () { var t = P.get(b.getAttribute("data-sedit")); S.spellDraft = { id: t.id, title: t.title, emoji: t.emoji, grades: t.grades.slice(), on: t.on, text: P.toLines(t.words) }; renderTab(); });
+    });
+    sec.querySelectorAll("[data-srm]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = P.get(b.getAttribute("data-srm"));
+        if (!confirm("Remove \"" + t.title + "\"? Learners stop seeing it. You can restore it from Removed sets.")) return;
+        P.remove(t.id); audit("spellbee_set", { id: t.id, removed: true }); toast("Word set removed"); renderTab();
+      });
+    });
+    sec.querySelectorAll("[data-sback]").forEach(function (b) {
+      b.addEventListener("click", function () { P.restore(b.getAttribute("data-sback")); audit("spellbee_set", { id: b.getAttribute("data-sback"), restored: true }); toast("Word set restored"); renderTab(); });
+    });
+    sec.querySelector("#sbNew").addEventListener("click", function () { S.spellDraft = { title: "", emoji: "🐝", grades: ["g3"], on: true, text: "" }; renderTab(); });
+    var ex = sec.querySelector("#sbExport");
+    if (ex) ex.addEventListener("click", function () { download("spelling-bee-sets-" + dayKey(Date.now()) + ".json", P.exportJSON(), "application/json"); audit("spellbee_export", {}); });
+    sec.querySelector("#sbImport").addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      var rd = new FileReader();
+      rd.onload = function () {
+        var r = P.importJSON(String(rd.result));
+        if (r.error) { toast(r.error); return; }
+        audit("spellbee_import", r); toast(r.added + " word sets added" + (r.skipped ? ", " + r.skipped + " skipped" : "")); renderTab();
+      };
+      rd.readAsText(f);
+    });
+  }
+  // One word per line: "word | meaning | sentence". Meaning and sentence are optional but make the test feel like a real bee.
+  function renderSpellEditor(sec) {
+    var P = window.SpellStore, d = S.spellDraft;
+    var html = '<div class="ah-edit"><h4 class="money-h">' + (d.id ? "Edit word set" : "New word set") + "</h4>" +
+      '<div class="ah-row"><label class="ah-field grow">Title<input type="text" id="sbTitle" maxlength="' + P.MAX.title + '" value="' + esc(d.title) + '" placeholder="e.g. Friday spelling test, week 9"></label>' +
+      '<label class="ah-field">Emoji<input type="text" id="sbEmoji" maxlength="8" value="' + esc(d.emoji) + '" style="width:5em"></label></div>' +
+      '<fieldset class="ah-grades"><legend>Grades (none ticked = everyone)</legend>' + P.GRADES.map(function (g) {
+        return '<label><input type="checkbox" data-sgrade="' + g + '"' + (d.grades.indexOf(g) >= 0 ? " checked" : "") + "> " + GRADE_SHORT[g] + "</label>";
+      }).join("") + "</fieldset>" +
+      '<label class="ah-field">Words: one per line, as <code>word | meaning | sentence</code>' +
+        '<textarea id="sbText" rows="12" spellcheck="false" placeholder="necessary | needed; must have | Water is necessary for plants to grow.&#10;rhythm | a regular beat | Clap to the rhythm of the song.&#10;colour (or color) | how something looks: red, blue… | My favourite colour is green.&#10;beautiful">' + esc(d.text) + "</textarea></label>" +
+      '<p class="muted small-note">Meaning and sentence are optional, but Buzzy reads them aloud when your learner asks, like a real pronouncer. Add another accepted spelling with <code>(or …)</code>. Up to ' + P.MAX.words + " words.</p>" +
+      '<p class="muted small-note" id="sbCount"></p>' +
+      '<p class="gate-msg" id="sbErr" role="alert"></p>' +
+      '<div class="row-actions"><button class="btn primary" id="sbSave">💾 Save word set</button><button class="btn" id="sbCancel">Cancel</button></div></div>';
+    sec.insertAdjacentHTML("beforeend", html);
+    var box = sec.querySelector(".ah-edit");
+    function count() {
+      var ws = P.parseLines(d.text), withDef = ws.filter(function (w) { return w.d; }).length;
+      box.querySelector("#sbCount").textContent = ws.length + (ws.length === 1 ? " word" : " words") + (ws.length ? " · " + withDef + " with a meaning" : "");
+    }
+    count();
+    box.querySelector("#sbTitle").addEventListener("input", function (e) { d.title = e.target.value; });
+    box.querySelector("#sbEmoji").addEventListener("input", function (e) { d.emoji = e.target.value; });
+    box.querySelector("#sbText").addEventListener("input", function (e) { d.text = e.target.value; count(); });
+    box.querySelectorAll("[data-sgrade]").forEach(function (c) {
+      c.addEventListener("change", function () { d.grades = P.GRADES.filter(function (g) { var x = box.querySelector('[data-sgrade="' + g + '"]'); return x && x.checked; }); });
+    });
+    box.querySelector("#sbCancel").addEventListener("click", function () { S.spellDraft = null; renderTab(); });
+    box.querySelector("#sbSave").addEventListener("click", function () {
+      var r = P.save({ id: d.id, title: d.title, emoji: d.emoji, grades: d.grades, on: d.on, text: d.text });
+      if (r.error) { box.querySelector("#sbErr").textContent = r.error; return; }
+      audit("spellbee_set", { id: r.set.id, saved: true, words: r.set.words.length });
+      S.spellDraft = null; toast("Word set saved"); renderTab();
+    });
+  }
+  // Every learner's Spelling Bee: words mastered, Tricky Jar, and their practice-test scores.
+  function renderSpellResults(host) {
+    var kids = DB.kids(), P = window.SpellStore, sets = P ? P.list(true) : [];
+    var sec = section(host, "📊 Results", "Saved on this device for each learner. A word is mastered after it is spelled right on the first try twice.");
+    if (!kids.length) { sec.insertAdjacentHTML("beforeend", '<p class="muted">No learners yet.</p>'); return; }
+    var rows = kids.map(function (k) {
+      var r = reader(k.id), w = r.obj("sb_words"), t = r.obj("sb_tests"), jar = r.arr("sb_jar");
+      var m = Object.keys(w).filter(function (x) { return w[x] && w[x].m >= 2; }).length;
+      var tests = Object.keys(t).map(function (id) {
+        var s = sets.filter(function (x) { return x.id === id; })[0], v = t[id];
+        return "<div>" + esc(s ? s.emoji + " " + s.title : "Removed set") + ": best <b>" + v.best + "%</b>, last " + v.last + "% (" + v.tries + (v.tries === 1 ? " try" : " tries") + ")" +
+          (v.missed && v.missed.length ? '<br><small class="muted">Missed last time: ' + esc(v.missed.join(", ")) + "</small>" : "") + "</div>";
+      }).join("");
+      return "<tr><td>" + esc(k.avatar + " " + k.name) + "</td><td>" + m + "</td><td>" + (jar.length ? esc(jar.slice(0, 12).join(", ")) + (jar.length > 12 ? "…" : "") : "—") + "</td><td>" + (tests || '<span class="muted">none yet</span>') + "</td></tr>";
+    }).join("");
+    sec.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Learner</th><th>Mastered</th><th>Tricky Jar</th><th>Practice tests</th></tr></thead><tbody>' + rows + "</tbody></table></div>");
   }
 
   // Which level each challenge pays (Silver unless changed here).

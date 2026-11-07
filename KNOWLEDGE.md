@@ -1,3 +1,13 @@
+## FEATURE — Buzzy's Spelling Bee (G3) + Admin word sets · 2026-11-07
+- `spellingbee/` app from `docs/Spelling Bee Word Lists 2026-27.pdf`: grades 1–5 (250 words, meaning + sentence written by hand), 5 honeycombs of 10 per list. G6–8 left out on purpose.
+- PDF GOTCHA: `pdftotext -layout` dropped "interruption" from the G5 page (3-column layout). Plain `pdftotext` (no -layout) got all 50; always count each list.
+- Academy card: `Syllabus.EXTRAS` entries may now carry `href` (opens an app) and `grades` (shown only to those grades). `test/academy-syllabus.js` expects extras `languages,spellingbee,adhoc`.
+- Grown-up sets: `js/spellbee-store.js` → `hub_spellbee` (global like `hub_adhoc`), lines `word | meaning | sentence`, `(or alt)`. Admin tab 🐝 Spelling Bee = editor + per-learner results read via `reader(kid)`.
+- Mastery only moves in real spelling modes (Hear & Spell, Contest, Daily, Jar, Test) on a first try with no hint; Missing Letters/Unscramble give points only. Compare = NFD-stripped lowercase, so "pinata" matches "piñata".
+- The app ignores keystrokes while a `.pop-veil` or kidbar `.kb-veil` celebration is open, or typing goes into a hidden answer.
+- Test-script GOTCHA: a Bash heredoc holding JS `.remove()` calls was blocked by the rm safety check; write test scripts with the Write tool.
+- Dollar Bank: `spellingbee:bee-champion` (G3 Grand Bee) and `spellingbee:hive-hero` (all 50 G3 words).
+
 ## FEATURE — Rocket Phase 6 "Robot Academy" + AI/robot roadmap (Phases 7–9) · 2026-11-07
 - Phase 6 retitled from "4th-Grade Star" to Robot Academy (badge 🤖); "4th-Grade Star" moved to Phase 9. Phases 7 AI Explorer Lab, 8 Robot Engineers, 9 4th-Grade Star are data stubs with no `lessons`, so the path shows "coming soon" (goals 125/130/135).
 - "🤖 Robot glitch" = an ordinary quiz item ("which sentence is TRUE?"); no engine change needed.

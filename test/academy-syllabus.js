@@ -42,7 +42,7 @@ Y.GRADES.forEach(g => {
 // Every app a grade can see in an Academy subject is attached to at least one unit somewhere in that grade
 // or its band, so nothing is orphaned. (More practice on the subject page shows the rest anyway.)
 const extras = Y.EXTRAS.map(e => e.id);
-if (extras.join() !== 'languages,adhoc') err('extras: World Languages and AdHoc');
+if (extras.join() !== 'languages,spellingbee,adhoc') err('extras: World Languages, Spelling Bee and AdHoc');
 const langs = Y.subject('languages');
 if (!C.ITEMS.filter(it => Y.catalogMatch(langs, it)).every(it => ['tamil', 'arabic'].includes(it.lang))) err('World Languages = Tamil + Arabic');
 if (!C.ITEMS.filter(it => it.subject === 'language').every(it => Y.catalogMatch(Y.subject('english'), it) || Y.catalogMatch(langs, it))) err('every Language app lands in English or World Languages');

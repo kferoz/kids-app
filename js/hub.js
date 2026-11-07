@@ -148,6 +148,13 @@
     });
     Y.EXTRAS.forEach(function (s) {
       if (s.setting && !adhocOn()) return;
+      if (s.grades && s.grades.indexOf(kid.grade) < 0) return;
+      if (s.href) {
+        html += '<a class="subj-card" href="' + s.href + '" data-app="' + s.id + '" data-app-name="' + escapeHtml(s.name) + '" style="--sc:' + s.color + '">' +
+          '<span class="subj-emoji">' + s.emoji + "</span>" + '<span class="subj-name">' + s.name + "</span>" +
+          '<span class="subj-count">' + escapeHtml(s.note || "") + "</span></a>";
+        return;
+      }
       var body = '<span class="subj-emoji">' + s.emoji + "</span>" + '<span class="subj-name">' + s.name + "</span>";
       if (s.langs) {
         var langs = window.Catalog.SUBJECTS.filter(function (c) { return c.id === "language"; })[0].langs.filter(function (l) { return s.langs.indexOf(l.id) >= 0; });
