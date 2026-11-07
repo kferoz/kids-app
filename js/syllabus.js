@@ -50,6 +50,9 @@
     // A card that opens its own app (href) for the listed grades only.
     { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", color: "#f59f00", href: "spellingbee/index.html", grades: ["g3"],
       note: "Bee words, honeycombs and contests" },
+    // Printable worksheets for every grade and subject (worksheets/)
+    { id: "worksheets", name: "Worksheets", emoji: "📄", color: "#495057", href: "worksheets/index.html",
+      note: "Print or save as PDF, with answer keys" },
     { id: "adhoc",     name: "AdHoc",           emoji: "🧪", color: "#868e96", setting: "adhoc" }
   ];
   var GRADES = ["pk", "kg", "g1", "g2", "g3", "g4", "g5"];

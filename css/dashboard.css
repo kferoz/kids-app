@@ -617,6 +617,8 @@ a.subj-card:focus-visible { outline: 4px solid var(--sc); outline-offset: 3px; }
 .unit-start { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 18px; border-radius: 999px; background: var(--ink); color: #fff; border: 3px solid var(--ink); font: 800 1.05rem var(--font-round); text-decoration: none; box-shadow: 0 4px 0 var(--sc); }
 .unit-start:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
 .unit-start:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--sc); }
+.unit-sheet { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 16px; border-radius: 999px; background: #fff; color: var(--ink); border: 3px solid var(--ink); font: 800 1rem var(--font-round); text-decoration: none; }
+.unit-sheet:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
 .unit-start.done { background: #fff; color: var(--ink); border-color: var(--sc); }
 .unit-badge { font-weight: 800; background: #e6f7ea; color: #1e7a3c; border-radius: 999px; padding: 4px 12px; }
 .unit-badge.try { background: #fff3bf; color: #7a5600; }

@@ -223,6 +223,7 @@
       box.hidden = false;
       box.innerHTML = '<a class="unit-start' + (r && r.m ? " done" : "") + '" href="academy/lesson.html#u=' + id + '" data-app="academy" data-app-name="' + escapeHtml(title) + '">' +
         (r && r.m ? "🔁 Practise again" : r ? "▶️ Keep going" : "▶️ Start lesson") + "</a>" +
+        '<a class="unit-sheet" href="worksheets/index.html#u=' + id + '" data-app="worksheets" data-app-name="Worksheet" title="Printable worksheet with answer key">📄 Worksheet</a>' +
         (r && r.m ? '<span class="unit-badge">🏅 Mastered ' + "⭐".repeat(r.best || 0) + "</span>" : r && r.best ? '<span class="unit-badge try">Best test ' + "⭐".repeat(r.best) + "</span>" : "");
       var soon = card.querySelector(".unit-soon"); if (soon) soon.hidden = true;
     });

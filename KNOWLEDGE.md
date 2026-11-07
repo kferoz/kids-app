@@ -1,3 +1,11 @@
+## FEATURE — Printable Worksheets, PK–G5, every subject (worksheets/) · 2026-11-07
+- Asked for "most rated" downloadable worksheets: third-party sheets are copyrighted, so every sheet is generated from the hub's own content (Academy lessons, Spelling Bee lists) plus seeded math drill generators. 278 unit sheets, 42 workbooks, 48 drills, 25 spelling, 7 handwriting.
+- Download = print to PDF. Android WebView has no window.print(): added `AndroidBridge.printPage(title)` (PrintManager + `web.createPrintDocumentAdapter`) in MainActivity; the worksheet page calls it when present.
+- `&v=` seeds a mulberry32 RNG (drills.js `rng`), so a sheet and its key always match and a version reprints identically. `test/worksheets.js` re-computes 14k drill answers incl. fraction simplification and remainders.
+- Drill titles must match the maths: the first G2 "regrouping" generator produced non-regrouping sums; generators now loop until the ones carry/trade.
+- `Syllabus.EXTRAS` now ends `languages,spellingbee,worksheets,adhoc` (test/academy-syllabus.js). Unit cards get a 📄 Worksheet link in hub.js fillLessons.
+- Print CSS hides kidbar via `[class^="kb-"]`; an empty `.toast` needs visibility:hidden or it shows as a black pill in full-page screenshots/prints.
+
 ## FEATURE — Read-aloud reading levels (Easy → Expert) for Phonics Pals + Rocket · 2026-11-07
 - Kids gave up because the listener wanted near-perfect pronunciation. `js/readlevel.js` (shared) + `Listener.start({level})`: 1 Easy, 2 Medium, 3 Hard, 4 Expert = the old strict rules, so callers without `level` behave exactly as before (Sentence Studio dictation).
 - The listener scores ALL 4 levels on every result (`res.levels[0..3]`, memoised `same()` per session): stars use the chosen level, yellow `.w.close` = hit at level but not Expert, level-up uses the NEXT level's hits so a child can't level up on lenient matching.

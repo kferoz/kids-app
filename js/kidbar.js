@@ -37,7 +37,7 @@
     phonics: ["Phonics Pals", "🦜"], tracewrite: ["Write & Trace", "🖍️"], arabic: ["Arabic Oasis", "🐪"],
     speedway: ["Learning Speedway", "🏎️"], kinder: ["Little Learners", "🐣"], reading: ["Reading Trail", "🦉"],
     homeschool: ["Homeschool Academy", "🎓"], readingadventures: ["Reading Adventures", "📖"],
-    readrocket: ["Read-Aloud Rocket", "🚀"], spellingbee: ["Spelling Bee", "🐝"], writestudio: ["Sentence Studio", "✏️"], detectives: ["Reading Detectives", "🔍"],
+    readrocket: ["Read-Aloud Rocket", "🚀"], spellingbee: ["Spelling Bee", "🐝"], worksheets: ["Worksheets", "📄"], writestudio: ["Sentence Studio", "✏️"], detectives: ["Reading Detectives", "🔍"],
     clueisland: ["Clue Island", "🧭"], grandprix: ["Turbo Grand Prix", "🏁"], multiply: ["Times Table Takeoff", "✖️"],
     grammar: ["Grammar Galaxy", "🌌"], funfacts: ["Fun Facts Explorer", "🔭"], treasure: ["Grammar Treasure Hunt", "🗺️"],
     subtraction: ["Subtraction Notebook", "📓"], billofrights: ["Bill of Rights", "📜"], piratemath: ["Pirate Math Quest", "🏴‍☠️"],

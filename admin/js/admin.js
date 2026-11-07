@@ -71,6 +71,10 @@
         var ph = Object.keys(c).filter(function (k) { return c[k] && c[k].passed; }).length, best = r.num("rr_bestWcpm");
         var wr = r.arr("rr_writing").length;
         return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") + (wr ? " · " + wr + " written answers" : "") + rlLabel(r, "readrocket") }; } },
+    { id: "worksheets", name: "Printable Worksheets", emoji: "📄", grades: ["pk", "kg", "g1", "g2", "g3", "g4", "g5"], subject: "All subjects",
+      progress: function (r) { var l = r.arr("ws_log"), sc = l.filter(function (x) { return x && x.total; }), ids = {}; l.forEach(function (x) { if (x && x.id) ids[x.id] = 1; });
+        var n = Object.keys(ids).length, pct = sc.length ? Math.round(100 * sc.reduce(function (a, x) { return a + x.score / x.total; }, 0) / sc.length) : 0;
+        return { done: Math.min(n, 50), total: 50, label: n + " worksheets printed" + (sc.length ? " · " + sc.length + " scored, average " + pct + "%" : "") }; } },
     { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", grades: ["g3"], subject: "Spelling",
       progress: function (r) { var w = r.obj("sb_words"), m = Object.keys(w).filter(function (k) { return w[k] && w[k].m >= 2; }).length;
         var t = r.obj("sb_tests"), tn = Object.keys(t).length, jar = r.arr("sb_jar").length;

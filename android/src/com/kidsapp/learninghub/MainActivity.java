@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.print.PrintAttributes;
+import android.print.PrintManager;
 import android.provider.MediaStore;
 import android.os.Handler;
 import android.os.Looper;
@@ -242,6 +244,18 @@ public class MainActivity extends Activity {
       } catch (Exception e) {
         return "";
       }
+    }
+
+    /** Opens Android's print dialog for the current page (Worksheets): print, or "Save as PDF". */
+    @JavascriptInterface
+    public void printPage(String title) {
+      final String name = (title == null || title.isEmpty()) ? "Worksheet" : title;
+      ui.post(() -> {
+        try {
+          PrintManager pm = (PrintManager) getSystemService(PRINT_SERVICE);
+          pm.print(name, web.createPrintDocumentAdapter(name), new PrintAttributes.Builder().build());
+        } catch (Exception ignored) {}
+      });
     }
 
     @JavascriptInterface public void ttsStop() { if (tts != null) tts.stop(); }
