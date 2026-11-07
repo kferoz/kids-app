@@ -1,3 +1,11 @@
+## FEATURE — Rocket Phase 6 "Robot Academy" + AI/robot roadmap (Phases 7–9) · 2026-11-07
+- Phase 6 retitled from "4th-Grade Star" to Robot Academy (badge 🤖); "4th-Grade Star" moved to Phase 9. Phases 7 AI Explorer Lab, 8 Robot Engineers, 9 4th-Grade Star are data stubs with no `lessons`, so the path shows "coming soon" (goals 125/130/135).
+- "🤖 Robot glitch" = an ordinary quiz item ("which sentence is TRUE?"); no engine change needed.
+- Hyphenated words break read-aloud scoring: `Listener.tokens` strips "-" (three-way → threeway) but the recogniser returns two words. Keep passages hyphen-free (p3 check still has one).
+- New names (Ortiz, Kai, Ada, Clank, Shelly, Bolt) added to listener `ALIKE`; don't add real words that change meaning (e.g. bolt→boat).
+- Seeding passed checks in a test fires the Dollar Bank $ popup (`.kb-veil`) over everything; click via `el.click()` in `evaluate` or remove the veil.
+- Admin readrocket totals still 24 lessons / 6 phases; bump when Phase 7 lands.
+
 ## FEATURE — Academy lessons for all 278 units (42 files, 2,032 questions) · 2026-10-31
 - The user said to finish every phase without stopping. All 42 grade-subject lesson files were written and shipped in commits of 2–4 files, ticking `academy/PROGRESS.md` each time so a fresh session could resume.
 - Pre-K units have 6 questions (3 easy, 3 medium); the other core units have 8; Computing and Health have 6. The test requires at least 3 easy and 3 medium per unit so every Quiz Kit mode can fill.

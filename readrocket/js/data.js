@@ -1,8 +1,8 @@
 /* ============================================================
    Read-Aloud Rocket — data
    ------------------------------------------------------------
-   Six phases that climb from beginning-3rd-grade reading to
-   4th-grade level. Each phase = 4 lessons + a Phase Check that
+   Phases that climb from beginning-3rd-grade reading to
+   4th-grade level (6+ = robots & AI). Each phase = 4 lessons + a Phase Check that
    unlocks the next phase. Phases are added one at a time: a
    phase with no `lessons` shows as "coming soon".
 
@@ -615,7 +615,129 @@ const PHASES = [
       ]
     }
   },
-  { id: "p6", n: 6, title: "4th-Grade Star", sub: "Longer passages, main idea & inference", goal: 120, color: "#fcc419", accent: "#e67700", badge: { emoji: "⭐", name: "4th-Grade Star Badge" } }
+  {
+    id: "p6", n: 6, title: "Robot Academy", sub: "Main idea & inference, with robots and AI", goal: 120,
+    color: "#fcc419", accent: "#e67700", badge: { emoji: "🤖", name: "Robot Academy Badge" },
+    lessons: [
+      {
+        id: "p6l1", title: "Bolt Gets a Name", skill: "Main idea: what is it mostly about?",
+        tip: "The main idea is what a story is mostly about. Details are the small facts that hold it up, like the legs of a table. Scan like a robot! Ask: who is this mostly about, and what is the big thing that happens?",
+        focus: ["robot", "computer", "sensors", "election", "program", "important"],
+        chunks: { robot: "ro·bot", computer: "com·pu·ter", sensors: "sen·sors", election: "e·lec·tion", program: "pro·gram", important: "im·por·tant" },
+        passage: [
+          "On Monday, a big box arrived in Room Twelve. Inside was a shiny robot with wheels, two long arms and a screen for a face. A note on the box said, “Classroom Helper, Model Seven.” Ms. Ortiz smiled at the class. “It needs a name,” she said. “And I think you should choose it.”",
+          "The robot had sensors that let it see and hear. It rolled around the room, passing out papers and watering the plants. When Ruby dropped her pencils, it picked up every single one. Its computer screen showed a happy face each time someone said thank you. Everyone wanted to give it a name.",
+          "So the class held an election. Jamal wanted Sparky. Lily wanted Professor Beep. Ben wanted Pizza, because pizza was his favorite thing in the whole world. The class made posters and gave speeches. Ms. Ortiz even helped them program the robot to count the votes on its screen.",
+          "The vote ended in a tie between three names! Nobody knew what to do. Then the robot rolled to the front of the room. Its screen blinked and showed a new word: BOLT. “I choose Bolt,” it beeped, “because I am fast and I love to help.” The whole class cheered. Sometimes the most important vote is your own."
+        ],
+        vocab: [{ w: "sensors", def: "parts of a machine that notice light, sound or touch" }, { w: "election", def: "a way for a group to choose something by voting" }],
+        quiz: [
+          { q: "What is this story mostly about? (That's the main idea!)", choices: ["A class choosing a name for their new robot helper", "Ben's favorite food", "How to water plants"], answer: 0, why: "Almost every paragraph is about naming the robot. That is the big idea; the rest are details." },
+          { q: "Which detail shows the robot was helpful?", choices: ["It picked up every one of Ruby's pencils", "It arrived in a box", "Ben wanted to call it Pizza"], answer: 0, why: "Picking up Ruby's pencils is a detail that shows the robot helping." },
+          { q: "Why do you think the screen showed a happy face when someone said thank you?", choices: ["It was programmed to show it liked being thanked", "It was broken", "It was hungry"], answer: 0, why: "Robots do what they are programmed to do. Someone made it smile when people were kind." },
+          { q: "🤖 Robot glitch! Nova's memory chip mixed up the story. Which sentence is TRUE?", choices: ["The vote ended in a tie", "The class named the robot Pizza", "Ms. Ortiz chose the name"], answer: 0, why: "The vote ended in a tie, so the robot chose its own name: Bolt." }
+        ],
+        write: [
+          { emoji: "🤖", p: "What is the main idea of this story? Answer in one complete sentence.", ideas: ["This story is mostly about", "a class", "robot", "name"], model: "This story is mostly about a class choosing a name for their robot helper.", need: { min: 8 } },
+          { emoji: "🏷️", p: "If your class got a robot helper, what would you name it, and why?", ideas: ["I would name it", "because", "robot", "helper"], model: "I would name our robot Zippy because it would zoom around the room helping everyone.", need: { min: 9 } }
+        ],
+        sticker: { emoji: "🤖", name: "Robot Namer" }
+      },
+      {
+        id: "p6l2", title: "Shelly the Beach Robot", skill: "Inference: clues + what I know",
+        tip: "Authors do not tell you everything, so you have to be a detective! An inference is a smart guess. Take a clue from the story and add what you already know. If someone shakes a wet umbrella, you can infer it is raining outside.",
+        focus: ["solar", "battery", "plastic", "recycle", "turtle", "ocean"],
+        chunks: { solar: "so·lar", battery: "bat·ter·y", plastic: "plas·tic", recycle: "re·cy·cle", turtle: "tur·tle", ocean: "o·cean" },
+        passage: [
+          "Every morning at sunrise, a small robot crawled out of a shed on Pelican Beach. Her name was Shelly. She had six legs like a crab and a solar panel on her back, so the sunshine filled her battery. Her job was to search the sand for plastic and carry it to the recycle bin.",
+          "One day, a girl named Kai sat watching her. Shelly picked up a bottle cap, a straw and a broken toy shovel. Kai frowned. “Why does a robot have to do this?” she asked her dad. Her dad pointed at a sign near the dunes. It showed a sea turtle tangled in a plastic bag.",
+          "That afternoon, dark clouds rolled over the ocean. Shelly moved slower and slower. Her lights flickered. Then she stopped completely, right in the middle of the sand, with a straw still in her claw. The waves were creeping closer. Kai looked at the gray sky, then at the little robot, and jumped up.",
+          "Kai and her dad carried Shelly back to her shed. Then Kai grabbed a bucket and finished the job herself. By sunset, the bucket was full. The next morning, the sun came out, and Shelly crawled out again. Taped to her shed was a new sign in Kai's handwriting: “Shelly's Helper. Reporting for duty.”"
+        ],
+        vocab: [{ w: "solar panel", def: "a flat part that turns sunlight into power" }, { w: "tangled", def: "twisted up and stuck" }],
+        quiz: [
+          { q: "Why did Shelly slow down and stop? Make an inference!", choices: ["Clouds blocked the sun, so her solar battery ran low", "She was tired of picking up plastic", "Kai turned her off"], answer: 0, why: "Clue: dark clouds rolled in. What you know: solar panels need sunshine. Inference: her battery ran low!" },
+          { q: "What can you infer from the sign with the turtle?", choices: ["Plastic on the beach can hurt sea animals", "Turtles love plastic bags", "The beach is closed"], answer: 0, why: "The turtle was tangled in a bag. That tells you why the plastic must be cleaned up." },
+          { q: "Why did Kai jump up when the waves crept closer?", choices: ["She was worried the waves would wash Shelly away", "She wanted to go swimming", "She saw a shark"], answer: 0, why: "Shelly was stuck on the sand and the waves were coming. Kai wanted to save her." },
+          { q: "🤖 Robot glitch! Nova's memory chip mixed up the story. Which sentence is TRUE?", choices: ["Shelly has six legs like a crab", "Shelly runs on gasoline", "Kai's dad finished the job by himself"], answer: 0, why: "Shelly has six legs like a crab and runs on sunshine. Kai finished the job herself." }
+        ],
+        write: [
+          { emoji: "☁️", p: "Why did Shelly stop working? Use a clue from the story.", ideas: ["Shelly stopped because", "clouds", "sun", "battery"], model: "Shelly stopped because the clouds blocked the sun and her solar battery ran low.", need: { min: 9 } },
+          { emoji: "🐢", p: "Kai became Shelly's helper. How could you help keep a beach or a park clean?", ideas: ["I could", "pick up", "plastic", "recycle", "so that"], model: "I could pick up plastic at the park so that animals stay safe.", need: { min: 8 } }
+        ],
+        sticker: { emoji: "🦀", name: "Beach Guardian" }
+      },
+      {
+        id: "p6l3", title: "The Robot Chef Disaster", skill: "Cause and effect",
+        tip: "A cause is why something happens. An effect is what happens because of it. Words like because and so are clue words. Robots follow their program exactly, so one tiny mistake can cause a giant effect!",
+        focus: ["chef", "recipe", "kitchen", "teaspoon", "measured", "exactly"],
+        chunks: { chef: "chef", recipe: "rec·i·pe", kitchen: "kitch·en", teaspoon: "tea·spoon", measured: "meas·ured", exactly: "ex·act·ly" },
+        passage: [
+          "Uncle Ray loves gadgets, so for his birthday he bought a robot chef named Chef Clank. It had four arms, a mixing bowl for a belly and a tiny white chef hat. “Chef Clank can follow any recipe exactly,” Uncle Ray told me. “Tonight, it will bake your mom's birthday cake.”",
+          "I typed in the recipe while Uncle Ray went to buy candles. But my finger slipped. Instead of one teaspoon of salt, I typed one hundred teaspoons. Chef Clank did not ask any questions. It measured every single teaspoon, spinning its arms so fast that salt flew all over the kitchen like snow.",
+          "When the cake came out of the oven, it looked perfect. Mom took one big bite. Her eyes went wide. Her cheeks turned pink. She drank three glasses of water without stopping. “It is very… interesting,” she said politely, and then she ran back to the sink for a fourth glass.",
+          "Uncle Ray checked the screen and saw my mistake. I felt terrible, but he just laughed. “Robots do exactly what we tell them,” he said, “so we have to tell them carefully.” Together we fixed the recipe and baked a second cake. This time, Chef Clank even wrote Happy Birthday in perfect blue letters."
+        ],
+        vocab: [{ w: "gadgets", def: "small, clever machines or tools" }, { w: "politely", def: "in a kind way, with good manners" }],
+        quiz: [
+          { q: "What caused the cake to taste so salty?", choices: ["The narrator typed one hundred teaspoons of salt by mistake", "Chef Clank was broken", "Mom added the salt"], answer: 0, why: "Cause: a slipped finger typed one hundred teaspoons. Effect: a very salty cake!" },
+          { q: "What was one effect of the salty cake?", choices: ["Mom drank glass after glass of water", "Mom asked for a second slice", "Mom fell asleep"], answer: 0, why: "She drank three glasses of water, then ran back for a fourth." },
+          { q: "Why didn't Chef Clank notice the mistake?", choices: ["Robots do exactly what they are told", "It was asleep", "It wanted to play a joke"], answer: 0, why: "Uncle Ray said, “Robots do exactly what we tell them.”" },
+          { q: "🤖 Robot glitch! Nova's memory chip mixed up the story. Which sentence is TRUE?", choices: ["Uncle Ray laughed instead of getting angry", "The second cake was salty too", "Chef Clank had two arms"], answer: 0, why: "Uncle Ray just laughed. Chef Clank had four arms, and the second cake was perfect." }
+        ],
+        write: [
+          { emoji: "🧂", p: "What caused the cake disaster? Use the word because.", ideas: ["The cake was salty because", "typed", "one hundred", "mistake"], model: "The cake was too salty because the narrator typed one hundred teaspoons of salt by mistake.", need: { min: 9, team: ["because"], teamHint: "Use the clue word because to show the cause." } },
+          { emoji: "🎂", p: "If you had a robot chef, what would you ask it to cook? What could go wrong?", ideas: ["I would ask my robot to cook", "but", "so", "might"], model: "I would ask my robot to cook pancakes, but it might flip them onto the ceiling.", need: { min: 10 } }
+        ],
+        sticker: { emoji: "🎂", name: "Robot Chef" }
+      },
+      {
+        id: "p6l4", title: "Grandpa Meets the Talking Egg", skill: "Infer feelings from actions",
+        tip: "Authors often show feelings instead of telling them. If a character slams a door, you can infer they are angry. If they tap their foot to music, they are starting to enjoy it. Watch what characters do and say, and you can read their feelings.",
+        focus: ["assistant", "artificial", "intelligence", "intelligent", "learning", "mistakes", "patient"],
+        chunks: { assistant: "as·sis·tant", artificial: "ar·ti·fi·cial", intelligence: "in·tel·li·gence", intelligent: "in·tel·li·gent", learning: "learn·ing", mistakes: "mis·takes", patient: "pa·tient" },
+        passage: [
+          "Grandpa Joe is eighty years old, and he does not trust computers. So when my cousin gave him a smart assistant named Ada, he crossed his arms and grumbled. Ada was a small speaker shaped like an egg. “Artificial intelligence,” Grandpa muttered. “Next they will want my toaster to talk.”",
+          "The first day was a disaster. Grandpa asked Ada to play some jazz, and she ordered him a pair of jeans. He asked about the weather, and she told him a joke about a cow. Grandpa threw his hat on the floor. “This egg is not intelligent at all!” he shouted at the ceiling.",
+          "I sat down next to him. “Ada is still learning, Grandpa,” I explained. “She learns from lots of examples, and from her mistakes, just like we do. Try speaking slowly and clearly.” Grandpa sighed, picked up his hat and leaned close to the egg. “Ada,” he said very slowly, “please play some jazz.”",
+          "Soft trumpet music filled the room. The corner of Grandpa's mouth twitched. Then he tapped his foot. By dinner he was asking Ada about baseball scores, soup recipes and the names of stars. When I left, he waved and whispered, “Ada, remind me to call my patient grandkid tomorrow.” I smiled all the way home."
+        ],
+        vocab: [{ w: "artificial intelligence", def: "computer programs that learn from examples so they can answer, sort or help" }, { w: "muttered", def: "said quietly in a grumpy way" }],
+        quiz: [
+          { q: "How did Grandpa feel about Ada at first? How do you know?", choices: ["Grumpy, because he crossed his arms and grumbled", "Excited, because he jumped for joy", "Sleepy, because he yawned"], answer: 0, why: "Crossing your arms and grumbling are actions that show a grumpy feeling." },
+          { q: "How does artificial intelligence like Ada learn, according to the story?", choices: ["From lots of examples and from mistakes", "By eating batteries", "By sleeping all night"], answer: 0, why: "“She learns from lots of examples, and from her mistakes, just like we do.”" },
+          { q: "Grandpa tapped his foot to the music. What can you infer?", choices: ["He was starting to enjoy Ada", "His foot hurt", "He wanted Ada to stop"], answer: 0, why: "Tapping your foot to music shows you like it. His feelings were changing!" },
+          { q: "🤖 Robot glitch! Nova's memory chip mixed up the story. Which sentence is TRUE?", choices: ["Ada ordered jeans when Grandpa asked for jazz", "Ada is shaped like a banana", "Grandpa gave Ada away"], answer: 0, why: "Jazz and jeans sound a bit alike, so Ada got mixed up. She was still learning." }
+        ],
+        write: [
+          { emoji: "🥚", p: "How did Grandpa's feelings change from the beginning to the end?", ideas: ["At first Grandpa was", "but at the end", "grumpy", "happy"], model: "At first Grandpa was grumpy, but at the end he enjoyed talking to Ada.", need: { min: 10 } },
+          { emoji: "🧠", p: "If you could teach an AI helper one thing, what would you teach it, and why?", ideas: ["I would teach my helper", "because", "examples", "learn"], model: "I would teach my helper to tell good jokes because laughing makes everyone happy.", need: { min: 10 } }
+        ],
+        sticker: { emoji: "🧠", name: "AI Coach" }
+      }
+    ],
+    check: {
+      title: "The Rover That Would Not Quit",
+      passage: [
+        "Far away on Mars, a robot rover named Dash rolled across the red dust. Scientists on Earth had built Dash to look for clues about water. Every day, they sent instructions across millions of miles of space. Each message took about twenty minutes to arrive, so Dash had to make some choices on its own.",
+        "One morning, a dust storm swept over the plain. The sky turned orange, then brown, then almost black. Dash's solar panels were covered in dust, and its battery dropped lower and lower. Back on Earth, the team stared at their screens. Nobody talked. Someone quietly put down a cup of coffee and never picked it up again.",
+        "Dash had been programmed to protect itself. It turned off its camera, its arm and its heater. It sent one last tiny message: “Sleeping. Battery low.” Then everything went silent. For thirty days, the scientists listened every night. Many of them believed they would never hear from the brave little rover again.",
+        "Then one night, a strong wind blew across Mars and swept the dust off the solar panels. The sun poured in, and the battery slowly filled. A message arrived on Earth: “Awake. Ready to explore.” The control room burst into cheers and hugs. A week later, Dash rolled up to a rock that had been shaped by ancient water."
+      ],
+      quiz: [
+        { q: "What is the main idea of this story?", choices: ["A Mars rover survives a dust storm and keeps exploring", "How to make a cup of coffee", "Why Mars is red"], answer: 0, why: "Every paragraph is about Dash, the storm, and how it came back to explore." },
+        { q: "Why did Dash have to make some choices on its own?", choices: ["Messages from Earth took about twenty minutes to arrive", "The scientists were asleep", "It did not like following orders"], answer: 0, why: "Each message took about twenty minutes, so Dash could not wait for every instruction." },
+        { q: "Nobody talked, and someone put down their coffee. What can you infer about the team?", choices: ["They were very worried about Dash", "They were bored", "They were on a lunch break"], answer: 0, why: "Silence and a forgotten coffee are clues that show they were worried." },
+        { q: "Why did Dash turn off its camera, arm and heater?", choices: ["To save its battery during the storm", "Because its job was finished", "Because the scientists were angry"], answer: 0, why: "Dash was programmed to protect itself, so it saved every bit of power." },
+        { q: "What caused Dash to wake up?", choices: ["Wind blew the dust off its solar panels", "A scientist flew to Mars", "It started to rain"], answer: 0, why: "Cause: wind cleaned the panels. Effect: sunlight filled the battery." },
+        { q: "🤖 Robot glitch! Nova's memory chip mixed up the story. Which sentence is TRUE?", choices: ["Dash found a rock shaped by ancient water", "Dash was built to look for gold", "Dash slept for only two days"], answer: 0, why: "Dash was built to look for clues about water, slept for thirty days, and then found the rock." }
+      ]
+    }
+  },
+  /* Planned AI & robotics phases (coming soon): one phase per request. */
+  { id: "p7", n: 7, title: "AI Explorer Lab", sub: "True articles: how AI learns, fact vs. opinion", goal: 125, color: "#22b8cf", accent: "#0c8599", badge: { emoji: "🧠", name: "AI Explorer Badge" } },
+  { id: "p8", n: 8, title: "Robot Engineers", sub: "How-to texts, sequence & problem-solution", goal: 130, color: "#cc5de8", accent: "#9c36b5", badge: { emoji: "🦾", name: "Robot Engineer Badge" } },
+  { id: "p9", n: 9, title: "4th-Grade Star", sub: "Compare & contrast, author's purpose, summarize", goal: 135, color: "#ff6b6b", accent: "#e03131", badge: { emoji: "⭐", name: "4th-Grade Star Badge" } }
 ];
 
 const PRAISE = {

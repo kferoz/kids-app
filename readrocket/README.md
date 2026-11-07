@@ -19,7 +19,13 @@ Open `index.html`, or tap the 🚀 tile in the Hub's Elementary section (3rd gra
 | 3 | Word-Part Station | prefixes un- & re-, suffixes -ful & -less (write goals use `starts`/`ends`) | 90 | ✅ built |
 | 4 | Big Word Galaxy | 3-syllable words, dialogue with expression, punctuation as a road map, -tion/-sion (write goal `marks: ["?", "!"]`) | 100 | ✅ built |
 | 5 | Root Planet | word roots: port (carry), tele/scope (far/look), graph (write), struct (build); write goals use `team: ["port"]` etc. (substring match) · Phase Check "The Space Camp Report" | 110 | ✅ built |
-| 6 | 4th-Grade Star | longer passages, main idea, inference | 120 | coming soon |
+| 6 | Robot Academy 🤖 | main idea, inference, cause & effect, feelings from actions; robot & AI stories (Bolt, Shelly, Chef Clank, Ada) · Phase Check "The Rover That Would Not Quit" | 120 | ✅ built |
+| 7 | AI Explorer Lab 🧠 | true articles: how AI learns, fact vs. opinion | 125 | coming soon |
+| 8 | Robot Engineers 🦾 | how-to texts, sequence, problem-solution | 130 | coming soon |
+| 9 | 4th-Grade Star ⭐ | compare & contrast, author's purpose, summarize | 135 | coming soon |
+
+**🤖 Robot glitch questions (Phase 6 on):** each Check-up ends with “Nova's memory chip
+mixed up the story. Which sentence is TRUE?”, a fun detail check. Data only, normal quiz item.
 
 Speed goals follow typical (median) oral-reading-fluency norms for grades 3–4. They're
 targets, never a fail: every new personal best is celebrated.
@@ -56,7 +62,9 @@ Data only, in `js/data.js`: give the phase a `lessons` array (4 lessons) and a `
 The lesson shape is documented at the top of the file. Write numbers as words.
 `js/listener.js` maps digits the recogniser returns ("20") back to words. Add story
 names that recognisers mishear to its `ALIKE` table. Nothing else needs changing: the
-Admin page already counts 24 lessons and 6 phases.
+Admin page counts 24 lessons and 6 phases (`admin/js/admin.js`): raise both when Phase 7 is built.
+New story names go into `ALIKE` in `js/listener.js`. Avoid hyphenated words ("three-way") in passages: the
+tokenizer joins them into one word, but the recogniser hears two.
 
 ## Saved progress (per learner, via the Hub login)
 

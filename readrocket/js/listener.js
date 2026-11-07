@@ -30,7 +30,9 @@
     for: ["four", "fore"], our: ["are", "hour"], their: ["there", "theyre"], there: ["their", "theyre"],
     then: ["than"], than: ["then"], new: ["knew"], one: ["won"], by: ["buy", "bye"], so: ["sew"],
     mew: ["meow", "mu", "new", "mule"], jen: ["jenn", "gen", "jan"], lin: ["lynn", "lyn", "linn"],
-    ava: ["eva", "avah"], max: ["macs", "mac"], jake: ["jay"], fluff: ["flough", "flu"]
+    ava: ["eva", "avah"], max: ["macs", "mac"], jake: ["jay"], fluff: ["flough", "flu"],
+    ortiz: ["ortez", "ortis"], jamal: ["jamaal", "jamar"], kai: ["kye", "ky", "guy", "chi"], ada: ["aida", "ayda"],
+    clank: ["clink", "clang"], shelly: ["shelley", "shelli"], bolt: ["volt", "bolts"]
   };
   var COMPOUND = { cannot: ["can", "not"], alot: ["a", "lot"], "it's": ["it", "is"], "i'm": ["i", "am"], "let's": ["let", "us"],
                    "don't": ["do", "not"], "didn't": ["did", "not"], "can't": ["can", "not"] };
