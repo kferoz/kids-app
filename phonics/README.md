@@ -55,6 +55,24 @@ picture as data: `art: { bg, items: [[type, x, y, scale, opts]] }`.
    up to 3 of them (sound it out → child says it). Fixing them all earns a bonus star.
 3. **❓ Story Quiz** — 3–4 picture questions, read aloud.
 
+## Reading levels (`../js/readlevel.js`)
+
+Each learner reads at a level, picked from the 🐣 chip (home and reader) or set by a grown-up in
+Admin → 🎤 Reading Levels. Everyone starts on Easy.
+
+| Level | What counts | 3 stars |
+|---|---|---|
+| 🐣 Easy · Brave Beginner | close words, sound-alikes, dropped little words; a brave 2nd try at a word always counts | 70% |
+| 🧭 Medium · Word Explorer | sound-alikes, two slips in long words, dropped the/a/of; 2nd try counts if close | 85% |
+| ⭐ Hard · Super Reader | one-letter slips anywhere, word endings (jump/jumped); 2nd try counts if nearly right | 95% |
+| 🏆 Expert · Expert Reader | grade level: the strict listener as it was before | every word |
+
+Words that count only because of the level are coloured **yellow** (`.w.close`). Reading as well as the
+next level wants fills ⚡ power (page/paragraph ≥ 90% at the next level +4, a word right first time +1);
+16 ⚡ = level up (party, trophy `lv-<id>`, 🎟️ ticket). Levels never drop on their own. Every brave try
+(a close word, a missed word, a read under 3 stars) counts toward 💪 Brave badges at 3/10/25/50/100
+(🎟️ ticket each, trophy `brave-heart`). Saved as `rl_<app>` per learner.
+
 ## How the listening works
 
 `js/listener.js` uses the browser's speech recognition (**Chrome or Edge**, needs internet).

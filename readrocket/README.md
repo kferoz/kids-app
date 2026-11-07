@@ -56,6 +56,24 @@ aloud, plus 6 questions; 4 right passes and unlocks the next phase.
 No microphone (or not Chrome/Edge): **grown-up helper mode**. The child reads to a
 grown-up, who taps ✅ *I read it!* or marks 🤔 tricky words.
 
+## Reading levels (`../js/readlevel.js`)
+
+Each learner reads at a level, picked from the 🐣 chip (home and reader; the speed goal scales with the level: 60/75/90/100%) or set by a grown-up in
+Admin → 🎤 Reading Levels. Everyone starts on Easy.
+
+| Level | What counts | 3 stars |
+|---|---|---|
+| 🐣 Easy · Brave Beginner | close words, sound-alikes, dropped little words; a brave 2nd try at a word always counts | 70% |
+| 🧭 Medium · Word Explorer | sound-alikes, two slips in long words, dropped the/a/of; 2nd try counts if close | 85% |
+| ⭐ Hard · Super Reader | one-letter slips anywhere, word endings (jump/jumped); 2nd try counts if nearly right | 95% |
+| 🏆 Expert · Expert Reader | grade level: the strict listener as it was before | every word |
+
+Words that count only because of the level are coloured **yellow** (`.w.close`). Reading as well as the
+next level wants fills ⚡ power (page/paragraph ≥ 90% at the next level +4, a word right first time +1);
+16 ⚡ = level up (party, trophy `lv-<id>`, 🎟️ ticket). Levels never drop on their own. Every brave try
+(a close word, a missed word, a read under 3 stars) counts toward 💪 Brave badges at 3/10/25/50/100
+(🎟️ ticket each, trophy `brave-heart`). Saved as `rl_<app>` per learner.
+
 ## Adding a phase
 
 Data only, in `js/data.js`: give the phase a `lessons` array (4 lessons) and a `check`.

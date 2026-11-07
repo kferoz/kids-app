@@ -190,6 +190,27 @@
   }
   function pulse(el) { if (!el) return; el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); }
 
+  /* ---------------- reading levels (../js/readlevel.js) ---------------- */
+  var APP = "readrocket";
+  function lvl() { return ReadLevel.level(APP); }
+  function goalFor(p) { return Math.round(p.goal * lvl().speed); }        // speed goal grows with the level
+  // level-up / Brave badge → trophy + party
+  function rlEvents(ev) {
+    if (!ev || (!ev.up && !ev.badge)) return;
+    if (ev.up) trophy("lv-" + ev.up.id);
+    if (ev.badge) trophy("brave-heart");
+    sfx.fanfare(); confetti(70); hud();
+    ReadLevel.celebrate(ev, "Nova");
+  }
+  function levelChip() { return ReadLevel.chip(APP); }
+  function bindChip() { ReadLevel.bind(view, APP, function (L) { toast(L.emoji + " " + L.name + " level"); go(current.screen, current.arg); }); }
+  // one word said into the mic → "yes" | "close" | "retry" | "miss" (+ level bookkeeping)
+  function wordTry(res, tries) {
+    var v = ReadLevel.judge(APP, res, tries);
+    if (v !== "retry") setTimeout(function () { rlEvents(ReadLevel.word(APP, res, v, tries)); }, 1200);
+    return v;
+  }
+
   /* ---------------- words: chunks ---------------- */
   function chunksOf(u, word) {
     var c = u.chunks[word.toLowerCase()];
@@ -223,7 +244,7 @@
   var nav = 0;
   function onNav(fn) { var my = nav; return function (x) { if (my === nav && fn) return fn(x); }; }
   function listen(opt) {
-    Listener.start({ target: opt.target, vocab: opt.vocab, single: opt.single,
+    Listener.start({ target: opt.target, vocab: opt.vocab, single: opt.single, level: lvl().n,
       onUpdate: onNav(function (h) { if (opt.onUpdate) opt.onUpdate(h); }),
       onDone: onNav(opt.onDone), onError: onNav(opt.onError) });
   }
@@ -255,7 +276,7 @@
     $("topTitle").textContent = "Read-Aloud Rocket";
     var mic = S.helper
       ? '<span class="mic-chip off">🎤 ' + (S.micNote || "Reading check needs Chrome or Edge, so a grown-up can listen instead") + "</span>"
-      : '<span class="mic-chip">🎤 Nova can hear you read!</span>';
+      : '<span class="mic-chip">🎤 Nova can hear you read!</span>' + levelChip();
     var path = PHASES.map(function (p) {
       var open = phaseOpen(p), soon = !p.lessons, passed = crec(p.id).passed, done = lessonsDone(p);
       var state = soon ? "soon" : !open ? "locked" : passed ? "passed" : "open";
@@ -271,6 +292,7 @@
       '<div class="mic-row">' + mic + (S.best ? '<span class="mic-chip speed">⚡ Best speed: ' + S.best + " words a minute</span>" : "") + "</div>" +
       '<div class="phase-path">' + path + "</div>" +
       '<div class="home-actions"><button class="big-btn alt" data-go="stickers">🎟️ My Stickers</button><button class="big-btn alt" data-go="trophies">🏆 My Trophies</button></div>';
+    bindChip();
     view.querySelectorAll("[data-phase]").forEach(function (el) { el.onclick = function () { sfx.pop(); go("phase", el.dataset.phase); }; });
     view.querySelectorAll("[data-go]").forEach(function (el) { el.onclick = function () { go(el.dataset.go); }; });
   }
@@ -294,7 +316,7 @@
       (c.passed ? "Passed with " + c.score + " of 6! " : checkOpen ? "Read a new story, then answer 6 questions. Get 4 right to pass!" : "Finish all " + p.lessons.length + " lessons to unlock") +
       "</small></span><span class=\"step-go\">" + (c.passed ? "✅" : checkOpen ? "▶" : "🔒") + "</span></button>";
     view.innerHTML = '<div class="phase-head" style="' + themeVars(p) + '"><span class="ph-badge">' + p.badge.emoji + "</span><div><small>Phase " + p.n + "</small><h2>" + esc(p.title) + "</h2><p>" + esc(p.sub) +
-        '</p><p class="goal">🎯 Speed goal: <b>' + p.goal + "</b> words a minute</p></div></div>" +
+        '</p><p class="goal">🎯 Speed goal: <b>' + goalFor(p) + "</b> words a minute" + (lvl().n < 4 ? " (" + lvl().tag + " level · Expert goal " + p.goal + ")" : "") + "</p></div></div>" +
       novaRow(c.passed ? "You passed this phase! Re-read any story to beat your speed." : done < p.lessons.length ? "Pick a lesson. Each one has a Word Lab, a story to read aloud, a Check-up, and a writing challenge." : "All lessons done! Take the Phase Check to unlock the next phase!") +
       '<div class="steps">' + cards + checkCard + "</div>";
     view.querySelectorAll("[data-lesson]").forEach(function (el) { el.onclick = function () { sfx.pop(); go("lesson", el.dataset.lesson); }; });
@@ -311,7 +333,7 @@
     var u = unit(id), l = u.l, r = u.rec, read = Math.min(r.seen, l.passage.length);
     $("topTitle").textContent = l.title;
     view.innerHTML = '<div class="phase-head" style="' + themeVars(u.p) + '"><span class="ph-badge">' + (r.done ? l.sticker.emoji : "📖") + "</span><div><small>Phase " + u.p.n + " · " + esc(l.skill) + "</small><h2>" + esc(l.title) + "</h2>" +
-        '<p class="goal">' + (r.wcpm ? "⚡ Your best: <b>" + r.wcpm + "</b> words a minute · " : "") + "🎯 Goal: " + u.p.goal + "</p></div></div>" +
+        '<p class="goal">' + (r.wcpm ? "⚡ Your best: <b>" + r.wcpm + "</b> words a minute · " : "") + "🎯 Goal: " + goalFor(u.p) + "</p></div></div>" +
       novaRow(r.done ? "You finished this lesson! Read it again to beat your speed!" : r.lab ? "Now read the story out loud to me!" : "Let's warm up in the Word Lab first!") +
       '<div class="steps">' +
         stepCard(1, "🔤", "Word Lab", r.lab ? "Done! ✔" : esc(l.skill) + ": hear, chunk & say the words", r.lab, "lab") +
@@ -396,15 +418,18 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;                      // round already moved on
-              if (res.hits[0]) {
+              var v = wordTry(res, tries);
+              if (v === "yes" || v === "close") {
                 $("sayWord").classList.add("right"); sfx.ding(); confetti(16);
-                score++; addPoints(tries ? 2 : 3);
-                if (window.Tracker) Tracker.answer(!tries, "Decoding: " + l.skill);
-                nova(pick(PRAISE.fixed), "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
-              } else if (++tries >= 2) {
+                score++; addPoints(v === "close" ? 1 : tries ? 2 : 3);
+                if (window.Tracker) Tracker.answer(v === "yes" && !tries, "Decoding: " + l.skill, v === "close" ? { close: true, level: lvl().n } : undefined);
+                nova(v === "close" ? ReadLevel.praise("close") + " It says " + w + "." : pick(PRAISE.fixed), "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
+              } else if (v === "miss") {
+                tries++;
                 if (window.Tracker) Tracker.answer(false, "Decoding: " + l.skill);
-                nova("Good try! It says " + w + ".", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                nova(ReadLevel.praise("brave") + " It says " + w + ".", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
               } else {
+                tries++;
                 nova(res.heardAny ? "Close! Let's hear it in chunks." : "I couldn't hear you. Listen, then try again!", "happy")
                   .then(onNav(function () { return chunkOut(u, w, $("sayWord")); }));
               }
@@ -457,9 +482,9 @@
     view.innerHTML =
       '<div class="page-dots">' + dots + "</div>" +
       '<div class="para-card" style="' + themeVars(u.p) + '">' +
-        '<div class="para-head"><b>' + esc(u.title) + '</b><span class="page-stars" id="pageStars">' + starsHtml(r.paras[i] || 0) + "</span></div>" +
+        '<div class="para-head"><b>' + esc(u.title) + "</b>" + (S.helper ? "" : levelChip()) + '<span class="page-stars" id="pageStars">' + starsHtml(r.paras[i] || 0) + "</span></div>" +
         '<div class="story-text para" id="storyText">' + textHtml + "</div>" +
-        '<div class="meter" id="meter">' + meterHtml(last ? Math.round(last.n / (last.ms / 60000)) : 0, u.p.goal) + "</div>" +
+        '<div class="meter" id="meter">' + meterHtml(last ? Math.round(last.n / (last.ms / 60000)) : 0, goalFor(u.p)) + "</div>" +
       "</div>" +
       '<div class="reader-controls">' +
         '<button class="nav-btn" id="prevBtn" ' + (i === 0 ? "disabled" : "") + ' title="Back">◀</button>' +
@@ -480,6 +505,7 @@
         el.classList.add("tap"); setTimeout(function () { el.classList.remove("tap"); }, 500);
       };
     });
+    bindChip();
     $("prevBtn").onclick = function () { go("read", { key: u.key, para: i - 1 }); };
     $("nextBtn").onclick = nextPara;
     $("listenBtn").onclick = readToMe;
@@ -561,7 +587,7 @@
     if (R.mode !== "idle") { if (R.mode === "tts") { hush(); R.mode = "idle"; spans().forEach(function (e) { e.classList.remove("on"); }); $("listenBtn").classList.remove("live"); } else return; }
     hush(); sfx.mic();
     $("practice").hidden = true;
-    spans().forEach(function (e) { e.classList.remove("heard", "miss", "fixed", "on"); });
+    spans().forEach(function (e) { e.classList.remove("heard", "miss", "fixed", "on", "close"); });
     R.mode = "listen"; R.t0 = 0; R.t1 = 0;
     var btn = $("micBtn"); btn.classList.add("live"); btn.querySelector("em").textContent = "Listening…";
     nova("I'm listening! Read the paragraph out loud. Tap the mic when you finish.", "listen", true);
@@ -572,7 +598,7 @@
           var now = Date.now(); if (!R.t0) R.t0 = now; R.t1 = now;
           spans().forEach(function (e, k) { e.classList.toggle("heard", !!hits[k]); });
         },
-        onDone: function (res) { micOff(); gradeReading(res.hits, res.heardAny); },
+        onDone: function (res) { micOff(); gradeReading(res); },
         onError: function (code) { micOff(); R.mode = "idle"; micTrouble(code); }
       });
     }, 250);
@@ -595,38 +621,44 @@
     if (S.helper && current.screen === "read" && !quiet) setTimeout(onNav(function () { go("read", { key: R.u.key, para: R.i }); }), 3600);
   }
 
-  function gradeReading(hits, heardAny) {
+  function gradeReading(res) {
     R.mode = "idle";
-    var els = spans(), total = hits.length, n = hits.filter(Boolean).length, u = R.u;
-    if (!heardAny || n === 0) { nova("Hmm, I didn't hear the words. Tap the microphone and read nice and loud!", "happy"); return; }
+    var hits = res.hits, els = spans(), total = hits.length, n = hits.filter(Boolean).length, u = R.u;
+    if (!res.heardAny || n === 0) { nova("Hmm, I didn't hear the words. Tap the microphone and read nice and loud!", "happy"); return; }
     trophy("first-read");
     // fluency: words read correctly ÷ time from the first to the last word heard
     var ms = Math.max(4000, (R.t1 - R.t0) + 800), wcpm = Math.min(220, Math.round(n / (ms / 60000)));
     u.rec.flu = u.rec.flu || []; u.rec.flu[R.i] = { n: n, ms: ms }; save();
-    $("meter").innerHTML = meterHtml(wcpm, u.p.goal);
+    $("meter").innerHTML = meterHtml(wcpm, goalFor(u.p));
     var newBest = wcpm > S.best;
     if (newBest) { S.best = wcpm; store(K.best, S.best); }
-    if (wcpm >= u.p.goal && n / total >= 0.9) trophy("speed-goal");
+    if (wcpm >= goalFor(u.p) && n / total >= 0.9) trophy("speed-goal");
 
-    var missed = [];
-    hits.forEach(function (h, k) { els[k].classList.toggle("heard", h); if (!h) { els[k].classList.add("miss"); missed.push(k); } });
-    var stars = n === total ? 3 : n / total >= 0.85 ? 2 : 1;
+    // the reading level decides the stars; words that only count because of
+    // the level are "close" (soft yellow), so the child still sees them
+    var ev = ReadLevel.read(APP, res, [1, 0.85]), L = ev.level, missed = ev.missed;
+    hits.forEach(function (h, k) { els[k].classList.toggle("heard", h); if (!h) els[k].classList.add("miss"); });
+    ev.close.forEach(function (k) { els[k].classList.add("close"); });
+    var stars = ev.stars;
     var old = setParaStars(stars);
+    setTimeout(onNav(function () { rlEvents(ev); }), 2600);
+    var lvMsg = L.n < 4 && n < total ? " That's " + stars + (stars === 1 ? " star" : " stars") + " on " + L.tag + " level!" : "";
+    if (ev.close.length && L.n < 4) lvMsg += " The yellow words were close, and close counts!";
     addPoints(stars * 2 + (stars === 3 && old < 3 ? 5 : 0));
-    if (window.Tracker) Tracker.answer(stars === 3, "Read aloud" + (u.l ? ": " + u.l.skill : ""), { para: R.i + 1, words: total, read: n, wcpm: wcpm });
+    if (window.Tracker) Tracker.answer(stars === 3, "Read aloud" + (u.l ? ": " + u.l.skill : ""), { para: R.i + 1, words: total, read: n, wcpm: wcpm, level: L.n, exact: res.levels ? res.levels[3].filter(Boolean).length : n });
     var speedMsg = " You read " + wcpm + " words a minute" + (newBest ? ", your best ever!" : ".");
 
     if (stars === 3) {
-      if (old < 3) { S.perfect++; store(K.perfect, S.perfect); }
+      if (old < 3 && n === total) { S.perfect++; store(K.perfect, S.perfect); }
       checkTrophies(); hud(); sfx.launch(); confetti(60);
-      nova(pick(PRAISE.perfect) + speedMsg, "happy").then(onNav(function () { pulse($("nextBtn")); }));
+      nova(pick(PRAISE.perfect) + lvMsg + speedMsg, "happy").then(onNav(function () { pulse($("nextBtn")); }));
       return;
     }
     sfx.ding();
     var seen = {}, q = [];
     missed.forEach(function (k) { var t = R.toks[k]; if (!seen[t]) { seen[t] = true; q.push(k); } });
-    R.queue = q.slice(0, 3); R.missed = missed;
-    nova((stars === 2 ? pick(PRAISE.good) : pick(PRAISE.tryAgain)) + " " + n + " of " + total + " words." + speedMsg + " Let's practise the orange ones.", "happy")
+    R.queue = q.slice(0, L.practice); R.missed = missed;
+    nova((stars === 2 ? pick(PRAISE.good) : ReadLevel.praise("brave")) + " " + n + " of " + total + " words." + lvMsg + speedMsg + " Let's practise " + (R.queue.length > 1 ? "the orange ones." : "an orange one."), "happy")
       .then(onNav(function () { practiceNext(); }));
   }
 
@@ -653,16 +685,16 @@
       '<button class="mini-btn" id="pSkip">Skip ➡</button></div></div>';
     $("pHear").onclick = function () { chunkOut(u, word, $("pWord")); };
     $("pSkip").onclick = function () { hush(); Listener.stop(); spans()[k].classList.remove("focus-now"); practiceNext(); };
-    function success() {
+    function success(close) {
       var el = spans()[k];
       el.classList.remove("miss", "focus-now"); el.classList.add("fixed");
       R.missed.forEach(function (m) { if (R.toks[m] === R.toks[k]) { spans()[m].classList.remove("miss"); spans()[m].classList.add("fixed"); } });
       $("pWord").classList.add("right"); sfx.ding(); addPoints(1);
       S.fixed++; store(K.fixed, S.fixed); checkTrophies();
       if (window.Tracker) Tracker.answer(true, "Tricky words", { word: word });
-      nova(pick(PRAISE.fixed), "happy").then(onNav(function () { setTimeout(onNav(practiceNext), 200); }));
+      nova(close ? ReadLevel.praise("close") : pick(PRAISE.fixed), "happy").then(onNav(function () { setTimeout(onNav(practiceNext), 200); }));
     }
-    if ($("pSaid")) $("pSaid").onclick = success;
+    if ($("pSaid")) $("pSaid").onclick = function () { success(); };
     if ($("pMic")) $("pMic").onclick = function () {
       var btn = $("pMic"); if (btn.classList.contains("live")) return;
       hush(); sfx.mic(); btn.classList.add("live");
@@ -671,10 +703,12 @@
           onDone: function (res) {
             btn.classList.remove("live");
             if (!document.body.contains(btn)) return;
-            if (res.hits[0]) return success();
+            var v = wordTry(res, tries);
+            if (v === "yes") return success();
+            if (v === "close") return success(true);
             tries++;
             if (window.Tracker) Tracker.answer(false, "Tricky words", { word: word });
-            if (tries >= 2) nova("Good try! It says " + word + ". We'll see it again soon.", "happy").then(onNav(function () { spans()[k].classList.remove("focus-now"); setTimeout(onNav(practiceNext), 200); }));
+            if (v === "miss") nova(ReadLevel.praise("brave") + " It says " + word + ". We'll see it again soon.", "happy").then(onNav(function () { spans()[k].classList.remove("focus-now"); setTimeout(onNav(practiceNext), 200); }));
             else nova(res.heardAny ? "Close! Listen to the chunks." : "I couldn't hear you. Listen, then say it nice and loud!", "happy")
               .then(onNav(function () { return chunkOut(u, word, $("pWord")); }))
               .then(onNav(function () { nova("Your turn! Tap the microphone.", "listen"); }));
@@ -847,7 +881,7 @@
       '<div class="celebrate" style="' + themeVars(p) + '"><div class="sticker-reveal' + (newSticker ? " new" : "") + '"><span>' + l.sticker.emoji + "</span></div>" +
       "<h2>You finished “" + esc(l.title) + "”!</h2>" +
       '<p class="done-stars">' + starsHtml(unitStars(u)) + "</p>" +
-      (w ? '<div class="meter big">' + meterHtml(w, p.goal) + "</div>" : "") +
+      (w ? '<div class="meter big">' + meterHtml(w, goalFor(p)) + "</div>" : "") +
       (wasDone ? "" : '<p class="done-loot">🎟️ +1 Prize Wheel ticket · ⭐ +10 bonus</p>') +
       '<div class="done-actions">' +
         (nextL ? '<button class="big-btn go" id="dNext">📗 Next: ' + esc(nextL.title) + "</button>" : '<button class="big-btn go" id="dCheck">🏁 Take the Phase Check</button>') +

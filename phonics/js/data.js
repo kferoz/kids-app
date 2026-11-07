@@ -314,7 +314,11 @@ const PH_TROPHIES = [
   { id: "builder", icon: "🧩", name: "Sentence Builder", desc: "Build 6 sentences" },
   { id: "team-champ", icon: "🤫", name: "Sound Team Champ", desc: "Finish all 4 Sh, Ch, Th lessons" },
   { id: "blend-champ", icon: "🌊", name: "Blend Champ", desc: "Finish all 4 Blends lessons" },
-  { id: "magic-champ", icon: "🧙", name: "Magic e Wizard", desc: "Finish all 4 Magic e lessons" }
+  { id: "magic-champ", icon: "🧙", name: "Magic e Wizard", desc: "Finish all 4 Magic e lessons" },
+  { id: "brave-heart", icon: "💪", name: "Brave Heart", desc: "Win a Brave badge for trying hard words" },
+  { id: "lv-explorer", icon: "🧭", name: "Word Explorer", desc: "Reach the Medium reading level" },
+  { id: "lv-super", icon: "⭐", name: "Super Reader", desc: "Reach the Hard reading level" },
+  { id: "lv-expert", icon: "🏆", name: "Expert Reader", desc: "Reach Expert: kindergarten reading just right" }
 ];
 
 /* ============================================================

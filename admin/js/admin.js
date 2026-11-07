@@ -31,7 +31,7 @@
         var td = Object.keys(l).filter(function (k) { return /^dg/.test(k) && l[k] && l[k].done; }).length;
         var bd = Object.keys(l).filter(function (k) { return /^bl/.test(k) && l[k] && l[k].done; }).length;
         var md = Object.keys(l).filter(function (k) { return /^me/.test(k) && l[k] && l[k].done; }).length;
-        return { done: d + ld + sd + td + bd + md, total: 25, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + bd + " of 4 blend lessons · " + md + " of 4 magic e lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" }; } },
+        return { done: d + ld + sd + td + bd + md, total: 25, label: ld + " of 4 letter lessons · " + d + " of 5 books · " + sd + " of 4 sight-word lessons · " + td + " of 4 sh/ch/th lessons · " + bd + " of 4 blend lessons · " + md + " of 4 magic e lessons · " + r.num("ph_perfect") + " perfect pages · " + r.num("ph_fixed") + " tricky words fixed" + rlLabel(r, "phonics") }; } },
     { id: "homeschool", name: "Homeschool Academy", emoji: "🎓", grades: ["kg", "g3"], subject: "Math & English",
       progress: function (r, kid) { var d = r.obj("hs_done"), m = (d[DB.band(kid.grade) + "-math"] || []).length, e = (d[DB.band(kid.grade) + "-english"] || []).length;
         return { done: m + e, total: 40, label: (m + e) + " of 40 lessons (Math " + m + ", English " + e + ")" }; } },
@@ -70,7 +70,7 @@
       progress: function (r) { var l = r.obj("rr_lessons"), c = r.obj("rr_checks"), d = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }).length;
         var ph = Object.keys(c).filter(function (k) { return c[k] && c[k].passed; }).length, best = r.num("rr_bestWcpm");
         var wr = r.arr("rr_writing").length;
-        return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") + (wr ? " · " + wr + " written answers" : "") }; } },
+        return { done: d, total: 24, label: d + " of 24 lessons · " + ph + " of 6 phases passed" + (best ? " · best " + best + " words/min" : "") + (wr ? " · " + wr + " written answers" : "") + rlLabel(r, "readrocket") }; } },
     { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", grades: ["g3"], subject: "Spelling",
       progress: function (r) { var w = r.obj("sb_words"), m = Object.keys(w).filter(function (k) { return w[k] && w[k].m >= 2; }).length;
         var t = r.obj("sb_tests"), tn = Object.keys(t).length, jar = r.arr("sb_jar").length;
@@ -223,7 +223,7 @@
   var TABS = [
     { id: "overview", label: "📊 Overview" }, { id: "students", label: "👧 Students" },
     { id: "progress", label: "📈 Progress" }, { id: "suggest", label: "💡 Suggestions" },
-    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "academy", label: "🎓 Academy" }, { id: "spelling", label: "🐝 Spelling Bee" }, { id: "data", label: "💾 Data" }
+    { id: "forecast", label: "🔮 Forecast" }, { id: "log", label: "🧾 Activity Log" }, { id: "dollars", label: "💰 Money" }, { id: "academy", label: "🎓 Academy" }, { id: "spelling", label: "🐝 Spelling Bee" }, { id: "readlevels", label: "🎤 Reading Levels" }, { id: "data", label: "💾 Data" }
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.innerHTML = "";
@@ -248,9 +248,9 @@
   function renderTab() {
     C.hideTip();
     var host = $("panel");
-    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars" || S.tab === "academy" || S.tab === "spelling";
+    $("filters").hidden = S.tab === "data" || S.tab === "students" || S.tab === "dollars" || S.tab === "academy" || S.tab === "spelling" || S.tab === "readlevels";
     var fn = { overview: renderOverview, students: renderStudents, progress: renderProgress, suggest: renderSuggest,
-               forecast: renderForecast, log: renderLog, dollars: renderDollars, academy: renderAcademy, spelling: renderSpelling, data: renderData }[S.tab];
+               forecast: renderForecast, log: renderLog, dollars: renderDollars, academy: renderAcademy, spelling: renderSpelling, readlevels: renderReadLevels, data: renderData }[S.tab];
     host.innerHTML = "";
     fn(host);
   }
@@ -606,6 +606,55 @@
   }
 
   /* ---------- 🐝 Spelling Bee: grown-ups' word sets (js/spellbee-store.js) + each learner's results ---------- */
+  /* ---------------- 🎤 Reading Levels (../js/readlevel.js) ---------------- */
+  // rl_<app> lives in each learner's namespace; Admin has no profile-store, so it reads/writes k<id>::rl_<app>
+  var RL_APPS = [{ id: "phonics", name: "🦜 Phonics Pals", grades: ["kg"] }, { id: "readrocket", name: "🚀 Read-Aloud Rocket", grades: ["g3"] }];
+  // " · 🧭 Medium reading level" for the progress cards
+  function rlLabel(r, app) { var v = r.obj("rl_" + app), RL = window.ReadLevel; if (!RL || !v.lv) return ""; var L = RL.LEVELS[Math.max(1, Math.min(4, v.lv)) - 1]; return " · " + L.emoji + " " + L.tag + " reading level"; }
+  function rlKey(kid, app) { return "k" + kid + "::rl_" + app; }
+  function rlGet(kid, app) {
+    var v = null; try { v = JSON.parse(localStorage.getItem(rlKey(kid, app)) || "null"); } catch (e) {}
+    v = v && typeof v === "object" ? v : {};
+    v.lv = Math.max(1, Math.min(4, +v.lv || 1)); v.max = Math.max(v.lv, Math.min(4, +v.max || 1));
+    v.fuel = +v.fuel || 0; v.brave = +v.brave || 0; v.badges = Array.isArray(v.badges) ? v.badges : []; v.ups = Array.isArray(v.ups) ? v.ups : [];
+    return v;
+  }
+  function renderReadLevels(host) {
+    var RL = window.ReadLevel;
+    var intro = section(host, "🎤 Reading Levels",
+      "When a learner reads aloud to Echo (Phonics Pals) or Nova (Read-Aloud Rocket), the reading level decides how close a word must sound to count. Everyone starts on Easy so reading feels like winning, and moves up by reading well. Expert is the grade-level standard: every word said just right.");
+    if (!RL) return;
+    intro.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Level</th><th>What counts as read</th><th>3 stars at</th></tr></thead><tbody>' +
+      RL.LEVELS.map(function (L) {
+        return "<tr><td>" + L.emoji + " <b>" + esc(L.tag) + "</b> · " + esc(L.name) + "</td><td>" + esc(L.say) + "</td><td>" + (L.acc ? Math.round(L.acc[0] * 100) + "% of words" : "every word") + "</td></tr>";
+      }).join("") + "</tbody></table></div>" +
+      '<p class="muted small-note">Moving up: reading a page as well as the next level wants, or saying a word right first time, earns ⚡ power; ' + RL.NEED + ' ⚡ unlocks the next level. Levels never drop by themselves. Brave badges (and Prize Wheel tickets) reward kids for trying hard words, even when they miss.</p>');
+    var kids = DB.kids();
+    var sec = section(host, "👧 Each learner", "Pick a level to change it. Choosing a higher level unlocks it for the learner too.");
+    if (!kids.length) { sec.insertAdjacentHTML("beforeend", '<p class="muted">No learners yet.</p>'); return; }
+    var rows = [];
+    kids.forEach(function (k) {
+      RL_APPS.forEach(function (a) {
+        var v = rlGet(k.id, a.id), L = RL.LEVELS[v.lv - 1], fit = a.grades.indexOf(k.grade) >= 0;
+        var badges = RL.BADGES.filter(function (b) { return v.badges.indexOf(b.id) >= 0; }).map(function (b) { return b.emoji; }).join(" ");
+        rows.push("<tr" + (fit ? "" : ' class="muted"') + "><td>" + esc(k.avatar + " " + k.name) + "</td><td>" + a.name + (fit ? "" : " <small>(other grade)</small>") + "</td>" +
+          '<td><select data-rlkid="' + esc(k.id) + '" data-rlapp="' + a.id + '" aria-label="Reading level">' + RL.LEVELS.map(function (x) {
+            return '<option value="' + x.n + '"' + (x.n === v.lv ? " selected" : "") + ">" + x.emoji + " " + esc(x.tag) + (x.n > v.max ? " (locked)" : "") + "</option>";
+          }).join("") + "</select></td>" +
+          "<td>" + (v.max >= 4 ? "🏆 top level" : "⚡ " + v.fuel + "/" + RL.NEED) + "</td><td>💪 " + v.brave + (badges ? " · " + badges : "") + "</td></tr>");
+      });
+    });
+    sec.insertAdjacentHTML("beforeend", '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Learner</th><th>App</th><th>Level</th><th>Next level</th><th>Brave tries</th></tr></thead><tbody>' + rows.join("") + "</tbody></table></div>");
+    sec.querySelectorAll("[data-rlkid]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var kid = sel.dataset.rlkid, app = sel.dataset.rlapp, v = rlGet(kid, app), n = +sel.value;
+        v.lv = n; v.max = Math.max(v.max, n);
+        try { localStorage.setItem(rlKey(kid, app), JSON.stringify(v)); } catch (e) {}
+        audit("reading_level", { kid: kid, app: app, level: n });
+        renderTab();
+      });
+    });
+  }
   function renderSpelling(host) {
     var P = window.SpellStore;
     var intro = section(host, "🐝 Spelling Bee",

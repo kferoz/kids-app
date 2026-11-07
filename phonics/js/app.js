@@ -250,7 +250,7 @@
   var nav = 0;
   function onNav(fn) { var my = nav; return function (x) { if (my === nav && fn) return fn(x); }; }
   function listen(opt) {
-    Listener.start({ target: opt.target, vocab: opt.vocab, single: opt.single,
+    Listener.start({ target: opt.target, vocab: opt.vocab, single: opt.single, level: lvl().n,
       onUpdate: onNav(function (h) { if (opt.onUpdate) opt.onUpdate(h); }),
       onDone: onNav(opt.onDone), onError: onNav(opt.onError) });
   }
@@ -281,7 +281,7 @@
     $("topTitle").textContent = "Phonics Pals";
     var mic = S.helper
       ? '<span class="mic-chip off">🎤 ' + (S.micNote || "Reading check needs Chrome or Edge — a grown-up can help instead") + "</span>"
-      : '<span class="mic-chip">🎤 Echo can hear you read!</span>';
+      : '<span class="mic-chip">🎤 Echo can hear you read!</span>' + levelChip();
     var cards = PHASES.map(function (p) {
       var open = phaseOpen(p), soon = !p.lessons && !p.books, pr = phaseProgress(p), done = pr.total && pr.done >= pr.total;
       var status = soon ? "Coming soon" : !open ? "🔒 Finish Phase " + (p.n - 1) + " first" : done ? "✅ All done!" : pr.done + " of " + pr.total + (p.books ? " books" : " lessons");
@@ -294,6 +294,7 @@
       '<div class="mic-row">' + mic + "</div>" +
       '<div class="phase-path">' + cards + "</div>" +
       '<div class="home-actions"><button class="big-btn alt" data-go="stickers">🎟️ My Sticker Book</button><button class="big-btn alt" data-go="trophies">🏆 My Trophies</button></div>';
+    bindChip();
     view.querySelectorAll("[data-phase]").forEach(function (el) {
       el.onclick = function () { sfx.pop(); var p = phaseById(el.dataset.phase); if (p.books) go("shelf"); else go("phase", p.id); };
     });
@@ -306,7 +307,7 @@
     $("topTitle").textContent = "Story Books";
     var mic = S.helper
       ? '<span class="mic-chip off">🎤 ' + (S.micNote || "Reading check needs Chrome or Edge — a grown-up can help instead") + "</span>"
-      : '<span class="mic-chip">🎤 Echo can hear you read!</span>';
+      : '<span class="mic-chip">🎤 Echo can hear you read!</span>' + levelChip();
     var html = echoRow("Hi! I'm Echo! Pick a book and read it to me. I love stories!") +
       '<div class="mic-row">' + mic + "</div>" +
       '<div class="shelf">' + BOOKS.map(function (b) {
@@ -321,6 +322,7 @@
       }).join("") + "</div>" +
       '<div class="home-actions"><button class="big-btn alt" data-go="stickers">🎟️ My Sticker Book</button><button class="big-btn alt" data-go="trophies">🏆 My Trophies</button></div>';
     view.innerHTML = html;
+    bindChip();
     view.querySelectorAll("[data-book]").forEach(function (el) { el.onclick = function () { sfx.pop(); go("book", el.dataset.book); }; });
     view.querySelectorAll("[data-go]").forEach(function (el) { el.onclick = function () { go(el.dataset.go); }; });
   }
@@ -423,6 +425,8 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;                      // round already moved on
+              var v = wordTry(res, tries);
+              if (v === "close") { score++; closeWin($("sayWord"), w, "Phonics: short " + b.vowel, next); return; }
               if (res.hits[0]) {
                 $("sayWord").classList.add("right"); sfx.ding(); confetti(18);
                 score++; addPoints(tries ? 2 : 3);
@@ -432,7 +436,7 @@
                 tries++;
                 if (tries >= 2) {
                   if (window.Tracker) Tracker.answer(false, "Phonics: short " + b.vowel);
-                  echo("Good try! It says " + w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                  echo(ReadLevel.praise("brave") + " It says " + w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
                 } else {
                   echo(res.heardAny ? "So close! Let's sound it out together." : "I couldn't hear you. Let's sound it out, then try again!", "happy")
                     .then(onNav(function () { return soundOut(w, $("sayWord")); }));
@@ -488,7 +492,7 @@
       : '<button class="mic-btn big" id="micBtn" title="Read to Echo (space)"><span>🎤</span><em>Read to Echo</em></button>';
 
     view.innerHTML =
-      '<div class="page-dots">' + dots + "</div>" +
+      '<div class="page-dots">' + dots + levelChip() + "</div>" +
       '<div class="page-card" style="--bk:' + b.color + ';--bk2:' + b.accent + '">' +
         '<div class="pic">' + Art.scene(page.art) + '<span class="page-stars" id="pageStars">' + starsHtml(r.pages[i] || 0) + "</span></div>" +
         '<div class="story-text" id="storyText">' + textHtml + "</div>" +
@@ -511,6 +515,7 @@
         el.classList.add("tap"); setTimeout(function () { el.classList.remove("tap"); }, 500);
       };
     });
+    bindChip();
     $("prevBtn").onclick = function () { go("read", { book: b.id, page: i - 1 }); };
     $("nextBtn").onclick = nextPage;
     $("listenBtn").onclick = readToMe;
@@ -589,7 +594,7 @@
     if (R.mode !== "idle") { if (R.mode === "tts") { hush(); R.mode = "idle"; spans().forEach(function (e) { e.classList.remove("on"); }); $("listenBtn").classList.remove("live"); } else return; }
     hush(); sfx.mic();
     $("practice").hidden = true;
-    spans().forEach(function (e) { e.classList.remove("heard", "miss", "fixed", "on"); });
+    spans().forEach(function (e) { e.classList.remove("heard", "miss", "fixed", "on", "close"); });
     R.mode = "listen";
     var btn = $("micBtn"); btn.classList.add("live"); btn.querySelector("em").textContent = "Listening…";
     echo("I'm listening! Read the words out loud.", "listen", true);
@@ -597,7 +602,7 @@
       listen({
         target: R.toks, vocab: R.vocab,
         onUpdate: function (hits) { spans().forEach(function (e, k) { e.classList.toggle("heard", !!hits[k]); }); },
-        onDone: function (res) { micOff(); gradeReading(res.hits, res.heardAny); },
+        onDone: function (res) { micOff(); gradeReading(res); },
         onError: function (code) { micOff(); R.mode = "idle"; micTrouble(code); }
       });
     }, 250);
@@ -623,25 +628,30 @@
     if (S.helper && current.screen === "read" && !quiet) setTimeout(onNav(function () { go("read", { book: R.b.id, page: R.i }); }), 3600);
   }
 
-  function gradeReading(hits, heardAny) {
+  function gradeReading(res) {
     R.mode = "idle";
-    var els = spans(), total = hits.length, n = hits.filter(Boolean).length;
-    if (!heardAny || n === 0) {
+    var hits = res.hits, els = spans(), total = hits.length, n = hits.filter(Boolean).length;
+    if (!res.heardAny || n === 0) {
       echo("Hmm, I didn't hear the words. Tap the microphone and read nice and loud!", "happy");
       return;
     }
     trophy("first-read");
-    var missed = [];
-    hits.forEach(function (h, k) { els[k].classList.toggle("heard", h); if (!h) { els[k].classList.add("miss"); missed.push(k); } });
-    var stars = n === total ? 3 : n / total >= 0.75 ? 2 : 1;
+    // the reading level decides the stars; words that only count because of
+    // the level are "close" (soft yellow)
+    var ev = ReadLevel.read(APP, res, [1, 0.75]), L = ev.level, missed = ev.missed;
+    hits.forEach(function (h, k) { els[k].classList.toggle("heard", h); if (!h) els[k].classList.add("miss"); });
+    ev.close.forEach(function (k) { els[k].classList.add("close"); });
+    var stars = ev.stars;
     var old = setPageStars(stars);
+    setTimeout(onNav(function () { rlEvents(ev); }), 2600);
+    var lvMsg = ev.close.length && L.n < 4 ? " The yellow words were close, and close counts!" : "";
     addPoints(stars * 2 + (stars === 3 && old < 3 ? 5 : 0));
-    if (window.Tracker) Tracker.answer(stars === 3, "Read aloud: short " + R.b.vowel, { page: R.i + 1, words: total, read: n });
+    if (window.Tracker) Tracker.answer(stars === 3, "Read aloud: short " + R.b.vowel, { page: R.i + 1, words: total, read: n, level: L.n });
 
     if (stars === 3) {
       sfx.fanfare(); confetti(60);
       var bonus = "";
-      if (old < 3) {
+      if (old < 3 && n === total) {
         S.perfect++; store(K.perfect, S.perfect);
         if (S.perfect % 3 === 0) {
           var fs = nextFunSticker();
@@ -649,16 +659,16 @@
         }
       }
       checkTrophies(); hud();
-      echo(pick(PRAISE.perfect) + bonus, "happy").then(onNav(function () { pulse($("nextBtn")); }));
+      echo(pick(PRAISE.perfect) + lvMsg + bonus, "happy").then(onNav(function () { pulse($("nextBtn")); }));
       return;
     }
     sfx.ding();
     // practise up to 3 different tricky words, kindly
     var seen = {}, q = [];
     missed.forEach(function (k) { var t = R.toks[k]; if (!seen[t]) { seen[t] = true; q.push(k); } });
-    R.queue = q.slice(0, 3); R.missed = missed;
-    var lead = stars === 2 ? pick(PRAISE.good) : pick(PRAISE.tryAgain);
-    echo(lead + " You read " + n + " of " + total + " words! Let's practise the orange ones.", "happy").then(onNav(function () { practiceNext(); }));
+    R.queue = q.slice(0, L.practice); R.missed = missed;
+    var lead = stars === 2 ? pick(PRAISE.good) : ReadLevel.praise("brave");
+    echo(lead + " You read " + n + " of " + total + " words!" + lvMsg + " Let's practise " + (R.queue.length > 1 ? "the orange ones." : "an orange one."), "happy").then(onNav(function () { practiceNext(); }));
   }
 
   function cleanWord(k) { return spans()[k].textContent.replace(/[^A-Za-z']/g, ""); }
@@ -688,16 +698,16 @@
         '<button class="mini-btn" id="pSkip">Skip ➡</button></div></div>';
     $("pHear").onclick = function () { soundOut(word, $("pWord")); };
     $("pSkip").onclick = function () { hush(); Listener.stop(); spans()[k].classList.remove("focus-now"); practiceNext(); };
-    function success() {
+    function success(close) {
       var el = spans()[k];
       el.classList.remove("miss", "focus-now"); el.classList.add("fixed");
       R.missed.forEach(function (m) { if (R.toks[m] === R.toks[k]) { spans()[m].classList.remove("miss"); spans()[m].classList.add("fixed"); } });
       $("pWord").classList.add("right"); sfx.ding(); addPoints(1);
       S.fixed++; store(K.fixed, S.fixed); checkTrophies();
       if (window.Tracker) Tracker.answer(true, "Tricky words", { word: word });
-      echo(pick(PRAISE.fixed) + " " + word + "!", "happy").then(onNav(function () { setTimeout(onNav(practiceNext), 200); }));
+      echo((close ? ReadLevel.praise("close") : pick(PRAISE.fixed)) + " " + word + "!", "happy").then(onNav(function () { setTimeout(onNav(practiceNext), 200); }));
     }
-    if ($("pSaid")) $("pSaid").onclick = success;
+    if ($("pSaid")) $("pSaid").onclick = function () { success(); };
     if ($("pMic")) $("pMic").onclick = function () {
       var btn = $("pMic"); if (btn.classList.contains("live")) return;
       hush(); sfx.mic(); btn.classList.add("live");
@@ -706,11 +716,13 @@
           onDone: function (res) {
             btn.classList.remove("live");
             if (!document.body.contains(btn)) return;
-            if (res.hits[0]) return success();
+            var v = wordTry(res, tries);
+            if (v === "yes") return success();
+            if (v === "close") return success(true);
             tries++;
             if (window.Tracker) Tracker.answer(false, "Tricky words", { word: word });
             if (tries >= 2) {
-              echo("Good try! It says " + word + ". We'll practise it again soon!", "happy").then(onNav(function () { spans()[k].classList.remove("focus-now"); setTimeout(onNav(practiceNext), 200); }));
+              echo(ReadLevel.praise("brave") + " It says " + word + ". We'll practise it again soon!", "happy").then(onNav(function () { spans()[k].classList.remove("focus-now"); setTimeout(onNav(practiceNext), 200); }));
             } else {
               echo(res.heardAny ? "Ooh, close! Listen carefully." : "I couldn't hear you. Listen, then say it nice and loud!", "happy")
                 .then(onNav(function () { return soundOut(word, $("pWord")); }))
@@ -756,6 +768,32 @@
   }
 
   function pulse(el) { if (!el) return; el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); }
+
+  /* ---------------- reading levels (../js/readlevel.js) ---------------- */
+  var APP = "phonics";
+  function lvl() { return ReadLevel.level(APP); }
+  function rlEvents(ev) {
+    if (!ev || (!ev.up && !ev.badge)) return;
+    if (ev.up) trophy("lv-" + ev.up.id);
+    if (ev.badge) trophy("brave-heart");
+    sfx.fanfare(); confetti(70); hud();
+    ReadLevel.celebrate(ev, "Echo");
+  }
+  function levelChip() { return S.helper ? "" : ReadLevel.chip(APP); }
+  function bindChip() { ReadLevel.bind(view, APP, function (L) { toast(L.emoji + " " + L.name + " level"); go(current.screen, current.arg); }); }
+  // one word said into the mic → "yes" | "close" | "retry" | "miss" (+ level bookkeeping)
+  function wordTry(res, tries) {
+    var v = ReadLevel.judge(APP, res, tries);
+    if (v !== "retry") setTimeout(function () { rlEvents(ReadLevel.word(APP, res, v, tries)); }, 1200);
+    return v;
+  }
+  // a close try that the reading level accepts: a small win, never a "wrong"
+  function closeWin(el, w, skill, then) {
+    if (el) el.classList.add("right");
+    sfx.ding(); confetti(18); addPoints(1);
+    if (window.Tracker) Tracker.answer(false, skill, { word: w, said: true, close: true, level: lvl().n });
+    echo(ReadLevel.praise("close") + " It says " + w + "!", "happy").then(onNav(function () { setTimeout(onNav(then), 300); }));
+  }
   function stickerPop(emoji, name) {
     var d = document.createElement("div");
     d.className = "sticker-pop"; d.innerHTML = '<div class="sp-card"><div class="sp-emoji">' + emoji + "</div><b>New sticker!</b><span>" + esc(name) + "</span></div>";
@@ -982,13 +1020,15 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;                      // round already moved on
+              var v = wordTry(res, tries);
+              if (v === "close") { score++; closeWin($("sayWord"), P.w, "Letter sounds", next); return; }
               if (res.hits[0]) {
                 $("sayWord").classList.add("right"); sfx.ding(); confetti(18); score++; addPoints(tries ? 2 : 3);
                 if (window.Tracker) Tracker.answer(!tries, "Letter sounds", { letter: x, said: true });
                 echo("Yes! " + P.w + " starts with " + x + ". " + soundOf(x) + "!", "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
               } else if (++tries >= 2) {
                 if (window.Tracker) Tracker.answer(false, "Letter sounds", { letter: x, said: true });
-                echo("Good try! It's " + P.w + ". " + letterSay(x), "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                echo(ReadLevel.praise("brave") + " It's " + P.w + ". " + letterSay(x), "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
               } else {
                 echo(res.heardAny ? "So close! Listen: " + P.w + ". Try again!" : "I couldn't hear you. Say it nice and loud!", "happy");
               }
@@ -1200,13 +1240,15 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;
+              var v = wordTry(res, tries);
+              if (v === "close") { score++; closeWin($("sayWord"), w, "Sight words", next); return; }
               if (res.hits[0]) {
                 $("sayWord").classList.add("right"); sfx.ding(); confetti(18); score++; addPoints(tries ? 2 : 3);
                 if (window.Tracker) Tracker.answer(!tries, "Sight words", { word: w, said: true });
                 echo(pick(PRAISE.fixed) + " " + w + "!", "happy").then(onNav(function () { setTimeout(onNav(next), 250); }));
               } else if (++tries >= 2) {
                 if (window.Tracker) Tracker.answer(false, "Sight words", { word: w, said: true });
-                echo("Good try! This word is " + w + ". " + spellOut(w), "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                echo(ReadLevel.praise("brave") + " This word is " + w + ". " + spellOut(w), "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
               } else echo(res.heardAny ? "So close! Listen: " + w + ". Try again!" : "I couldn't hear you. Say it nice and loud!", "happy");
             },
             onError: function (code) { btn.classList.remove("live"); useMic = false; micTrouble(code, true); setTimeout(onNav(next), 2500); }
@@ -1288,7 +1330,7 @@
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;
               var n = res.hits.filter(Boolean).length;
-              if (n === res.hits.length) { sfx.fanfare(); confetti(40); addPoints(3); trophy("first-read"); echo(pick(PRAISE.perfect), "happy").then(onNav(nextOne)); }
+              if (n === res.hits.length || ReadLevel.sentenceOK(APP, res)) { sfx.fanfare(); confetti(40); addPoints(3); trophy("first-read"); echo(pick(PRAISE.perfect), "happy").then(onNav(nextOne)); }
               else if (n) echo("Nice reading! " + n + " of " + res.hits.length + " words. Listen: " + X.s + ". Try again, or tap Next!", "happy");
               else echo("I couldn't hear you. Tap the microphone and read nice and loud!", "happy");
             },
@@ -1477,13 +1519,15 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;
+              var v = wordTry(res, tries);
+              if (v === "close") { score++; closeWin($("sayWord"), x.w, "Sound teams", next); return; }
               if (res.hits[0]) {
                 $("sayWord").classList.add("right"); score++; addPoints(tries ? 2 : 3);
                 if (window.Tracker) Tracker.answer(!tries, "Sound teams", { word: x.w, said: true });
                 right(x.w + "!");
               } else if (++tries >= 2) {
                 if (window.Tracker) Tracker.answer(false, "Sound teams", { word: x.w, said: true });
-                echo("Good try! It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                echo(ReadLevel.praise("brave") + " It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
               } else {
                 echo(res.heardAny ? "So close! Let's sound it out together." : "I couldn't hear you. Say it nice and loud!", "happy")
                   .then(onNav(function () { return res.heardAny ? soundOut(x.w, $("sayWord")) : null; }));
@@ -1681,13 +1725,15 @@
             onDone: function (res) {
               btn.classList.remove("live");
               if (!document.body.contains(btn)) return;
+              var v = wordTry(res, tries);
+              if (v === "close") { score++; closeWin($("sayWord"), x.w, "Magic e", next); return; }
               if (res.hits[0]) {
                 $("sayWord").classList.add("right"); score++; addPoints(tries ? 2 : 3);
                 if (window.Tracker) Tracker.answer(!tries, "Magic e", { word: x.w, said: true });
                 right(x.w + "! The e stayed quiet, just like a wizard.");
               } else if (++tries >= 2) {
                 if (window.Tracker) Tracker.answer(false, "Magic e", { word: x.w, said: true });
-                echo("Good try! It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
+                echo(ReadLevel.praise("brave") + " It says " + x.w + ". You'll get it next time!", "happy").then(onNav(function () { setTimeout(onNav(next), 300); }));
               } else {
                 echo(res.heardAny ? "So close! Let's sound it out together." : "I couldn't hear you. Say it nice and loud!", "happy")
                   .then(onNav(function () { return res.heardAny ? magicOut(x.w, $("sayWord")) : null; }));

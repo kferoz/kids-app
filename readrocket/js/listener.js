@@ -14,7 +14,10 @@
    Listener.supported()                 → bool
    Listener.tokens(text)                → ["al","is","big", ...]
    Listener.align(targetTokens, heard)  → { hits:[bool], heardAny }
-   Listener.start({ target, onUpdate, onDone, onError, single })
+   Listener.start({ target, onUpdate, onDone, onError, single, level })
+     level 1–4 = the reading level (../js/readlevel.js); 4 = Expert, the
+     strict rules. onDone gets { hits (at that level), levels:[l1..l4],
+     heardAny, transcript }.
    Listener.stop()
    ============================================================ */
 (function () {
@@ -56,34 +59,77 @@
       d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     return d[m][n];
   }
+  // spelling-to-sound key ("cat" = "kat", "phone" = "fone", vowels ignored).
+  // Used only on the easier reading levels.
+  function soundKey(w) {
+    w = String(w).replace(/'/g, "")
+      .replace(/^kn/, "n").replace(/^wr/, "r").replace(/^wh/, "w")
+      .replace(/ph/g, "f").replace(/tch/g, "ch").replace(/ck/g, "k").replace(/gh/g, "").replace(/dg/g, "j")
+      .replace(/c(?=[eiy])/g, "s").replace(/[cq]/g, "k").replace(/x/g, "ks").replace(/z/g, "s")
+      .replace(/(.)\1+/g, "$1");
+    if (!w) return "";
+    return (/[aeiouy]/.test(w[0]) ? "a" : w[0]) + w.slice(1).replace(/[aeiouy]/g, "");
+  }
+  var ENDS = ["s", "es", "ed", "d", "ing", "er", "y"];
+  function endingSlip(t, h) { for (var i = 0; i < ENDS.length; i++) if (h === t + ENDS[i] || t === h + ENDS[i]) return true; return false; }
+
   // vocab = every word in the book: hearing a DIFFERENT story word (dog for
   // Dot, had for hat) is a real swap, so the fuzzy rule must not excuse it.
-  function same(target, heard, vocab) {
+  // lv = reading level: 4 Expert (these strict rules), 3 small slips anywhere
+  // and word endings, 2 + sound-alikes and two slips in long words, 1 + the
+  // right start and about half the word.
+  function same(target, heard, vocab, lv) {
+    lv = lv || 4;
     if (target === heard) return true;
     if (heard === target + "s" || target === heard + "s") return true;
     var a = ALIKE[target];
     if (a && a.indexOf(heard) >= 0) return true;
-    if (vocab && vocab[heard]) return false;
-    // one-letter slip that keeps the first sound (kid speech / accent)
-    if (target.length >= 3 && heard.length >= 2 && heard[0] === target[0] && lev(target, heard) <= 1) return true;
-    return false;
+    var d = lev(target, heard), first = heard[0] === target[0];
+    if (lv >= 4) {
+      if (vocab && vocab[heard]) return false;
+      // one-letter slip that keeps the first sound (kid speech / accent)
+      return target.length >= 3 && heard.length >= 2 && first && d <= 1;
+    }
+    if (endingSlip(target, heard)) return true;
+    var keyEq = soundKey(target) === soundKey(heard);
+    if (vocab && vocab[heard] && !(lv === 1 && (first || keyEq)) && !(lv === 2 && keyEq)) return false;
+    if (target.length >= 3 && heard.length >= 2 && d <= 1) return true;
+    if (lv >= 3) return false;
+    if (keyEq && target.length >= (lv === 1 ? 2 : 4)) return true;
+    if (target.length >= 5 && d <= 2) return true;
+    if (lv >= 2) return false;
+    if (first && d <= Math.max(1, Math.floor(target.length / 2))) return true;
+    return target.length <= 3 && first && heard.length <= 4;
+  }
+  // easy levels: a little word the recogniser dropped between two words the
+  // child did read counts too (level 1 any word of 1–3 letters, level 2 only
+  // the, a, of, to …)
+  var LITTLE = { a: 1, an: 1, the: 1, of: 1, to: 1, and: 1, is: 1, in: 1, on: 1, at: 1, it: 1, i: 1 };
+  function fillGaps(target, hits, lv) {
+    if (lv > 2) return hits;
+    for (var i = 1; i < target.length - 1; i++)
+      if (!hits[i] && hits[i - 1] && hits[i + 1] && (lv === 1 ? target[i].length <= 3 : LITTLE[target[i]])) hits[i] = true;
+    return hits;
   }
 
   /* Longest-common-subsequence alignment (target vs heard).
      Returns which target words were heard, in order. */
-  function align(target, heardList, vocab) {
+  function align(target, heardList, vocab, lv, memo) {
+    lv = lv || 4; memo = memo || {};
+    function eq(t, h) { var k = lv + " " + t + " " + h; if (!(k in memo)) memo[k] = same(t, h, vocab, lv); return memo[k]; }
     var heard = expand(heardList.map(function (w) { var d = String(w).replace(/[.,!?]+$/, ""); return /^[0-9]+$/.test(d) && NUM[+d] ? NUM[+d] : norm(w); }).filter(Boolean));
     var m = target.length, n = heard.length, L = [], i, j;
     for (i = 0; i <= m; i++) { L[i] = []; for (j = 0; j <= n; j++) L[i][j] = 0; }
     for (i = m - 1; i >= 0; i--) for (j = n - 1; j >= 0; j--)
-      L[i][j] = same(target[i], heard[j], vocab) ? 1 + L[i + 1][j + 1] : Math.max(L[i + 1][j], L[i][j + 1]);
+      L[i][j] = eq(target[i], heard[j]) ? 1 + L[i + 1][j + 1] : Math.max(L[i + 1][j], L[i][j + 1]);
     var hits = target.map(function () { return false; });
     i = 0; j = 0;
     while (i < m && j < n) {
-      if (same(target[i], heard[j], vocab) && L[i][j] === 1 + L[i + 1][j + 1]) { hits[i] = true; i++; j++; }
+      if (eq(target[i], heard[j]) && L[i][j] === 1 + L[i + 1][j + 1]) { hits[i] = true; i++; j++; }
       else if (L[i + 1][j] >= L[i][j + 1]) i++;
       else j++;
     }
+    if (n > 0) fillGaps(target, hits, lv);
     return { hits: hits, heardAny: n > 0, heard: heard };
   }
 
@@ -108,7 +154,9 @@
 
     var finals = [];          // array of arrays of alternatives (strings)
     var interim = "";
-    var best = target.map(function () { return false; });
+    var lvl = Math.max(1, Math.min(4, Math.round(opt.level) || 4)), memo = {};
+    var bestL = [1, 2, 3, 4].map(function () { return target.map(function () { return false; }); });
+    var best = bestL[lvl - 1];
     var lastHeard = 0, started = Date.now(), done = false, timer = null, errored = null;
     var maxMs = single ? 6000 : 10000 + target.length * 1100;
 
@@ -123,9 +171,12 @@
       });
       var any = false;
       cands.forEach(function (c) {
-        var res = align(target, c.split(/\s+/), opt.vocab);
-        if (res.heardAny) any = true;
-        res.hits.forEach(function (h, i) { if (h) best[i] = true; });
+        var words = c.split(/\s+/);
+        for (var L = 1; L <= 4; L++) {
+          var res = align(target, words, opt.vocab, L, memo);
+          if (res.heardAny) any = true;
+          res.hits.forEach(function (h, i) { if (h) bestL[L - 1][i] = true; });
+        }
       });
       return any;
     }
@@ -136,7 +187,7 @@
       if (active === r) active = null;
       var heardAny = evaluate() || finals.length > 0;
       if (errored && !heardAny) { opt.onError && opt.onError(errored); return; }
-      opt.onDone && opt.onDone({ hits: best.slice(), heardAny: heardAny, transcript: finals.map(function (a) { return a[0]; }).join(" ") + " " + interim });
+      opt.onDone && opt.onDone({ hits: best.slice(), levels: bestL.map(function (b) { return b.slice(); }), level: lvl, heardAny: heardAny, transcript: finals.map(function (a) { return a[0]; }).join(" ") + " " + interim });
     }
 
     r.onresult = function (ev) {

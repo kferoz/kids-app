@@ -770,5 +770,9 @@ const RR_TROPHIES = [
   { id: "quiz-whiz", icon: "🧠", name: "Quiz Whiz", desc: "Get every Check-up answer right on the first try" },
   { id: "perfect-10", icon: "💯", name: "Perfect Ten", desc: "Read 10 paragraphs perfectly" },
   { id: "phase-pilot", icon: "🧑‍🚀", name: "Phase Pilot", desc: "Pass a Phase Check" },
-  { id: "rocket-writer", icon: "✏️", name: "Rocket Writer", desc: "Finish 3 Write It missions" }
+  { id: "rocket-writer", icon: "✏️", name: "Rocket Writer", desc: "Finish 3 Write It missions" },
+  { id: "brave-heart", icon: "💪", name: "Brave Heart", desc: "Win a Brave badge for trying hard words" },
+  { id: "lv-explorer", icon: "🧭", name: "Word Explorer", desc: "Reach the Medium reading level" },
+  { id: "lv-super", icon: "⭐", name: "Super Reader", desc: "Reach the Hard reading level" },
+  { id: "lv-expert", icon: "🏆", name: "Expert Reader", desc: "Reach Expert: grade-level reading" }
 ];

@@ -1,3 +1,11 @@
+## FEATURE — Read-aloud reading levels (Easy → Expert) for Phonics Pals + Rocket · 2026-11-07
+- Kids gave up because the listener wanted near-perfect pronunciation. `js/readlevel.js` (shared) + `Listener.start({level})`: 1 Easy, 2 Medium, 3 Hard, 4 Expert = the old strict rules, so callers without `level` behave exactly as before (Sentence Studio dictation).
+- The listener scores ALL 4 levels on every result (`res.levels[0..3]`, memoised `same()` per session): stars use the chosen level, yellow `.w.close` = hit at level but not Expert, level-up uses the NEXT level's hits so a child can't level up on lenient matching.
+- Lenient rules live in `same(t,h,vocab,lv)` (soundKey, ending slips, lev ≤2 for long words, same start + half the word) and `fillGaps` (little words the recogniser dropped). The vocab "real swap" block only relaxes on lv 1–2.
+- Word games: `ReadLevel.judge(app,res,tries)` → yes/close/retry/miss; "close" = an accepted 2nd brave try (Easy any speech, Medium if Easy-close, Hard if Medium-close). Tracker logs close tries as not-correct with `{close:true}` so Admin accuracy stays honest.
+- Three listener copies (readrocket, phonics, writestudio) got the same patch; keep them in sync. Admin has no profile-store, so its 🎤 Reading Levels tab reads/writes `k<id>::rl_<app>` directly.
+- Fake-mic GOTCHA: a test SpeechRecognition that re-emits its text on every `start()` keeps an imperfect read alive until maxMs (~55 s), because the listener restarts on `onend`. Emit once per utterance.
+
 ## FEATURE — Buzzy's Spelling Bee (G3) + Admin word sets · 2026-11-07
 - `spellingbee/` app from `docs/Spelling Bee Word Lists 2026-27.pdf`: grades 1–5 (250 words, meaning + sentence written by hand), 5 honeycombs of 10 per list. G6–8 left out on purpose.
 - PDF GOTCHA: `pdftotext -layout` dropped "interruption" from the G5 page (3-column layout). Plain `pdftotext` (no -layout) got all 50; always count each list.
