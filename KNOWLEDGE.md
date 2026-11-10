@@ -2,8 +2,8 @@
 - Track = `#g=kg|g3` hash, else learner grade (pk/kg → kg); hash is `g=<track>&l=<id>` so reloads keep the track.
 - KG data in data-kg.js (`RGK_*`); ids prefixed `k-` so both tracks share `rg_*` keys without clashing; admin splits progress by prefix.
 - `trophy(id)` must add the `k-` prefix BEFORE the duplicate check, or KG trophies re-award and pop-ups pile up, blocking clicks.
-- `tap:"none"` lessons skip the key-word phase in Together (pre-readers can't spot question words).
-- Every KG choice list goes through `sp()` to get a 🔊 button; a new choice list without it is unusable for non-readers.
+- KG: `tap:"none"` skips the key-word phase; every choice list must go through `sp()` for a 🔊 button.
+- Test gotcha: Hub `#s=<subject>` Academy links render late; use waitForSelector, not a fixed wait + `$()`.
 - Catalog has a separate item `readgym-kg` (link `#g=kg`) used by KG syllabus acts; one Hub tile serves both.
 
 ## FEATURE — Koa's Reading Gym: G3 comprehension coaching (readgym/) · 2026-11-09
