@@ -309,9 +309,9 @@
       english: [
         U("🔠", "Decode Long Words", ["I can split long words into syllables.", "I can read common prefixes and suffixes."], "CCSS RF.3.3", "Y4 Word reading", "Lgr22 Sv: reading strategies", ["reading", "homeschool-g3-eng"]),
         U("🚀", "Reading Fluency", ["I can read aloud smoothly and with expression.", "I can read at a good pace."], "CCSS RF.3.4", "Y4 Reading: fluency", "Lgr22 Sv: reading", ["readrocket"]),
-        U("🕵️", "Main Idea and Details", ["I can find the main idea.", "I can pick details that support it."], "CCSS RI.3.2", "Y4 Reading: comprehension", "Lgr22 Sv: factual texts", ["detectives", "clueisland", "readingadventures"]),
-        U("🎭", "Characters and Point of View", ["I can describe a character's traits and feelings.", "I can tell my view from the narrator's."], "CCSS RL.3.3; RL.3.6", "Y4 Reading: inference", "Lgr22 Sv: narrative texts", ["detectives", "readrocket"]),
-        U("🔗", "Text Structure: Cause and Effect", ["I can find cause and effect.", "I can compare two texts on one topic."], "CCSS RI.3.8–9", "Y4 Reading: non-fiction", "Lgr22 Sv: factual texts", ["clueisland"]),
+        U("🕵️", "Main Idea and Details", ["I can find the main idea.", "I can pick details that support it."], "CCSS RI.3.2", "Y4 Reading: comprehension", "Lgr22 Sv: factual texts", ["readgym", "detectives", "clueisland", "readingadventures"]),
+        U("🎭", "Characters and Point of View", ["I can describe a character's traits and feelings.", "I can tell my view from the narrator's."], "CCSS RL.3.3; RL.3.6", "Y4 Reading: inference", "Lgr22 Sv: narrative texts", ["readgym", "detectives", "readrocket"]),
+        U("🔗", "Text Structure: Cause and Effect", ["I can find cause and effect.", "I can compare two texts on one topic."], "CCSS RI.3.8–9", "Y4 Reading: non-fiction", "Lgr22 Sv: factual texts", ["readgym", "clueisland"]),
         U("✍️", "Opinion and Story Writing", ["I can give my opinion with reasons.", "I can write a story with dialogue."], "CCSS W.3.1; W.3.3", "Y4 Writing: composition", "Lgr22 Sv: writing", ["writestudio"]),
         U("🪐", "Grammar: Adjectives, Adverbs, Conjunctions", ["I can use adjectives and adverbs.", "I can join ideas with and, but, because."], "CCSS L.3.1", "Y4 Grammar; fronted adverbials", "Lgr22 Sv: use of language", ["grammar", "treasure", "grandprix-eng"]),
         U("💬", "Speech Marks and Figurative Language", ["I can punctuate speech.", "I can understand similes and idioms."], "CCSS L.3.2c; L.3.5", "Y4 Inverted commas", "Lgr22 Sv: words and meaning", ["homeschool-g3-eng"])

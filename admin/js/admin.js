@@ -75,6 +75,10 @@
       progress: function (r) { var l = r.arr("ws_log"), sc = l.filter(function (x) { return x && x.total; }), ids = {}; l.forEach(function (x) { if (x && x.id) ids[x.id] = 1; });
         var n = Object.keys(ids).length, pct = sc.length ? Math.round(100 * sc.reduce(function (a, x) { return a + x.score / x.total; }, 0) / sc.length) : 0;
         return { done: Math.min(n, 50), total: 50, label: n + " worksheets printed" + (sc.length ? " · " + sc.length + " scored, average " + pct + "%" : "") }; } },
+    { id: "readgym", name: "Koa's Reading Gym", emoji: "🐨", grades: ["g3"], subject: "Reading comprehension",
+      progress: function (r) { var l = r.obj("rg_lessons"), ks = Object.keys(l).filter(function (k) { return l[k] && l[k].done; }), st = r.obj("rg_stats");
+        var stars = ks.reduce(function (a, k) { return a + (l[k].stars || 0); }, 0), pct = st.answered ? Math.round(100 * (st.first || 0) / st.answered) : 0;
+        return { done: ks.length, total: 15, label: ks.length + " of 15 lessons · " + stars + " of 45 stars" + (st.answered ? " · " + pct + "% first try on their own" : "") + " · " + (st.proofs || 0) + " proofs found" }; } },
     { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", grades: ["g3"], subject: "Spelling",
       progress: function (r) { var w = r.obj("sb_words"), m = Object.keys(w).filter(function (k) { return w[k] && w[k].m >= 2; }).length;
         var t = r.obj("sb_tests"), tn = Object.keys(t).length, jar = r.arr("sb_jar").length;
