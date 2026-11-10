@@ -140,8 +140,8 @@
         U("🧩", "Blend and Read CVC Words", ["I can blend sounds to read words like cat and sun.", "I can split a word into its sounds."], "CCSS RF.K.2", "Y1 Phonics: blending", "Lgr22 Sv: reading strategies", ["phonics", "homeschool-kg-eng"]),
         U("👀", "Sight Words", ["I can read common words like the, and, is.", "I can find sight words in a book."], "CCSS RF.K.3c", "Y1 Common exception words", "Lgr22 Sv: reading", ["homeschool-kg-eng"]),
         U("🐚", "Two Letters, One Sound", ["I can read sh, ch, th and ck.", "I can read words with these sounds."], "CCSS RF.K.3", "Y1 Phonics: phase 3 digraphs", "Lgr22 Sv: sound and letter", ["phonics"]),
-        U("📖", "Story Time", ["I can retell a story in order.", "I can name the characters and the setting."], "CCSS RL.K", "Y1 Reading: comprehension", "Lgr22 Sv: narrative texts", ["readingadventures"]),
-        U("🔍", "Fact Books", ["I can say what a fact book is about.", "I can ask and answer questions about it."], "CCSS RI.K", "Y1 Reading: non-fiction", "Lgr22 Sv: factual texts"),
+        U("📖", "Story Time", ["I can retell a story in order.", "I can name the characters and the setting."], "CCSS RL.K", "Y1 Reading: comprehension", "Lgr22 Sv: narrative texts", ["readgym-kg", "readingadventures"]),
+        U("🔍", "Fact Books", ["I can say what a fact book is about.", "I can ask and answer questions about it."], "CCSS RI.K", "Y1 Reading: non-fiction", "Lgr22 Sv: factual texts", ["readgym-kg"]),
         U("🖍️", "Write Letters and Words", ["I can write my letters the right way.", "I can write words using their sounds."], "CCSS L.K.1a; W.K", "Y1 Handwriting; spelling", "Lgr22 Sv: handwriting", ["tracewrite"]),
         U("✏️", "My First Sentences", ["I can write a sentence with a capital letter and a full stop.", "I can leave spaces between words."], "CCSS L.K.2; W.K.3", "Y1 Writing: composition", "Lgr22 Sv: writing")
       ],

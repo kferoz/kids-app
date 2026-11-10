@@ -6,7 +6,9 @@
      🤝 Together   Koa coaches each step: key word → proof → answer
      ⭐ On my own  a new passage; answer, then "Prove it!"; a hint
                    ladder (strategy → where to look → show me)
-   Data: js/data.js (RG_BELTS, RG_LESSONS, RG_TROPHIES).
+   Data: js/data.js (Grade 3 track) and js/data-kg.js (Kindergarten track:
+         everything read aloud, a picture per sentence, 🔊 on choices).
+   Track: #g=kg|g3, else the learner's grade (Pre-K/KG → kg).
    Test hook: window.ReadGym.
    ============================================================ */
 (function () {
@@ -29,6 +31,13 @@
   function bare(w) { return String(w).toLowerCase().replace(/[’]/g, "'").replace(/[^a-z0-9']/g, "").replace(/'s$/, ""); }
   function stem(w) { w = bare(w); return w.slice(0, Math.max(3, w.length - 2)); }
 
+  function kidGrade() {
+    try {
+      var id = localStorage.getItem("hub_activeKid"), kids = JSON.parse(localStorage.getItem("hub_kids") || "[]");
+      for (var i = 0; i < kids.length; i++) if (String(kids[i].id) === String(id)) return kids[i].grade;
+    } catch (e) {}
+    return "";
+  }
   function kidName() {
     try {
       var id = localStorage.getItem("hub_activeKid"), kids = JSON.parse(localStorage.getItem("hub_kids") || "[]");
@@ -100,8 +109,9 @@
     popup(L.sticker, "New sticker!", L.title + " · 🎟️ +1 Prize Wheel ticket"); return true;
   }
   function trophy(id) {
+    id = TP + id;
     if (S.trophies.indexOf(id) >= 0) return;
-    var t = RG_TROPHIES.filter(function (x) { return x.id === id; })[0]; if (!t) return;
+    var t = TROPHIES.filter(function (x) { return x.id === id; })[0]; if (!t) return;
     S.trophies.push(id); store(K.tro, S.trophies);
     popup(t.icon, "Trophy: " + t.name + "!", t.how);
   }
@@ -128,7 +138,15 @@
   }
 
   /* ---------------- lessons helpers ---------------- */
-  var LESSONS = RG_LESSONS;
+  var hashG = (/g=(kg|g3)/.exec(location.hash) || [])[1], gr = kidGrade();
+  var KG = (hashG || (gr === "pk" || gr === "kg" ? "kg" : "g3")) === "kg" && typeof RGK_LESSONS !== "undefined";
+  var TRACK = KG ? "kg" : "g3", TP = KG ? "k-" : "";
+  var LESSONS = KG ? RGK_LESSONS : RG_LESSONS, BELTS = KG ? RGK_BELTS : RG_BELTS, TROPHIES = KG ? RGK_TROPHIES : RG_TROPHIES;
+  document.body.classList.toggle("kg", KG);
+  function W(g3, kg) { return KG ? kg : g3; }
+  function plain(t) { return String(t).replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F\u200D\u20E3]/gu, "").replace(/\s+/g, " ").trim(); }
+  // KG: Koa says each step out loud (Grade 3 readers read the bubble themselves).
+  function kgSay(text) { if (KG) say(text); }
   function lessonIdx(id) { for (var i = 0; i < LESSONS.length; i++) if (LESSONS[i].id === id) return i; return -1; }
   function rec(L) { return S.lessons[L.id] || {}; }
   function unlocked(i) { return i === 0 || !!rec(LESSONS[i - 1]).done; }
@@ -160,7 +178,8 @@
       '<button class="mini-btn" id="readAll" title="Read the whole text to me">🔊 Read to me</button></header>';
     P.p.forEach(function (part, pi) {
       var cls = pi > upto ? " hidden-part" : (opt.cur === pi ? " cur" : "");
-      html += '<p class="part' + cls + '" data-part="' + pi + '"><span class="pnum" title="Part ' + (pi + 1) + '">' + (pi + 1) + "</span>";
+      html += '<p class="part' + cls + '" data-part="' + pi + '"><span class="pnum" title="Part ' + (pi + 1) + '">' + (pi + 1) + "</span>" +
+        (P.pics ? '<span class="ppic" aria-hidden="true">' + P.pics[pi] + "</span>" : "");
       part.forEach(function (s) { html += '<span class="s" data-s="' + si + '">' + esc(s) + "</span> "; si++; });
       html += "</p>";
     });
@@ -222,7 +241,7 @@
   function startLesson(id) {
     var L = LESSONS[lessonIdx(id)]; if (!L) return home();
     R = { L: L, steps: buildSteps(L), i: 0, first: 0, total: 0, hints: 0, proofs: 0, shuffles: {} };
-    location.hash = "l=" + id; showStep();
+    location.hash = "g=" + TRACK + "&l=" + id; showStep();
   }
   function nextStep() { hush(); R.i++; showStep(); }
   function showStep() {
@@ -242,7 +261,7 @@
     function draw() {
       var card = L.cards[c];
       view.innerHTML = stepBar() + koaRow(c === 0 ? "Today's reading muscle: " + L.title + "! " + L.goal : "") +
-        '<section class="learn-card" style="--bc:' + RG_BELTS[L.belt].color + '"><div class="lc-e">' + card[0] + "</div><h2>" + esc(card[1]) + "</h2><p>" + esc(card[2]) + "</p>" +
+        '<section class="learn-card" style="--bc:' + BELTS[L.belt].color + '"><div class="lc-e">' + card[0] + "</div><h2>" + esc(card[1]) + "</h2><p>" + esc(card[2]) + "</p>" +
         '<div class="dots">' + L.cards.map(function (_, i) { return '<i class="' + (i === c ? "on" : "") + '"></i>'; }).join("") + "</div></section>" +
         '<div class="row-btns"><button class="btn ghost" id="cPrev"' + (c ? "" : " disabled") + '>◀ Back</button><button class="btn" id="cSay">🔊 Read it</button>' +
         '<button class="btn go" id="cNext">' + (c < L.cards.length - 1 ? "Next ▶" : "Quick check ✔") + "</button></div>";
@@ -254,9 +273,10 @@
     function check() {
       var q = L.check, ord = order("check", q.c.length), wrong = 0;
       view.innerHTML = stepBar() + koaRow("Quick check! " + q.q) + '<section class="qcard"><h3 class="qtext">' + esc(q.q) + '</h3><div class="choices" id="ch">' +
-        ord.map(function (ci) { return '<button class="choice" data-ci="' + ci + '">' + esc(q.c[ci]) + "</button>"; }).join("") + "</div></section>" +
+        ord.map(function (ci) { return sp('<button class="choice" data-ci="' + ci + '">' + esc(q.c[ci]) + "</button>", q.c[ci]); }).join("") + "</div></section>" +
         '<div class="row-btns"><button class="btn ghost" id="again">📚 See the cards again</button></div>';
       $("again").onclick = function () { c = 0; draw(); };
+      kgSay("Quick check! " + plain(q.q));
       $("ch").onclick = function (e) {
         var b = e.target.closest(".choice"); if (!b || b.disabled) return;
         if (+b.dataset.ci === 0) {
@@ -285,10 +305,12 @@
   function stepPreview(st) {
     var P = P_(st), solo = R.L.champ || st.pk === "B";
     view.innerHTML = stepBar() + koaRow(solo ? "New text! Do your before-reading moves: look at the title and picture, then predict." :
-        "Before we read, good readers PREVIEW. Look at the title and the picture. What do you think this will be about?") +
+        W("Before we read, good readers PREVIEW. Look at the title and the picture. What do you think this will be about?",
+          "Look at the title and the pictures. What do you think this story is about? Tap your guess!")) +
       '<section class="preview"><div class="scene" aria-hidden="true">' + P.scene + "</div><h2>" + P.emoji + " " + esc(P.title) + "</h2>" +
-      '<h3>🔮 I predict this text is about…</h3><div class="choices" id="pred">' + P.predict.map(function (p, i) { return '<button class="choice" data-i="' + i + '">' + esc(p) + "</button>"; }).join("") + "</div>" +
+      '<h3>🔮 I predict this text is about…</h3><div class="choices" id="pred">' + P.predict.map(function (p, i) { return sp('<button class="choice" data-i="' + i + '">' + esc(p) + "</button>", p); }).join("") + "</div>" +
       '<div id="wordsBox"></div></section>';
+    kgSay(P.title + ". What do you think this is about? Tap your guess!");
     $("pred").onclick = function (e) {
       var b = e.target.closest(".choice"); if (!b || b.disabled) return;
       lockChoices(); b.classList.add("picked"); sfx.tap();
@@ -304,6 +326,7 @@
   }
 
   /* ---- 📖 Read in parts ---- */
+  var KG_TIPS = ["👂 Listen and look at the picture.", "🎬 Make a picture in your mind.", "🤔 Who is it about?", "👀 What is happening?"];
   var READ_TIPS = ["🎬 Make a movie in your mind.", "🔍 Read every word.", "🛑 Stop and check: do I get it?", "🤔 Who is it about? What's happening?"];
   function stepRead(st) {
     var P = P_(st), k = 0, stops = {};
@@ -311,12 +334,14 @@
     function partIdx(pi) { var a = 0, out = []; for (var i = 0; i < P.p.length; i++) { for (var j = 0; j < P.p[i].length; j++) { if (i === pi) out.push(a); a++; } } return out; }
     function draw() {
       var last = k === P.p.length - 1;
-      view.innerHTML = stepBar() + koaRow(k === 0 ? "Read one part at a time. Tap 🔊 if you want me to read with you. " + READ_TIPS[0] : READ_TIPS[k % READ_TIPS.length]) +
+      view.innerHTML = stepBar() + koaRow(KG ? (k === 0 ? "Listen and look! I'll read each part to you. " : "") + KG_TIPS[k % KG_TIPS.length] :
+          k === 0 ? "Read one part at a time. Tap 🔊 if you want me to read with you. " + READ_TIPS[0] : READ_TIPS[k % READ_TIPS.length]) +
         passageHTML(P, { upto: k, cur: k }) +
-        '<div class="row-btns read-btns"><button class="btn" id="partSay">🔊 Read this part to me</button>' +
+        '<div class="row-btns read-btns"><button class="btn" id="partSay">' + W("🔊 Read this part to me", "🔊 Hear it again") + "</button>" +
         '<button class="btn go" id="partNext">' + (last ? "I finished reading ✅" : "Next part ▶") + '</button></div><div id="stopBox"></div>';
       $("readAll").remove();
       $("partSay").onclick = function () { readAloud(partIdx(k)); };
+      if (KG) setTimeout(function () { readAloud(partIdx(k)); }, k === 0 ? 900 : 250);
       $("partNext").onclick = function () {
         hush();
         if (stops[k] && !stops[k].ok) return stopCheck(stops[k]);
@@ -329,8 +354,9 @@
       var ord = order("stop" + st.pk + s.after, s.c.length), wrong = 0;
       $("partNext").disabled = true;
       $("stopBox").innerHTML = '<section class="qcard stop"><div class="tag">🛑 Stop & Check</div><h3 class="qtext">' + esc(s.q) + '</h3><div class="choices" id="stopCh">' +
-        ord.map(function (ci) { return '<button class="choice" data-ci="' + ci + '">' + esc(s.c[ci]) + "</button>"; }).join("") + "</div></section>";
-      koa("Stop and check! Do you get it so far?", "think");
+        ord.map(function (ci) { return sp('<button class="choice" data-ci="' + ci + '">' + esc(s.c[ci]) + "</button>", s.c[ci]); }).join("") + "</div></section>";
+      koa("Stop and check! Do you get it so far?", "think", !KG);
+      kgSay("Stop and check! " + plain(s.q));
       try { $("stopBox").scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {}
       $("stopCh").onclick = function (e) {
         var b = e.target.closest(".choice"); if (!b || b.disabled) return;
@@ -348,7 +374,7 @@
     function selfCheck() {
       $("stopBox").innerHTML = '<section class="qcard"><h3 class="qtext">How did that reading feel?</h3><div class="choices two">' +
         '<button class="choice" id="gotIt">👍 I got it!</button><button class="choice" id="blurry">🤔 Some parts were blurry</button></div></section>';
-      koa("Before the questions, check yourself. Did the movie in your mind make sense?", "");
+      koa(W("Before the questions, check yourself. Did the movie in your mind make sense?", "Did you understand the story?"), "");
       try { $("stopBox").scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {}
       $("gotIt").onclick = function () { koa("Awesome! On to the questions.", "wow"); nextStep(); };
       $("blurry").onclick = function () {
@@ -368,15 +394,18 @@
     var tag = opt.tag || "", txt;
     if (opt.tapWords) txt = q.q.split(/\s+/).map(function (w, i) { return '<button class="qw" data-w="' + i + '">' + esc(w) + "</button>"; }).join(" ");
     else txt = esc(q.q);
-    var showQar = lessonIdx(L.id) >= lessonIdx("search") && q.ev && !opt.noQar;
+    var showQar = !KG && lessonIdx(L.id) >= lessonIdx("search") && q.ev && !opt.noQar;
     return (tag ? '<div class="tag">' + tag + "</div>" : "") + (showQar ? '<div class="qar">' + QAR[qarOf(L, q)] + "</div>" : "") +
       '<h3 class="qtext" id="qtext">' + txt + ' <button class="say-q" id="sayQ" title="Read the question to me">🔊</button></h3>';
   }
+  // Kindergarten: every choice gets a 🔊 so pre-readers can hear it.
+  function sp(btn, text) { return KG ? '<div class="choice-wrap">' + btn + '<button class="sbtn" data-t="' + esc(plain(text)) + '" title="Hear it">🔊</button></div>' : btn; }
   function choicesHTML(L, q, key) {
     var ord = order(key, q.c.length);
     return '<div class="choices" id="ch">' + ord.map(function (ci) {
       return '<div class="choice-wrap"><button class="choice" data-ci="' + ci + '">' + esc(q.c[ci]) + "</button>" +
-        (L.cross ? '<button class="xbtn" data-x="' + ci + '" title="Cross out">✗</button>' : "") + "</div>";
+        (L.cross ? '<button class="xbtn" data-x="' + ci + '" title="Cross out">✗</button>' : "") +
+        (KG ? '<button class="sbtn" data-t="' + esc(plain(q.c[ci])) + '" title="Hear it">🔊</button>' : "") + "</div>";
     }).join("") + "</div>";
   }
   function wireCross() {
@@ -403,7 +432,7 @@
     var L = R.L, P = P_(st), q = Q_(st), type = q.type || "mc", t = 0, ev = evIdx(P, q);
     var side = qHead(L, q, { tag: "👀 Watch Koa think" }) + '<div id="qbody"></div>' +
       '<div class="think" id="think"></div><div class="row-btns"><button class="btn go" id="thinkNext">▶ Next thought</button></div>';
-    view.innerHTML = stepBar() + koaRow("Watch how I think! I'll say my thoughts out loud, one step at a time.") + workHTML(P, side);
+    view.innerHTML = stepBar() + koaRow(W("Watch how I think! I'll say my thoughts out loud, one step at a time.", "Watch me find the answer!")) + workHTML(P, side);
     wireReadAll(P); wireSayQ(q);
     var body = $("qbody");
     if (type === "mc") body.innerHTML = choicesHTML(L, q, "m" + st.pk + st.qi), lockChoices();
@@ -430,7 +459,8 @@
       var lines = q.think || [], line = lines[t];
       var text = act(line, t, lines.length);
       $("think").insertAdjacentHTML("beforeend", '<p class="th"><span>💭</span>' + esc(text) + "</p>");
-      koa(text, t === lines.length - 1 ? "wow" : "think");
+      koa(text, t === lines.length - 1 ? "wow" : "think", false);
+      say((KG && t === 0 ? plain(q.q) + " " : "") + text);
       t++;
       if (t >= lines.length) {
         $("thinkNext").remove(); sfx.ding();
@@ -450,17 +480,22 @@
   /* ---- 🤝 Together (We do) ---- */
   var PART_TIPS = {
     Restate: "Which start uses words from the question?", Answer: "Which answer does the text tell you?", Prove: "Which proof really comes from the text and matches your answer?",
+    Beginning: "What happened at the beginning?", Middle: "What happened in the middle?", End: "How did it end?",
     Somebody: "Who is the main character?", Wanted: "What did they want?", But: "What was the problem?", So: "How did they try to fix it?", Then: "How did it end?"
   };
   function stepGuide(st) {
     var L = R.L, P = P_(st), q = Q_(st), type = q.type || "mc";
     if (type !== "mc") return seqOrBuild(st, true);
-    var ev = evIdx(P, q), qw = L.tap === "qword" ? qwordOf(q) : "", keys = keyWords(q), phase = "key", wrong = 0, found = {};
-    var side = qHead(L, q, { tag: "🤝 Together", tapWords: true }) + '<ol class="steps" id="steps">' +
-      '<li id="st1" class="now">' + (qw ? "Tap the QUESTION WORD." : "Tap a KEY WORD in the question.") + "</li>" +
-      '<li id="st2">Find the proof in the text.</li><li id="st3">Pick the answer.</li></ol><div id="qbody"></div>';
-    view.innerHTML = stepBar() + koaRow(qw ? "Step 1: Read the question. Tap the QUESTION WORD. It tells you what kind of answer to look for." :
-      "Step 1: Read the question. Tap a KEY WORD: a word that tells you what to look for in the text.") + workHTML(P, side);
+    var noKey = L.tap === "none";
+    var ev = evIdx(P, q), qw = L.tap === "qword" ? qwordOf(q) : "", keys = keyWords(q), phase = noKey ? "proof" : "key", wrong = 0, found = {};
+    var side = qHead(L, q, { tag: "🤝 Together", tapWords: !noKey }) + '<ol class="steps" id="steps">' +
+      (noKey ? "" : '<li id="st1" class="now">' + (qw ? "Tap the QUESTION WORD." : "Tap a KEY WORD in the question.") + "</li>") +
+      '<li id="st2"' + (noKey ? ' class="now"' : "") + ">" + W("Find the proof in the text.", "Find it in the story: tap the part that tells you.") + '</li><li id="st3">Pick the answer.</li></ol><div id="qbody"></div>';
+    var intro = noKey ? "Listen to the question. Then tap the part of the story that tells you the answer. 👉" :
+      qw ? W("Step 1: Read the question. Tap the QUESTION WORD. It tells you what kind of answer to look for.", "Listen to the question. Tap the QUESTION WORD. It's the first word!") :
+      "Step 1: Read the question. Tap a KEY WORD: a word that tells you what to look for in the text.";
+    view.innerHTML = stepBar() + koaRow(intro) + workHTML(P, side);
+    kgSay(plain(q.q) + " " + intro);
     wireReadAll(P); wireSayQ(q);
     view.querySelectorAll("#qtext .qw").forEach(function (b, i) {
       b.onclick = function () {
@@ -490,7 +525,7 @@
         if (left) { koa("That's one piece! 🧩 Find the other piece too.", "wow"); return; }
         phase = "answer"; wrong = 0; clearMarks("scan"); $("st2").className = "ok"; $("st3").className = "now";
         $("qbody").innerHTML = choicesHTML(L, q, "g" + st.pk + st.qi); wireCross(); wireAnswer();
-        koa("That's your proof! 📌 Step 3: pick the answer that matches your proof." + (L.cross ? " Cross out ✗ any traps first!" : ""), "wow");
+        koa(W("That's your proof! 📌 Step 3: pick the answer that matches your proof.", "You found it! 👉 Now pick the answer.") + (L.cross ? " Cross out ✗ any traps first!" : ""), "wow");
         scrollTo("qbody");
       } else {
         s.classList.add("nope"); setTimeout(function () { s.classList.remove("nope"); }, 700); sfx.boop(); wrong++;
@@ -523,9 +558,9 @@
     var tag = guided ? "🤝 Together" : "⭐ On my own";
     var side = qHead(L, q, { tag: tag, noQar: true }) + '<div id="qbody"></div>' + (guided ? "" : '<div class="row-btns"><button class="btn ghost" id="helpBtn">🧠 Help me think</button></div>');
     var intro = type === "order" ? (guided ? "Look for the order words in the text: first, next, then, finally. Tap the events in order!" : "Tap the events in the order they happened.")
-      : (q.parts[0].l === "Somebody" ? "Use your story hand ✋! Pick one part at a time." : "Build your R.A.P. answer: Restate, Answer, Prove. One part at a time!");
+      : (q.parts[0].l === "Somebody" ? "Use your story hand ✋! Pick one part at a time." : q.parts[0].l === "Beginning" ? "Retell it: beginning, middle and end. One part at a time!" : "Build your R.A.P. answer: Restate, Answer, Prove. One part at a time!");
     view.innerHTML = stepBar() + koaRow(intro) + workHTML(P, side);
-    wireReadAll(P); wireSayQ(q);
+    wireReadAll(P); wireSayQ(q); kgSay(plain(q.q) + " " + intro);
     if (!guided) $("helpBtn").onclick = function () {
       hintsUsed++; R.hints++; S.stats.hints++; saveStats();
       if (hintsUsed === 1) koa("Strategy: " + L.tip, "think");
@@ -534,7 +569,7 @@
     if (type === "order") {
       var ord = order("o" + st.pk + st.qi, q.items.length), k = 0;
       $("qbody").innerHTML = '<ol class="order-slots">' + q.items.map(function () { return "<li>…</li>"; }).join("") + '</ol><div class="choices" id="ch">' +
-        ord.map(function (i) { return '<button class="choice" data-i="' + i + '">' + esc(q.items[i]) + "</button>"; }).join("") + "</div>";
+        ord.map(function (i) { return sp('<button class="choice" data-i="' + i + '">' + esc(q.items[i]) + "</button>", q.items[i]); }).join("") + "</div>";
       if (guided) view.querySelectorAll(".s").forEach(function (s) { if (/\b(first|next|then|finally|at last|after|later)\b/i.test(s.textContent)) s.classList.add("scan"); });
       $("ch").onclick = function (e) {
         var b = e.target.closest(".choice"); if (!b || b.disabled) return;
@@ -556,7 +591,7 @@
         var part = q.parts[p], o = order("b" + st.pk + st.qi + "_" + p, part.c.length), wrong = 0;
         view.querySelectorAll(".slot").forEach(function (s, i) { s.classList.toggle("now", i === p); });
         $("partBox").innerHTML = '<p class="part-q"><b>' + esc(part.l) + ":</b> " + esc(PART_TIPS[part.l] || "") + '</p><div class="choices" id="ch">' +
-          o.map(function (ci) { return '<button class="choice" data-ci="' + ci + '">' + esc(part.c[ci]) + "</button>"; }).join("") + "</div>";
+          o.map(function (ci) { return sp('<button class="choice" data-ci="' + ci + '">' + esc(part.c[ci]) + "</button>", part.c[ci]); }).join("") + "</div>";
         if (guided || p > 0) koa(part.l + ": " + (PART_TIPS[part.l] || ""), "", guided);
         $("ch").onclick = function (e) {
           var b = e.target.closest(".choice"); if (!b || b.disabled) return;
@@ -605,6 +640,7 @@
     view.innerHTML = stepBar() + koaRow(n === 0 ? "Your turn! Use your steps: read the question twice, find the key words, look for proof, then answer." +
       (L.cross ? " Cross out ✗ traps!" : "") : pick(["You've got this!", "Read the question twice.", "Find your proof!", "Take your time."])) + workHTML(P, side);
     wireReadAll(P); wireSayQ(q); wireCross();
+    kgSay(plain(q.q));
     function help() {
       hints++; R.hints++; S.stats.hints++; saveStats();
       if (hints === 1) { hiKeys(q); koa("Strategy: " + L.tip + " The key words are highlighted.", "think"); }
@@ -621,9 +657,9 @@
         $("helpBtn").remove();
         if (first) {
           phase = "prove";
-          koa(pick(PRAISE) + " Now PROVE it! 📌 Tap the sentence in the text that proves your answer, for a bonus star.", "wow");
-          $("qcard").insertAdjacentHTML("beforeend", '<div class="prove" id="prove">📌 <b>Prove it!</b> Tap your proof sentence' + (ev.length > 1 ? "s (" + ev.length + " pieces)" : "") +
-            ' in the text. <button class="mini-btn" id="skipProve">Skip</button></div>');
+          koa(pick(PRAISE) + W(" Now PROVE it! 📌 Tap the sentence in the text that proves your answer, for a bonus star.", " Now show me! 👉 Tap the part of the story that tells you, for a bonus star."), "wow");
+          $("qcard").insertAdjacentHTML("beforeend", '<div class="prove" id="prove">' + W("📌 <b>Prove it!</b> Tap your proof sentence", "👉 <b>Show me!</b> Tap the part of the story") + (ev.length > 1 ? "s (" + ev.length + " pieces)" : "") +
+            W(" in the text.", "") + ' <button class="mini-btn" id="skipProve">Skip</button></div>');
           $("skipProve").onclick = function () { phase = "done"; mark(ev, "proof"); showWhy(); };
           scrollTo("passage");
         } else { mark(ev, "proof"); showWhy(); koa("You got it! " + q.why, "wow"); }
@@ -678,7 +714,7 @@
     giveSticker(L);
     if (firstTime) trophy("first");
     if (stars === 3 && R.hints === 0) trophy("perfect");
-    RG_BELTS.forEach(function (b, bi) { if (bi < 4 && beltDone(bi)) trophy(b.id); });
+    BELTS.forEach(function (b, bi) { if (bi < 4 && beltDone(bi)) trophy(b.id); });
     if (L.champ) trophy("champion");
     if (LESSONS.every(function (x) { return (rec(x).stars || 0) >= 3; })) trophy("allstars");
   }
@@ -686,17 +722,18 @@
   /* ---------------- home & other screens ---------------- */
   function setBack(on) { $("backBtn").hidden = !on; }
   function home() {
-    hush(); R = null; setBack(false); if (location.hash) history.replaceState(null, "", location.pathname);
-    $("topTitle").textContent = "Koa's Reading Gym";
+    hush(); R = null; setBack(false); history.replaceState(null, "", location.pathname + "#g=" + TRACK);
+    $("topTitle").textContent = "Koa's Reading Gym" + W("", " · K");
     var name = kidName(), doneN = LESSONS.filter(function (L) { return rec(L).done; }).length;
     var nextI = 0; for (var i = 0; i < LESSONS.length; i++) if (!rec(LESSONS[i]).done) { nextI = i; break; } else nextI = i;
-    var html = koaRow((name ? "Hi " + name + "! " : "Hi! ") + (doneN ? "Welcome back to the gym. Ready for today's reading workout? 💪" :
-      "I'm Coach Koa. Reading is like a sport: we train one skill at a time. I show you, we try together, then you do it on your own!")) +
-      '<div class="stat-row"><span>✅ ' + doneN + " of " + LESSONS.length + " lessons</span><span>📌 " + S.stats.proofs + " proofs found</span><span>🏆 " + S.trophies.length + " trophies</span></div>" +
+    var html = koaRow((name ? "Hi " + name + "! " : "Hi! ") + (doneN ? W("Welcome back to the gym. Ready for today's reading workout? 💪", "Welcome back! Ready to listen and think? 💪") :
+      W("I'm Coach Koa. Reading is like a sport: we train one skill at a time. I show you, we try together, then you do it on your own!",
+        "I'm Coach Koa! We'll listen to little stories and find the answers. I show you, we try together, then you try!"))) +
+      '<div class="stat-row"><span>✅ ' + doneN + " of " + LESSONS.length + " lessons</span><span>📌 " + S.stats.proofs + W(" proofs found", " answers found") + "</span><span>🏆 " + TROPHIES.filter(function (t) { return S.trophies.indexOf(t.id) >= 0; }).length + " trophies</span></div>" +
       '<div class="quick"><button class="quick-card go-card" id="goNextL"><span class="qe">' + LESSONS[nextI].emoji + "</span><b>" + (doneN ? "Keep training" : "Start here") + "</b><small>" + esc(LESSONS[nextI].title) + "</small></button>" +
       '<button class="quick-card tool" id="toolBtn"><span class="qe">🧰</span><b>My Toolbox</b><small>Every reading tool you’ve learned</small></button>' +
       '<button class="quick-card grown" id="grownBtn"><span class="qe">👪</span><b>For grown-ups</b><small>How the lessons teach</small></button></div>';
-    RG_BELTS.forEach(function (b, bi) {
+    BELTS.forEach(function (b, bi) {
       var ls = LESSONS.filter(function (L) { return L.belt === bi; });
       html += '<section class="belt" style="--bc:' + b.color + '"><h2><span class="belt-e">' + b.emoji + "</span> " + esc(b.name) + " <small>" + esc(b.level) + "</small>" + (beltDone(bi) ? ' <span class="earned">Earned!</span>' : "") + '</h2><div class="lesson-grid">' +
         ls.map(function (L) {
@@ -706,7 +743,10 @@
             '<span class="ls">' + [1, 2, 3].map(function (s) { return s <= (r.stars || 0) ? "⭐" : "☆"; }).join("") + "</span></button>";
         }).join("") + "</div></section>";
     });
+    html += '<p class="switch"><button class="btn ghost" id="switchTrack">' + W("🐣 Switch to the Kindergarten gym", "🎒 Switch to the Grade 3 gym") + "</button></p>";
     view.innerHTML = html;
+    $("switchTrack").onclick = function () { location.hash = "g=" + W("kg", "g3"); location.reload(); };
+    kgSay($("koaSay").textContent);
     view.querySelectorAll(".lesson").forEach(function (b) { b.onclick = function () { startLesson(b.dataset.id); }; });
     $("goNextL").onclick = function () { startLesson(LESSONS[nextI].id); };
     $("toolBtn").onclick = toolbox; $("grownBtn").onclick = grownups;
@@ -729,7 +769,7 @@
       '<h2 class="sec-h">Stickers</h2><div class="stickers">' + LESSONS.map(function (L) {
         var has = S.stickers.indexOf(L.id) >= 0;
         return '<div class="stk' + (has ? "" : " locked") + '"><span>' + (has ? L.sticker : "❔") + "</span><small>" + esc(L.title) + "</small></div>"; }).join("") + "</div>" +
-      '<h2 class="sec-h">Trophies</h2><div class="stickers">' + RG_TROPHIES.map(function (t) {
+      '<h2 class="sec-h">Trophies</h2><div class="stickers">' + TROPHIES.map(function (t) {
         var has = S.trophies.indexOf(t.id) >= 0;
         return '<div class="stk' + (has ? "" : " locked") + '"><span>' + (has ? t.icon : "🔒") + "</span><b>" + esc(t.name) + "</b><small>" + esc(t.how) + "</small></div>"; }).join("") + "</div>";
   }
@@ -742,13 +782,16 @@
       "<li><b>🤝 Together</b> — the child does each step with coaching: tap the key word (or question word), tap the proof sentence, then answer. Mistakes get a hint, never a dead end.</li>" +
       "<li><b>⭐ On my own</b> — a new text. The child answers first, then <b>proves it</b> by tapping the sentence. “🧠 Help me think” gives a hint ladder: the strategy → which part to look in → the proof itself.</li></ol>" +
       "<p><b>Habits built every time:</b> preview and predict · read in chunks · stop and check (fix-up when confused) · read the question twice · find text evidence · cross out traps · answer in a full sentence (R.A.P.: Restate, Answer, Prove) · summarise (Somebody–Wanted–But–So–Then).</p>" +
-      '<h3>The ladder (easy → Grade 3)</h3><ol class="ladder">' + LESSONS.map(function (L) { return "<li>" + RG_BELTS[L.belt].emoji + " <b>" + esc(L.title) + "</b> — " + esc(L.goal) + "</li>"; }).join("") + "</ol>" +
-      "<p><b>Standards:</b> CCSS RL.3.1–3.3, RL.3.7, RI.3.1–3.4, RI.3.8, RF.3.4 · UK Year 4 reading comprehension · Lgr22 Svenska reading strategies. Question types follow QAR (Right There, Think &amp; Search, Between the Lines).</p>" +
+      '<h3>The ladder (' + W("easy → Grade 3", "Pre-K → Kindergarten") + ')</h3><ol class="ladder">' + LESSONS.map(function (L) { return "<li>" + BELTS[L.belt].emoji + " <b>" + esc(L.title) + "</b> — " + esc(L.goal) + "</li>"; }).join("") + "</ol>" +
+      (KG ? "<p><b>Kindergarten track:</b> Koa reads every story part, question and answer aloud (🔊 on each answer). Each sentence has a picture, stories are 3–4 short sentences, and guided questions skip the key-word step: the child taps the part of the story that tells the answer.</p>" +
+        "<p><b>Standards:</b> CCSS RL.K.1–3, RL.K.7, RI.K.1–2, L.K.4 · UK EYFS / Year 1 comprehension · Lgr22 förskoleklass.</p>" :
+      "<p><b>Standards:</b> CCSS RL.3.1–3.3, RL.3.7, RI.3.1–3.4, RI.3.8, RF.3.4 · UK Year 4 reading comprehension · Lgr22 Svenska reading strategies. Question types follow QAR (Right There, Think &amp; Search, Between the Lines).</p>") +
       "<p><b>Stars:</b> share of “On my own” questions right first time with no hints (85% = ⭐⭐⭐). Results go to Admin and Insights. All passages are original.</p>" +
       "<p><b>Tips at home:</b> ask your child to read the text aloud to you, and after each answer ask “How do you know? Show me in the text.”</p></section>";
   }
 
   /* ---------------- wiring ---------------- */
+  view.addEventListener("click", function (e) { var b = e.target.closest(".sbtn"); if (b) { e.stopPropagation(); say(b.dataset.t); } }, true);
   $("backBtn").onclick = function () { home(); };
   $("muteBtn").onclick = function () { S.mute = !S.mute; store(K.mute, S.mute); if (S.mute) hush(); hud(); };
   $("stkPill").onclick = stickers; $("trophyBtn").onclick = stickers;
@@ -756,5 +799,5 @@
   var m = /l=([\w-]+)/.exec(location.hash);
   if (m && lessonIdx(m[1]) >= 0 && unlocked(lessonIdx(m[1]))) startLesson(m[1]); else home();
 
-  window.ReadGym = { S: S, get R() { return R; }, start: startLesson, home: home, next: nextStep, lessons: LESSONS, evIdx: evIdx };
+  window.ReadGym = { track: TRACK, S: S, get R() { return R; }, start: startLesson, home: home, next: nextStep, lessons: LESSONS, evIdx: evIdx };
 })();

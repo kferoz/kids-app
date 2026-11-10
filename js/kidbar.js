@@ -83,7 +83,7 @@
     arabic: function () { return fromIds("ar_stickers", ["PHASES"]); },
     tracewrite: function () { return fromIds("tw_stickers", ["PHASES"]); },
     readrocket: function () { return fromIds("rr_stickers", ["PHASES"]); },
-    readgym: function () { var L = arr(glob("RG_LESSONS")), mine = arr(get("rg_stickers")); return L.filter(function (l) { return mine.indexOf(l.id) >= 0; }).map(function (l) { return { e: l.sticker, n: l.title }; }); },
+    readgym: function () { var L = arr(glob("RG_LESSONS")).concat(arr(glob("RGK_LESSONS"))), mine = arr(get("rg_stickers")); return L.filter(function (l) { return mine.indexOf(l.id) >= 0; }).map(function (l) { return { e: l.sticker, n: l.title }; }); },
     spellingbee: function () { return arr(get("sb_stickers")).map(function (s) { return { e: s.e, n: s.n || "" }; }); },
     writestudio: function () { return fromIds("ws_stickers", ["LESSONS"]); },
     phonics: function () { return fromIds("ph_stickers", ["BOOKS", "FUN_STICKERS", "PHASES"]); },

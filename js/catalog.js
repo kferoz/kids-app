@@ -85,6 +85,7 @@
     A("homeschool-g3-eng", "Homeschool Academy: English", "🎓", "homeschool/index.html", "homeschool", "language", "learn", ["g3"], "english"),
     A("readingadventures", "Reading Adventures", "📖", "adventurepack/readingadventures/index.html", "readingadventures", "language", "stories", ["kg", "g3"], "english"),
     A("quiz-words", "Word Wizards", "🪄", "quiz/index.html#words", "quiz", "language", "practice", ["g1", "g2"], "english"),
+    A("readgym-kg", "Koa's Reading Gym: Listen & Think", "🐨", "readgym/index.html#g=kg", "readgym", "language", "learn", ["kg"], "english"),
     A("readgym", "Koa's Reading Gym", "🐨", "readgym/index.html", "readgym", "language", "learn", ["g3"], "english"),
     A("reading", "Reading Trail", "🦉", "reading/index.html", "reading", "language", "learn", ["g3"], "english"),
     A("readrocket", "Read-Aloud Rocket", "🚀", "readrocket/index.html", "readrocket", "language", "stories", ["g3"], "english"),

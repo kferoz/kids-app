@@ -74,7 +74,8 @@ function browser(seed = {}){
   });
   // Deep links must be ones the app actually handles.
   const hashes = { '#science': 'adventurepack/readingadventures/index.html', '#unit2': 'adventurepack/stickerquest/index.html',
-    '#ch1': 'adventurepack/piratemath/js/app.js', '#ch2': 'adventurepack/piratemath/js/app.js' };
+    '#ch1': 'adventurepack/piratemath/js/app.js', '#ch2': 'adventurepack/piratemath/js/app.js',
+    '#g=kg': 'readgym/js/app.js' };
   C.ITEMS.filter(it => it.href.includes('#')).forEach(it => {
     const h = '#' + it.href.split('#')[1], src = hashes[h];
     // Quiz Corner: #<pack> needs quiz/packs/<pack>.js with that id, loaded by quiz/index.html.

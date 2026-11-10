@@ -1,9 +1,21 @@
-# 🐨 Koa's Reading Gym (Grade 3)
+# 🐨 Koa's Reading Gym (Kindergarten + Grade 3)
 
 Reading-comprehension training with **Coach Koa the koala**. Reading is treated like a sport:
 one "muscle" (strategy) per lesson, from easy Grade 1–2 texts up to strong Grade 3 thinking.
 Open it from **My Academy → English** (units *Main Idea and Details*, *Characters and Point of
 View*, *Text Structure: Cause and Effect*) or the Hub tile.
+
+## Kindergarten track: Listen & Think
+
+`readgym/index.html#g=kg` (also chosen automatically when the learner's grade is PreK or K).
+13 lessons in `js/data-kg.js` (`RGK_LESSONS`, ids start `k-`): pictures, who, where, find it,
+question words, first/next/last, feelings, predict, fact books, new words, think about it,
+retell (beginning/middle/end) and the Super Listener Challenge. Every story is 3–4 one-sentence
+parts, each with a big picture (`pics`), and Koa reads every part aloud. Every choice starts with
+an emoji and has a 🔊 button. Most lessons skip the key-word step (`tap: "none"`), so "Together"
+is just: tap the part that tells you, then pick the answer. Linked from My Academy → English
+(KG *Story Time* and *Fact Books*). Both tracks share the same `rg_*` storage keys; KG lesson
+and trophy ids start `k-`. A button at the bottom of the gym home switches tracks.
 
 ## How a lesson teaches (gradual release)
 

@@ -234,4 +234,15 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 4px soli
 .confetti-box { position: fixed; inset: 0; pointer-events: none; z-index: 80; overflow: hidden; }
 .confetti-box span { position: absolute; top: -40px; animation: fall 2.6s linear forwards; }
 @keyframes fall { to { transform: translateY(110vh) rotate(540deg); } }
+/* ---------- Kindergarten track ---------- */
+body.kg .part { font-size: 1.6rem; line-height: 1.6; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+body.kg .ppic { font-size: 2.6rem; line-height: 1; flex: 0 0 auto; }
+body.kg .part .s { flex: 1 1 200px; }
+body.kg .qtext { font-size: 1.5rem; }
+body.kg .choice { font-size: 1.35rem; min-height: 62px; }
+body.kg .learn-card p { font-size: 1.45rem; }
+body.kg .order-slots li, body.kg .slot-t { font-size: 1.25rem; }
+.sbtn { width: 54px; border-radius: 14px; background: #e7f5ff; color: #1971c2; font-size: 1.3rem; border: 2px solid #a5d8ff; }
+.switch { text-align: center; margin: 8px 0 0; }
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

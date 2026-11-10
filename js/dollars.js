@@ -109,6 +109,7 @@
       },
       progress: function (g) { var c = obj(g("rr_checks")); return { have: Object.keys(c).filter(function (k) { return obj(c[k]).passed; }).length, need: 5, count: true }; } },
     trophy("readgym", "rg_trophies", "champion", "Pass the Reading Champion Challenge in Koa's Reading Gym"),
+    trophy("readgym", "rg_trophies", "k-champion", "Pass the Super Listener Challenge in the Kindergarten Reading Gym"),
     trophy("readgym", "rg_trophies", "allstars", "Get 3 stars on all 15 Reading Gym lessons"),
     trophy("spellingbee", "sb_trophies", "bee-champion", "Win the 3rd-grade Grand Bee (all 50 words, 3 hearts)"),
     trophy("spellingbee", "sb_trophies", "hive-hero", "Master all 50 words of the 3rd-grade list"),
