@@ -4,6 +4,7 @@
 - think-aloud lines map to actions by position (first = key words, middle = proof, last = answer); `[x:choice]` prefix crosses a choice out.
 - Linked from My Academy via `readgym` in G3 English unit `acts` (units 3–5) + catalog item; needs a Hub tile (phase1 test checks data-app tiles).
 - Test gotchas: kidbar/RewardKit `.kb-veil` surprise pop-ups appear after lessons and block clicks; per-learner keys are `k<id>::` so kid id "k1" gives `kk1::rg_*`.
+- profile-store wraps localStorage.getItem, so `getItem("kk1::x")` double-prefixes and returns null; inspect `Object.keys(localStorage)` instead.
 
 ## FEATURE — Printable Worksheets, PK–G5, every subject (worksheets/) · 2026-11-07
 - Asked for "most rated" downloadable worksheets: third-party sheets are copyrighted, so every sheet is generated from the hub's own content (Academy lessons, Spelling Bee lists) plus seeded math drill generators. 278 unit sheets, 42 workbooks, 48 drills, 25 spelling, 7 handwriting.
