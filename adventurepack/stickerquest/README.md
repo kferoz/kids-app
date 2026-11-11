@@ -20,3 +20,6 @@ Reading (Joseph Bruchac passage + one-minute read-aloud). Every finished task ea
   same key. One sticker per question ever + one per finished round. Tests: `node test/unit2-logic.js`,
   `node test/unit2-questions.js`.
 - The passage is about a real author, written fresh for this app (not the worksheet text). Private family use only.
+- **Ad-hoc Math Tests engine** (2026-11-11, no UI yet): `src/engine/mathQuestions.js` generates Chapter 5
+  multiplication questions: single multiply, true/false equations, choose-two ways, fill-in decompose,
+  area model (inline SVG) and easy word problems. Seeded and replayable. Test: `node test/math-questions.js`.

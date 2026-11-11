@@ -1,3 +1,12 @@
+## FEATURE — Sticker Quest Ad-hoc Math Tests: Chapter 5 question engine · 2026-11-11
+- `adventurepack/stickerquest/src/engine/mathQuestions.js` (global `MathQuestions`) generates 6 multiplication types; no UI yet.
+- Ids and `mathKey` come from the numbers, so a test is replayable from its seed. `mathKey` (sorted factors) also stops the same multiplication showing up twice as different types (e.g. word 6×12 and single 12×6).
+- Mixed tests split only over levels the chosen types have (`word_multiply` is easy-only), or a word-only mixed test throws.
+- False equations change exactly ONE digit by 1–3, keeping the same length, so they look close but are always false.
+- Choose-two wrong ways use ×100 / ×10 "too many zeros", never ×1000: 9×9×1000 would go over the 9,999 cap.
+- The test checks answers by re-parsing the option and template text, not the engine's values. Strip commas only between digits (`(\d),(\d)`), or "= 18, then" breaks.
+- Test: `node test/math-questions.js` (~37k questions, 120 seeds × levels × types).
+
 ## FEATURE — Koa's Reading Gym: Kindergarten track · 2026-11-10
 - Track = `#g=kg|g3` hash, else learner grade (pk/kg → kg); hash is `g=<track>&l=<id>` so reloads keep the track.
 - KG data in data-kg.js (`RGK_*`); ids prefixed `k-` so both tracks share `rg_*` keys without clashing; admin splits progress by prefix.
