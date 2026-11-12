@@ -1,5 +1,7 @@
-/* Ad-hoc Math Tests tab (index.html#adhoc). Questions come from src/engine/mathQuestions.js,
-   the test list from src/data/adhocTests.js (+ localStorage "hub_adhocTests").
+/* Ad-hoc Tests tab (index.html#adhoc; one page per test at #tests/<id>).
+   Questions come from src/engine/mathQuestions.js. The list is the PUBLISHED tests a grown-up made in
+   admin/tests.html (js/adhocstore.js, stored as engine specs and rebuilt here), or the built-in
+   samples in src/data/adhocTests.js until Admin is first used.
    Loads after index.html's own script and uses its globals ($, save, persist, earn) and Hoot (U2_OWL).
    Saved in stickerQuest_v1 as save.adhoc: {readAll, results:{testId:{best,last,plays,ts}}, ends, aced:[hard test ids with 3 stars]}.
    Sticker ids: "mq:<question id>" (one per question ever) and "mq:end:<n>" (one per finished test).
@@ -15,7 +17,8 @@
   const TOPIC = {
     single_multiply: "Multiplying numbers", true_false_equations: "True or false equations",
     choose_correct_ways: "Ways to multiply", fill_blanks_decompose: "Breaking numbers apart",
-    area_model: "Area models", word_multiply: "Word problems"
+    area_model: "Area models", word_multiply: "Word problems",
+    word_match: "Sight words", multiple_choice: "Worksheet questions"
   };
   const LV = { easy: ["★", "Easy"], medium: ["★★", "Medium"], hard: ["★★★", "Hard"], mixed: ["★ ★★ ★★★", "Mixed"] };
   const ORDER = { easy: 0, medium: 1, hard: 2 };
@@ -55,13 +58,16 @@
   const auto = text => { if (A.readAll) speak(text); };
 
   /* ---------- tests ---------- */
+  const SAMPLES = typeof ADHOC_TESTS !== "undefined" ? ADHOC_TESTS : [];
   function tests() {
-    let extra = [];
-    try { extra = JSON.parse(localStorage.getItem("hub_adhocTests")) || []; } catch (e) {}
-    const all = (typeof ADHOC_TESTS !== "undefined" ? ADHOC_TESTS : []).concat(Array.isArray(extra) ? extra : []);
-    const seen = {};
-    return all.filter(t => t && t.id && t.title && /^\d{4}-\d\d-\d\d$/.test(t.date || "") && LV[t.difficulty] && !seen[t.id] && (seen[t.id] = 1));
+    let list = [];
+    try {
+      list = window.AdhocStore ? AdhocStore.published(SAMPLES)
+        : SAMPLES.map(t => Object.assign({ questions: [], recipe: { difficulty: t.difficulty, count: t.count, types: t.types, seed: t.seed } }, t));
+    } catch (e) { list = []; }
+    return list.filter(t => t && t.id && /^\d{4}-\d\d-\d\d$/.test(t.date || "") && LV[t.difficulty]);
   }
+  const countOf = t => (t.questions && t.questions.length) || (t.recipe && t.recipe.count) || 10;
   function niceDate(iso) {
     const [y, m, d] = iso.split("-").map(Number), dt = new Date(y, m - 1, d);
     return isNaN(dt) ? iso : dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -112,10 +118,47 @@
     });
   }
 
+  /* ---------- pages: #adhoc (list) and #tests/<id> (one test) ---------- */
+  const BASE_TITLE = document.title;
+  let S = null, PAGE = null;
+  function openTab() {
+    const tab = document.querySelector('.tab[data-tab="adhoc"]');
+    if (tab && tab.getAttribute("aria-selected") !== "true") tab.click();
+  }
+  function route() {
+    const m = location.hash.match(/^#tests\/([A-Za-z0-9_-]{1,40})$/);
+    if (m) {
+      openTab();
+      const t = tests().find(x => x.id === m[1]);
+      if (t) return testPage(t);
+      home(); owl("oops", "That test isn't here any more. Pick another one!"); return;
+    }
+    if (location.hash === "#adhoc") { openTab(); home(); }
+  }
+  function goHome() { if (location.hash !== "#adhoc") location.hash = "adhoc"; else home(); }
+
+  function testPage(t) {
+    S = null; PAGE = t; hush();
+    const lv = LV[t.difficulty], n = countOf(t), best = (A.results[t.id] || {}).best || 0;
+    const heading = niceDate(t.date) + " — " + t.title;
+    document.title = heading + " · Sticker Quest";
+    host.innerHTML = `<div class="mq mq-enter mq-page">
+      <a class="mq-back" href="#adhoc">← All tests</a>
+      <h2 class="mq-ptitle">${esc(heading)}</h2>
+      <div class="mq-pinfo"><span class="mq-badge lv-${t.difficulty}" aria-hidden="true">${lv[0]}</span>
+        <span>${n} questions · ${lv[1]}${t.subject ? " · " + esc(t.subject) : ""}${best ? " · Your best " + "⭐".repeat(best) : ""}</span></div>
+      ${buddy("Ready? Take your time. There is no timer!")}
+      <button class="btn mq-start" data-act="start">▶ Start test</button>
+      ${toggleHtml()}
+    </div>`;
+    toTop();
+    auto(heading + ". " + n + " questions.");
+  }
+
   /* ---------- home: tests grouped by date, newest first ---------- */
-  let S = null;
   function home() {
-    S = null; hush();
+    S = null; PAGE = null; hush();
+    document.title = BASE_TITLE;
     const list = tests().sort((a, b) => b.date.localeCompare(a.date));
     const days = [];
     list.forEach(t => {
@@ -123,7 +166,7 @@
       if (last && last.date === t.date) last.tests.push(t); else days.push({ date: t.date, tests: [t] });
     });
     host.innerHTML = `<div class="mq mq-enter">
-      <div class="mq-head"><h2>Ad-hoc Math Tests</h2>${toggleHtml()}</div>
+      <div class="mq-head"><h2>Ad-hoc Tests</h2>${toggleHtml()}</div>
       ${buddy("Hoo-hoo! Pick a test. Take your time. There is no timer!")}
       <button class="btn mq-mixbtn" data-act="mix">🎲 Practice Mix <small>10 questions from all the tests</small></button>
       ${days.map(d => `<section class="mq-day" aria-label="${esc(niceDate(d.date))}">
@@ -134,22 +177,32 @@
     toTop();
   }
   function card(t) {
-    const lv = LV[t.difficulty], n = t.count || 10, best = (A.results[t.id] || {}).best || 0;
-    return `<button class="mq-test" data-test="${esc(t.id)}"
+    const lv = LV[t.difficulty], n = countOf(t), best = (A.results[t.id] || {}).best || 0;
+    return `<a class="mq-test" href="#tests/${esc(t.id)}"
         aria-label="${esc(niceDate(t.date) + ": " + t.title)}. ${n} questions. ${lv[1]}.${best ? " Best: " + best + " stars." : ""}">
       <span class="mq-badge lv-${t.difficulty}" aria-hidden="true">${lv[0]}</span>
       <span class="mq-tt"><b>${esc(t.title)}</b>
         <span class="mq-meta">${n} questions · ${lv[1]}${best ? " · Best " + "⭐".repeat(best) : ""}</span></span>
-      <span class="mq-go" aria-hidden="true">▶</span></button>`;
+      <span class="mq-go" aria-hidden="true">▶</span></a>`;
   }
 
   /* ---------- a test ---------- */
+  function shuffle(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  // Saved questions are engine specs: rebuild them (the engine works the answers out again).
+  const fromSpecs = t => (t.questions || []).map(spec => { try { return M.build(spec); } catch (e) { return null; } }).filter(Boolean);
+  const fromRecipe = (r, seed) => M.createSession({ seed, count: r.count || 10, difficulty: r.difficulty, types: r.types && r.types.length ? r.types : null }).questions;
+  // On a replay, choices move around (ids stay, so answers still check); true/false keeps its order.
+  const reshuffle = q => q.answerKind === "choice" && q.type !== "true_false_equations" ? Object.assign({}, q, { options: shuffle(q.options) }) : q;
   function mixQuestions() {
-    const pool = [];
+    let pool = [];
     tests().forEach(t => {
-      try { pool.push(...M.createSession({ count: t.count || 10, difficulty: t.difficulty, types: t.types }).questions); } catch (e) {}
+      try { pool.push(...(t.recipe ? fromRecipe(t.recipe, null) : fromSpecs(t))); } catch (e) {}
     });
-    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    pool = shuffle(pool);
     const seen = {}, out = [];
     for (const q of pool) {
       if (seen[q.mathKey] || seen[q.id]) continue;
@@ -162,12 +215,13 @@
   function begin(test, fresh) {
     let qs = [];
     try {
-      qs = test.mix ? mixQuestions() : M.createSession({
-        seed: !fresh && test.seed != null ? test.seed : null,
-        count: test.count || 10, difficulty: test.difficulty, types: test.types
-      }).questions;
+      if (test.mix) qs = mixQuestions();
+      else if (test.questions && test.questions.length && !(fresh && test.recipe)) {
+        qs = fromSpecs(test);
+        if (fresh) qs = shuffle(qs).map(reshuffle);                    // same questions, new order
+      } else if (test.recipe) qs = fromRecipe(test.recipe, !fresh && test.recipe.seed != null ? test.recipe.seed : null);
     } catch (e) { qs = []; }
-    if (!qs.length) { home(); owl("oops", "Hmm, that test isn't ready yet. Ask a grown-up to check it."); return; }
+    if (!qs.length) { goHome(); owl("oops", "Hmm, that test isn't ready yet. Ask a grown-up to check it."); return; }
     qs.forEach((q, k) => { q.number = k + 1; });
     S = { test, qs, i: 0, res: [], streak: 0, walk: 0 };
     showQ();
@@ -206,6 +260,10 @@
   }
 
   function pictureHtml(q) {
+    if (q.type === "word_match") {
+      return `<div class="mq-word"><span class="mq-wordtext" lang="en">${esc(q.word)}</span>${TTS
+        ? `<button class="say" data-act="read" aria-label="Say the word again">🔊</button>` : ""}</div>`;
+    }
     if (q.type === "area_model") return `<div class="mq-area-wrap"></div>`;
     if (q.type === "word_multiply" && q.picture) {
       const p = q.picture;
@@ -251,7 +309,7 @@
     moveWalker();
     drawAnswer();
     toTop();
-    auto(q.audioText);
+    if (q.type === "word_match") speak(q.audioText); else auto(q.audioText);   // sight words are always read aloud
   }
 
   /* ---------- answering ---------- */
@@ -260,7 +318,10 @@
     if (!box) return;
     const a = document.activeElement, keep = a && host.contains(a) && ["f", "key", "opt"].map(k => a.getAttribute("data-" + k) && `[data-${k}="${a.getAttribute("data-" + k)}"]`).find(Boolean);
     if (q.answerKind === "choice") {
-      box.innerHTML = `<p class="mq-tip">${q.selectCount === 2 ? "Pick 2 answers, then tap Check." : "Tap every true one, then tap Check."}</p>
+      const tip = q.selectCount === 2 ? "Pick 2 answers, then tap Check." : q.selectCount === 1
+        ? (q.type === "word_match" ? "Tap the same word, then tap Check." : "Tap the right answer, then tap Check.")
+        : "Tap every true one, then tap Check.";
+      box.innerHTML = `<p class="mq-tip">${tip}</p>
         <div class="mq-opts" role="group" aria-label="Answer choices">${q.options.map(o => {
           const on = S.picked.includes(o.id);
           return `<button class="mq-opt ${S.marks[o.id] || ""}" data-opt="${o.id}" aria-pressed="${on}" ${S.done ? "disabled" : ""}>
@@ -317,7 +378,11 @@
     if (!S || S.done) return;
     const i = S.picked.indexOf(id);
     if (i >= 0) S.picked.splice(i, 1);
-    else { if (S.q.selectCount === 2 && S.picked.length >= 2) S.picked.shift(); S.picked.push(id); }
+    else {
+      if (S.q.selectCount === 1) S.picked.length = 0;
+      if (S.q.selectCount === 2 && S.picked.length >= 2) S.picked.shift();
+      S.picked.push(id);
+    }
     delete S.marks[id];
     drawAnswer();
   }
@@ -326,7 +391,7 @@
     const q = S.q;
     if (q.answerKind === "choice") {
       if (q.selectCount === 2 && S.picked.length !== 2) return "Pick 2 answers first.";
-      return S.picked.length ? "" : "Tap the true ones first.";
+      return S.picked.length ? "" : q.selectCount === 1 ? "Tap an answer first." : "Tap the true ones first.";
     }
     const empty = q.fields.find(f => !S.vals[f.id]);
     if (!empty) return "";
@@ -444,7 +509,7 @@
         ? `<h3>You got these right:</h3><ul>${right.map(x => `<li>✅ ${TOPIC[x]}</li>`).join("")}</ul>`
         : `<h3>You practised:</h3><ul>${tried.map(x => `<li>💪 ${TOPIC[x]}</li>`).join("")}</ul>`}</div>
       <div class="mq-actions">
-        <button class="btn" data-act="again">🔁 Try again with new numbers</button>
+        <button class="btn" data-act="again">🔁 ${t.mix || t.recipe ? "Try again with new numbers" : "Try again"}</button>
         <button class="btn ghost" data-act="home">📋 All tests</button>
       </div>
       ${toggleHtml()}
@@ -458,10 +523,9 @@
 
   /* ---------- events ---------- */
   host.addEventListener("click", e => {
-    const b = e.target.closest("[data-act],[data-test],[data-opt],[data-f],[data-key]");
+    const b = e.target.closest("[data-act],[data-opt],[data-f],[data-key]");
     if (!b || b.disabled) return;
     const get = k => b.getAttribute("data-" + k);
-    if (get("test")) { const t = tests().find(x => x.id === get("test")); if (t) begin(t); return; }
     if (get("key")) return type(get("key"));
     if (get("opt")) return toggleOpt(get("opt"));
     if (get("f")) {
@@ -469,7 +533,8 @@
       S.sel = get("f"); drawAnswer(); return;
     }
     switch (get("act")) {
-      case "home": return home();
+      case "home": return goHome();
+      case "start": return PAGE && begin(PAGE);
       case "mix": return begin(MIX);
       case "read": return S && speak(S.q.audioText);
       case "readsteps": return S && speak(S.q.steps.join(" "));
@@ -511,5 +576,7 @@
   });
 
   if (window.__mqTest) window.__mqState = () => S;   // headless tests only (test/adhoc-ui.js)
+  window.addEventListener("hashchange", route);
   home();
+  route();
 })();

@@ -23,11 +23,11 @@
   <nav class="grownup-links" aria-label="Grown-ups">
     <a class="admin-link" href="classroom/index.html" title="Class Corner — a teacher's class points board (grown-ups)">🏫 Class</a>
     <a class="admin-link" href="academy/syllabus.html" title="The Academy syllabus: PreK–5, built from the US, UK and Swedish curricula (grown-ups)">📚 Syllabus</a>
-    <a class="admin-link" href="admin/index.html" title="Admin — progress, charts &amp; students (grown-ups)">⚙️ Admin</a>
   </nav>
 
   <header class="hub-header">
-    <div class="hub-logo">🎒</div>
+    <!-- Grown-ups: press and hold the 🎒 for 3 seconds to open Admin (no visible link for children). -->
+    <div class="hub-logo" id="hubLogo">🎒</div>
     <h1 class="hub-title">Kids Learning Hub</h1>
     <p class="hub-subtitle">Pick an app and start your learning adventure! 🌟</p>
   </header>
@@ -302,5 +302,16 @@
   <script src="js/settings.js"></script>
   <script src="js/rewardkit.js"></script>
   <script src="js/hub.js"></script>
+  <script>
+    // Hidden grown-up door to /admin: hold the 🎒 logo for 3 seconds. Admin itself still asks for the parent PIN.
+    (function () {
+      var logo = document.getElementById("hubLogo"), t = null;
+      if (!logo) return;
+      var stop = function () { clearTimeout(t); t = null; };
+      logo.addEventListener("pointerdown", function () { stop(); t = setTimeout(function () { location.href = "admin/index.html"; }, 3000); });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) { logo.addEventListener(ev, stop); });
+      logo.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    })();
+  </script>
 </body>
 </html>

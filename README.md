@@ -40,8 +40,17 @@ the wheel.
 
 ### ⚙️ Admin (for grown-ups)
 
-One [Admin page](./admin/index.html) covers **every app** (the **⚙️ Admin** button, top-right of
-the Hub; guarded by a grown-up math question, or a PIN you set). Tabs:
+One [Admin page](./admin/index.html) covers **every app**. Tabs are listed below.
+
+> **Opening Admin:** there is no visible Admin button on the Hub, so children can't find it.
+> **Press and hold the 🎒 logo for 3 seconds** (or open `admin/` directly). A **4-digit parent PIN** now guards
+> Admin and Class Corner: set on first use, stored only as a salted hash, 5 wrong tries lock it for 2 minutes,
+> 🔑 Change PIN in the header.
+>
+> **🧮 Ad-hoc Tests** ([admin/tests.html](./admin/tests.html)) makes children's tests three ways: the question
+> builder (preview first), worksheet photos + typing each question, or a sight-word list. Tests stay drafts until
+> you publish them, and each published test gets its own page in Sticker Quest (`#tests/<id>`). Filter by date,
+> subject and grade, search, duplicate, print a worksheet with an answer key, and back everything up as JSON.
 
 | Tab | What it shows |
 | --- | --- |

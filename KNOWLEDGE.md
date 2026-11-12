@@ -1,3 +1,16 @@
+## FEATURE — Admin → Ad-hoc Tests (builder, worksheets, sight words) + parent PIN · 2026-11-11
+- Saved tests hold engine SPECS only (`{type, difficulty, params}`). The kids' page rebuilds them with `MathQuestions.build`, so answers are always recomputed and an imported file can't inject markup. The test checks `build(q.spec)` equals every generated question.
+- `choose_correct_ways` picks its options from `params.seed`, so rebuilding gives the same choices. Hand-made ones derive the seed from x and y.
+- Store: `hub_adhocDB` `{schema:1, tests}` (js/adhocstore.js). Photos go to a SEPARATE IndexedDB `KidsHubAdhocFiles`, not a version bump of `KidsLearningHub` (only additive DB changes). Export/import bundles both.
+- The first Admin visit seeds the sample tests as published. Until then the kids' page shows `ADHOC_TESTS` directly. `window.ADHOC_TESTS` is undefined (top-level const), so use `typeof`.
+- js/adminpin.js has its own SHA-256 (salt + 2000 rounds), not crypto.subtle, so it behaves the same on file://, localhost and the WebView. Lock state lives in `hub_adminLock` (survives reload).
+- Admin, Class Corner and the tests and print pages share `sessionStorage.adm_ok`. It is per tab, so a new tab asks for the PIN again.
+- An old djb2 `hub_adminPin` opens the gate once and is re-saved salted. If the old PIN was longer than 4 digits, the parent is made to pick a 4-digit one.
+- The Hub home has no ⚙️ Admin link any more: hold the 🎒 logo for 3 s. "Reset everything" keeps `hub_adminPin2`, `hub_adminLock` and `hub_adhocDB`.
+- Each test has its own kids' page at `stickerquest/index.html#tests/<id>` (hash routes: no server on file:// or in the APK).
+- Bash tool: a very long `python - <<'EOF'` heredoc failed to parse ("unexpected EOF"). Write the patch script to a file instead.
+- Tests: `node test/admin-ui.js` (PIN, lockout, publish, kids' pages, import tampering, print, no external requests).
+
 ## FEATURE — Sticker Quest tab 5: Ad-hoc Math Tests page · 2026-11-11
 - `src/adhoc.js` draws the tab (`#adhoc`). Tests come from `src/data/adhocTests.js` (samples) plus `hub_adhocTests`. Saved as `save.adhoc` in `stickerQuest_v1`.
 - `U2_OWL` is a top-level `const`, so `window.U2_OWL` is undefined. Check it with `typeof`.

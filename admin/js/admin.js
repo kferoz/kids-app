@@ -1229,7 +1229,7 @@
         }
         return new Promise(function (r) { setTimeout(r, 800); });   // let the download start before clearing
       }).then(function () {
-        return ADB.resetAll(["hub_adminPin"]);
+        return ADB.resetAll(["hub_adminPin", "hub_adminPin2", "hub_adminLock", "hub_adhocDB"]);
       }).then(function () {
         audit("reset_all", {});
         toast("Everything was reset");
@@ -1237,16 +1237,11 @@
       }).catch(function (e) { toast(e.message); });
     });
 
-    var pin = section(host, "🔒 Admin lock", "By default a grown-up math question guards this page. Set a PIN for a stronger lock.");
-    var hasPin = !!localStorage.getItem("hub_adminPin");
-    pin.insertAdjacentHTML("beforeend", '<div class="row-actions"><input id="pinNew" type="password" inputmode="numeric" maxlength="8" placeholder="New PIN (4–8 digits)">' +
-      '<button class="btn" id="pinSet">Set PIN</button>' + (hasPin ? '<button class="btn" id="pinClear">Remove PIN</button>' : "") +
-      '<span class="muted small">' + (hasPin ? "A PIN is set." : "No PIN set.") + "</span></div>");
-    $("pinSet").addEventListener("click", function () {
-      var v = $("pinNew").value; if (!/^\d{4,8}$/.test(v)) { toast("Use 4–8 digits"); return; }
-      localStorage.setItem("hub_adminPin", hash(v)); audit("pin_set", {}); toast("PIN set"); renderTab();
-    });
-    if ($("pinClear")) $("pinClear").addEventListener("click", function () { localStorage.removeItem("hub_adminPin"); audit("pin_clear", {}); toast("PIN removed"); renderTab(); });
+    var pin = section(host, "🔒 Admin lock", "A 4-digit parent PIN guards every Admin page. After 5 wrong tries it locks for 2 minutes.");
+    pin.insertAdjacentHTML("beforeend", '<div class="row-actions"><button class="btn" id="pinChange">🔑 Change PIN</button>' +
+      '<button class="btn" id="pinLock">🔒 Lock Admin now</button></div>');
+    $("pinChange").addEventListener("click", function () { AdminPin.changeDialog(function () { audit("pin_change", {}); toast("PIN changed"); }); });
+    $("pinLock").addEventListener("click", function () { AdminPin.lock(); location.href = "../index.html"; });
 
     var apps = section(host, "🧩 App settings", "Some apps keep their own extra settings.");
     apps.insertAdjacentHTML("beforeend", '<ul class="plain"><li>📖 <b>Reading Adventures</b> — money-reward milestones and student names: open the app, then its 🛠️ Admin button. <a href="../adventurepack/readingadventures/index.html">Open Reading Adventures →</a></li></ul>');
@@ -1265,24 +1260,12 @@
   }
   var toastT = null;
   function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("show"); }, 2400); }
-  function hash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return "h" + (h >>> 0).toString(36); }
 
   /* ---------- grown-up gate ---------- */
+  // The parent PIN (js/adminpin.js): 4 digits, salted hash, 5 wrong tries lock it for 2 minutes.
   function gate(done) {
-    if (sessionStorage.getItem("adm_ok") === "1") { done(); return; }
-    var g = $("gate"), pinHash = localStorage.getItem("hub_adminPin");
-    g.hidden = false;
-    var a = 6 + Math.floor(Math.random() * 7), b = 7 + Math.floor(Math.random() * 6);
-    $("gateQ").textContent = pinHash ? "Enter the admin PIN" : "Grown-ups only: what is " + a + " × " + b + "?";
-    $("gateIn").setAttribute("inputmode", "numeric");
-    $("gateForm").onsubmit = function (ev) {
-      ev.preventDefault();
-      var v = $("gateIn").value.trim();
-      var ok = pinHash ? hash(v) === pinHash : +v === a * b;
-      if (ok) { sessionStorage.setItem("adm_ok", "1"); g.hidden = true; audit("admin_open", {}); done(); }
-      else { $("gateMsg").textContent = "Not quite — try again."; $("gateIn").value = ""; ADB.add({ type: "admin", action: "gate_failed", app: "admin" }); }
-    };
-    $("gateIn").focus();
+    var fresh = !AdminPin.isOpen();
+    AdminPin.gate({ title: "Learning Hub Admin", back: "../index.html", onOpen: function () { if (fresh) audit("admin_open", {}); done(); } });
   }
 
   /* ---------- load ---------- */

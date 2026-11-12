@@ -8,19 +8,7 @@
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
-  <!-- Grown-up gate (math question or PIN) -->
-  <div class="gate" id="gate" hidden>
-    <form class="gate-card" id="gateForm">
-      <div class="gate-icon">⚙️</div>
-      <h1>Learning Hub Admin</h1>
-      <p id="gateQ"></p>
-      <input id="gateIn" type="password" autocomplete="off" aria-label="Answer" />
-      <button class="btn primary" type="submit">Open Admin</button>
-      <p class="gate-msg" id="gateMsg" role="alert"></p>
-      <a class="back" href="../index.html">← Back to the Hub</a>
-    </form>
-  </div>
-
+  <!-- The parent PIN screen (js/adminpin.js) covers the page until it is entered. -->
   <div id="app" hidden>
     <header class="top">
       <div class="brand">
@@ -30,6 +18,7 @@
           <p class="sub">Progress, students and insights for every app</p>
         </div>
       </div>
+      <a class="btn" href="tests.html" title="Make, publish, print and back up the children's Ad-hoc Tests">🧮 Ad-hoc Tests</a>
       <a class="btn" href="../classroom/index.html" title="Class Corner: a teacher's class points board">🏫 Class Corner</a>
       <button class="btn" id="refresh" title="Reload the latest activity">↻ Refresh</button>
     </header>
@@ -55,6 +44,7 @@
   <dialog id="dialog"></dialog>
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="../js/adminpin.js"></script>
   <script src="../js/activitydb.js"></script>
   <script src="../js/kidsdb.js"></script>
   <script src="../js/settings.js"></script>

@@ -142,3 +142,14 @@
   .mq-tpl{font-size:21px}
   .mq-blank{min-width:72px}
 }
+
+/* one test's own page (#tests/<id>) */
+.mq-test{text-decoration:none}
+.mq-back{align-self:flex-start;color:#4B3BB3;font-weight:700;min-height:48px;display:inline-flex;align-items:center}
+.mq-ptitle{font-size:26px;line-height:1.25}
+.mq-pinfo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--ink)}
+.mq-start{font-size:24px;min-height:68px;background:var(--grape)}
+
+/* sight words: the word to find */
+.mq-word{display:flex;align-items:center;justify-content:center;gap:14px;background:#FFF8DD;border:3px solid var(--ink);border-radius:20px;padding:14px}
+.mq-wordtext{font:700 48px/1.1 "Fredoka","Trebuchet MS",sans-serif;letter-spacing:.02em;word-break:break-word}

@@ -38,7 +38,9 @@ function verify(q, where){
   if (!Array.isArray(q.steps) || q.steps.length < 2) err(`${tag}: needs step-by-step`);
   if (/[×=()+]/.test(q.audioText)) err(`${tag}: audioText has symbols: ${q.audioText}`);
   // no number above 9,999 anywhere a child sees or hears
-  const shown = JSON.stringify(q, (k, v) => (k === 'svg' || k === 'id' || k === 'mathKey') ? undefined : v);
+  const shown = JSON.stringify(q, (k, v) => (k === 'svg' || k === 'id' || k === 'mathKey' || k === 'spec') ? undefined : v);
+  // a saved test stores only the spec: rebuilding it must give the very same question
+  if (JSON.stringify(M.build(q.spec)) !== JSON.stringify(Object.assign({}, q, {number: undefined}))) err(`${tag}: build(spec) gives a different question`);
   (shown.match(/\d[\d,]*\d|\d/g) || []).forEach(s => { if (num(s) > M.MAX) err(`${tag}: number ${s} is above 9,999`); });
 
   if (q.answerKind === 'input'){
@@ -188,6 +190,45 @@ if (!throws(() => M.createSession({difficulty: 'super'}))) err('unknown difficul
 // 4. Worksheet-style examples come out as expected.
 const ex = M.generate('fill_blanks_decompose', 'easy', 7);
 if (!/^\d+ × \d = \(\d0 × \d\) \+ \(\d × \d\) = {2}\+ {2}= $/.test(text(ex))) err('decompose template looks wrong: ' + text(ex));
+
+// 5. Hand-made questions (Admin "type it by hand") and sight words.
+const b = (type, params, difficulty) => M.build({type, params, difficulty: difficulty || 'auto'});
+const fails = (f, why) => { try { f(); err('should refuse: ' + why); } catch (e) {} };
+const h = b('single_multiply', {a: 157, b: 6});
+if (h.answer !== 942 || h.difficulty !== 'medium') err('hand single 157 × 6');
+verify(h, 'hand');
+verify(b('true_false_equations', {eqs: [[62, 4, 248], [31, 4, 134], [7, 6, 42]]}), 'hand');
+if (b('true_false_equations', {eqs: [[62, 4, 248], [31, 4, 188]]}).correctAnswers.join() !== 'A') err('hand TF key');
+fails(() => b('true_false_equations', {eqs: [[3, 4, 13], [5, 5, 24]]}), 'TF with nothing true');
+const w = b('choose_correct_ways', {x: 8, y: 300});
+if (w.difficulty !== 'medium') err('ways 8 × 300 should be medium');
+verify(w, 'hand');
+if (JSON.stringify(b('choose_correct_ways', {x: 8, y: 300})) !== JSON.stringify(w)) err('hand ways must be stable');
+fails(() => b('choose_correct_ways', {x: 13, y: 300}), 'ways with 13');
+verify(b('fill_blanks_decompose', {a: 306, b: 3}), 'hand');
+fails(() => b('fill_blanks_decompose', {a: 300, b: 3}), 'decompose 300 (one part)');
+verify(b('area_model', {a: 14, b: 8}), 'hand');
+verify(b('area_model', {a: 23, b: 14, split: 'second'}), 'hand');
+verify(b('word_multiply', {g: 6, e: 12, who: 'Sam', thing: 0}), 'hand');
+fails(() => b('word_multiply', {g: 6, e: 12, who: '<img src=x>', thing: 0}), 'markup in a name');
+fails(() => b('single_multiply', {a: 999, b: 99}), 'answer over 9,999');
+fails(() => b('area_model', {a: '1<b>', b: 3}), 'text instead of numbers');
+const mc = b('multiple_choice', {prompt: 'Which is a noun?', options: ['run', 'dog', 'blue'], answer: 1});
+if (!M.check(mc, ['B']) || M.check(mc, ['A']) || mc.selectCount !== 1) err('multiple choice check');
+fails(() => b('multiple_choice', {prompt: 'Q', options: ['only one'], answer: 0}), 'MC with 1 option');
+for (let seed = 1; seed <= 300; seed++){
+  const list = ['the', 'said', 'was', 'they', 'have', 'come'];
+  const word = list[seed % list.length], n = 3 + seed % 2;
+  const opts = M.wordOptions(word, list, n, seed);
+  if (opts.length !== n || !opts.includes(word) || new Set(opts.map(x => x.toLowerCase())).size !== n) err(`wordOptions ${word}: ${opts}`);
+  const q = b('word_match', {word, options: opts});
+  if (!M.check(q, [q.options.find(o => o.text === word).id]) || q.correctAnswers.length !== 1) err(`word_match ${word}`);
+  if (/[×=()+]/.test(q.audioText) || !q.audioText.includes(word)) err(`word_match audio ${word}`);
+}
+fails(() => b('word_match', {word: 'said', options: ['said', 'sad']}), 'word match with 2 choices');
+fails(() => b('word_match', {word: 'said', options: ['was', 'sad', 'the']}), 'word missing from choices');
+fails(() => b('word_match', {word: '<b>', options: ['<b>', 'a', 'b']}), 'markup word');
+if (M.areaSvg({parts: [10, 4], side: 8, labels: ['<script>', 'x'], fields: ['p1', 'p2'], title: '"'}).includes('<script>')) err('areaSvg must escape labels');
 
 console.log(fail ? `\n${fail} problem(s) in ${checked} questions` : `OK: ${checked} questions checked`);
 process.exit(fail ? 1 : 0);

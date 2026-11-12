@@ -27,6 +27,8 @@
   /* ---------- grown-up gate (same keys and hash as Admin) ---------- */
   function hash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return "h" + (h >>> 0).toString(36); }
   function gate(done) {
+    // The shared parent PIN (js/adminpin.js) guards Class Corner the same way as Admin.
+    if (window.AdminPin) { AdminPin.gate({ title: "Class Corner", back: "../index.html", onOpen: done }); return; }
     var ok0 = false; try { ok0 = sessionStorage.getItem("adm_ok") === "1"; } catch (e) {}
     if (ok0) { done(); return; }
     var g = $("gate"), pin = null; try { pin = localStorage.getItem("hub_adminPin"); } catch (e) {}

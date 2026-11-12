@@ -53,6 +53,13 @@ const server = http.createServer((req, res) => {
       options: q.options ? q.options.map(o => o.id) : null, correct: q.correctAnswers, model: q.model ? q.model.fields : null,
       ids: S.qs.map(x => x.id)};
   });
+  // Each test has its own page (#tests/<id>) with a Start button.
+  async function startTest(page, id){
+    await page.click(`#adhoc a[href="#tests/${id}"]`);
+    await page.waitForSelector('#adhoc [data-act="start"]');
+    await page.click('#adhoc [data-act="start"]');
+    await page.waitForSelector('#adhoc .mq-q');
+  }
   async function typeNumber(page, n){ for (const d of String(n)) await page.click(`#adhoc .mq-key[data-key="${d}"]`); }
   async function answer(page, s, right){
     if (s.kind === 'choice'){
@@ -96,7 +103,7 @@ const server = http.createServer((req, res) => {
 
     /* ---- 2. Play the Chapter 5 check: wrong→explain→retry, hints, streak, stickers ---- */
     const stickers0 = await page.evaluate(() => save.stickers.length);
-    await page.click('#adhoc .mq-test[data-test="ch5-check"]');
+    await startTest(page, 'ch5-check');
     await page.waitForSelector('#adhoc .mq-q');
     const fs1 = await page.$eval('#adhoc .mq', el => parseFloat(getComputedStyle(el).fontSize));
     ok(fs1 >= 20, 'body text 20px+');
@@ -157,7 +164,7 @@ const server = http.createServer((req, res) => {
     ok(s.ids.join() !== firstIds.join(), 'try again uses new numbers');
     // keyboard typing works on an input question
     await page.click('#adhoc [data-act="home"]');
-    await page.click('#adhoc .mq-test[data-test="ch5-area"]');
+    await startTest(page, 'ch5-area');
     s = await state(page);
     for (const f of s.fields){ await page.click(`#adhoc .mq-blank[data-f="${f.id}"]`); await page.keyboard.type(String(f.answer)); }
     await page.keyboard.press('Enter');
@@ -173,14 +180,14 @@ const server = http.createServer((req, res) => {
   /* ---- 3. Hard test aced → $1 challenge; a fully missed question shows the answer ---- */
   {
     const {ctx, page} = await open();
-    await page.click('#adhoc .mq-test[data-test="ch5-big"]');
+    await startTest(page, 'ch5-big');
     let s = await state(page);
     await answer(page, s, false); s = await state(page); await answer(page, s, false);
     s = await state(page);
     ok(s.done, 'two misses move on');
     ok(await page.$$eval('#adhoc .shown', x => x.length) > 0, 'the answer is shown after two misses');
     await page.click('#adhoc [data-act="home"]');
-    await page.click('#adhoc .mq-test[data-test="ch5-big"]');
+    await startTest(page, 'ch5-big');
     for (let k = 0; k < 8; k++){
       s = await state(page); await answer(page, s, true); await clearParty(page);
       await page.click('#adhoc [data-act="next"]');
@@ -197,7 +204,7 @@ const server = http.createServer((req, res) => {
   {
     const {ctx, page} = await open({noTts: true, reduce: true});
     ok(!(await page.$('#adhoc .mq-toggle')), 'no Read-everything toggle without speech');
-    await page.click('#adhoc .mq-test[data-test="ch5-warmup"]');
+    await startTest(page, 'ch5-warmup');
     ok(!(await page.$('#adhoc [data-act="read"]')), 'no 🔊 without speech');
     const s = await state(page); await answer(page, s, true);
     ok(!(await page.$('.mq-confetti')), 'no confetti with reduced motion');

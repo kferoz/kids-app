@@ -27,3 +27,7 @@ Reading (Joseph Bruchac passage + one-minute read-aloud). Every finished task ea
   one question at a time with a star path, number pad, tap-to-fill blanks, tappable area model, one hint, one retry with
   the steps, stickers, 🔥 streak, Hoot reacting, and an end screen with stars. Files: `src/adhoc.js`, `src/adhoc.css`,
   `src/data/adhocTests.js`. Browser test: `node test/adhoc-ui.js` (needs playwright-core).
+- **Grown-ups make the tests** (2026-11-11) in `admin/tests.html` (parent PIN): question builder with preview, worksheet
+  photos + type-by-hand (same question types, plus multiple choice and sight-word match), sight-word lists (.txt/.csv),
+  draft/publish, duplicate, filters, print view (`admin/print.html#<id>`) and JSON backup. Only published tests show here;
+  each has its own page at `index.html#tests/<id>`. Data: `js/adhocstore.js`. Test: `node test/admin-ui.js`.

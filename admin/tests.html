@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ad-hoc Tests · Admin</title>
+  <meta name="description" content="Grown-ups only: make, organise, publish, print and back up the children's Ad-hoc Tests." />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/tests.css" />
+</head>
+<body>
+  <!-- The parent PIN (js/adminpin.js) covers this page until it is entered. -->
+  <div id="app" hidden>
+    <header class="top">
+      <div class="brand">
+        <a class="back" href="index.html" title="Back to Admin">⚙️</a>
+        <div>
+          <h1>Ad-hoc Tests</h1>
+          <p class="sub">Make tests from worksheets, the question builder or sight-word lists. Only published tests reach the children.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="exportBtn" title="Download every test and photo as one JSON backup file">⬇ Export</button>
+        <label class="btn" title="Load tests from a JSON backup file">⬆ Import<input type="file" id="importFile" accept=".json,application/json" hidden></label>
+        <button class="btn" id="pinBtn">🔑 Change PIN</button>
+        <button class="btn" id="lockBtn" title="Close Admin on this device">🔒 Lock</button>
+      </div>
+    </header>
+    <main id="view" class="panel"></main>
+    <footer class="foot">Stored only on this device: tests in localStorage “hub_adhocDB”, worksheet photos in IndexedDB “KidsHubAdhocFiles”. Nothing is sent anywhere.</footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../js/adminpin.js"></script>
+  <script src="../adventurepack/stickerquest/src/engine/mathQuestions.js"></script>
+  <script src="../adventurepack/stickerquest/src/data/adhocTests.js"></script>
+  <script src="../js/adhocstore.js"></script>
+  <script src="js/tests.js"></script>
+</body>
+</html>
