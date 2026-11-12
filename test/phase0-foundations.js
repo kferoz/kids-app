@@ -73,7 +73,7 @@ function browser(seed = {}){
     if (!fs.existsSync(path.join(ROOT, file))) err(`${it.id}: ${file} does not exist`);
   });
   // Deep links must be ones the app actually handles.
-  const hashes = { '#science': 'adventurepack/readingadventures/index.html', '#unit2': 'adventurepack/stickerquest/index.html',
+  const hashes = { '#science': 'adventurepack/readingadventures/index.html', '#unit2': 'adventurepack/stickerquest/index.html', '#adhoc': 'adventurepack/stickerquest/index.html',
     '#ch1': 'adventurepack/piratemath/js/app.js', '#ch2': 'adventurepack/piratemath/js/app.js',
     '#g=kg': 'readgym/js/app.js' };
   C.ITEMS.filter(it => it.href.includes('#')).forEach(it => {

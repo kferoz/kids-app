@@ -23,3 +23,7 @@ Reading (Joseph Bruchac passage + one-minute read-aloud). Every finished task ea
 - **Ad-hoc Math Tests engine** (2026-11-11, no UI yet): `src/engine/mathQuestions.js` generates Chapter 5
   multiplication questions: single multiply, true/false equations, choose-two ways, fill-in decompose,
   area model (inline SVG) and easy word problems. Seeded and replayable. Test: `node test/math-questions.js`.
+- **5. Ad-hoc Tests** tab (2026-11-11; `index.html#adhoc`): tests grouped by date with ★/★★/★★★ badges, Practice Mix,
+  one question at a time with a star path, number pad, tap-to-fill blanks, tappable area model, one hint, one retry with
+  the steps, stickers, 🔥 streak, Hoot reacting, and an end screen with stars. Files: `src/adhoc.js`, `src/adhoc.css`,
+  `src/data/adhocTests.js`. Browser test: `node test/adhoc-ui.js` (needs playwright-core).

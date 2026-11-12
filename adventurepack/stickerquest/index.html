@@ -65,6 +65,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
 </style>
 <link rel="stylesheet" href="../../js/quizkit/quizkit.css">
 <link rel="stylesheet" href="src/unit2.css">
+<link rel="stylesheet" href="src/adhoc.css">
 <script src="../../js/profile-store.js"></script>
 <script src="../../js/voice.js"></script>
 <script src="../../js/activitydb.js"></script>
@@ -86,6 +87,7 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
     <button class="tab" role="tab" data-tab="groups" aria-selected="false">2. Equal Groups</button>
     <button class="tab" role="tab" data-tab="reading" aria-selected="false">3. Reading</button>
     <button class="tab" role="tab" data-tab="unit2" aria-selected="false">4. Unit 2 Test Prep</button>
+    <button class="tab" role="tab" data-tab="adhoc" aria-selected="false">5. Ad-hoc Tests</button>
   </nav>
 
   <!-- ACTIVITY 1: fact families -->
@@ -171,6 +173,9 @@ input:focus,button:focus-visible,label:focus-within{outline:4px solid var(--sun)
   <!-- ACTIVITY 4: Unit 2 Test Prep (the shared Quiz Kit draws everything here, see src/unit2.js) -->
   <section id="unit2" class="card u2" role="tabpanel" aria-label="Unit 2 Test Prep" hidden></section>
 
+  <!-- ACTIVITY 5: Ad-hoc Math Tests (src/adhoc.js draws everything here) -->
+  <section id="adhoc" class="card" role="tabpanel" aria-label="Ad-hoc Math Tests" hidden></section>
+
   <!-- STICKER BOOK -->
   <section class="card" aria-labelledby="bookTitle">
     <h2 id="bookTitle">My Sticker Book</h2>
@@ -238,8 +243,9 @@ document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", (
   });
   try { speechSynthesis.cancel(); } catch (e) {}
 }));
-// index.html#unit2 opens straight onto Unit 2 Test Prep.
-if (location.hash === "#unit2") document.querySelector('[data-tab="unit2"]').click();
+// index.html#unit2 / #adhoc opens straight onto that tab.
+const hashTab = [...document.querySelectorAll(".tab")].find(b => "#" + b.dataset.tab === location.hash);
+if (hashTab) hashTab.click();
 
 /* ---------- 1. Fact families ---------- */
 // The first three are from the worksheet; the rest are extra practice.
@@ -441,5 +447,8 @@ renderBook();
 <script src="../../js/quizkit/quizkit.js"></script>
 <script src="src/unit2Art.js"></script>
 <script src="src/unit2.js"></script>
+<script src="src/engine/mathQuestions.js"></script>
+<script src="src/data/adhocTests.js"></script>
+<script src="src/adhoc.js"></script>
 </body>
 </html>

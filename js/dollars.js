@@ -155,6 +155,13 @@
         var c = obj(obj(g("stickerQuest_v1")).completed), gr = obj(c.groups);
         return { have: arr(c.facts).length + Object.keys(gr).filter(function (k) { return arr(gr[k]).length >= 3; }).length + (c.reading ? 1 : 0), need: 15 };
       } },
+    { app: "stickerquest", id: "stickerquest:adhoc-hard", title: "Get 3 stars on a ★★★ hard Ad-hoc Math Test (each one!)",
+      items: function (g) {
+        return arr(obj(obj(g("stickerQuest_v1")).adhoc).aced).map(function (t) {
+          return { id: "stickerquest:adhoc-" + t, title: "3 stars on a hard math test" };
+        });
+      },
+      progress: function (g) { return { have: arr(obj(obj(g("stickerQuest_v1")).adhoc).aced).length, need: 1, count: true }; } },
     { app: "billofrights", id: "billofrights:perfect", title: "Build the whole answer with every check right",
       items: function (g) { return (obj(g(PERFECT)).billofrights || 0) >= 1 ? [{ id: "billofrights:perfect", title: "Built the whole answer" }] : []; },
       progress: function (g) { return { have: Math.min(1, obj(g(PERFECT)).billofrights || 0), need: 1 }; } },

@@ -1,3 +1,13 @@
+## FEATURE — Sticker Quest tab 5: Ad-hoc Math Tests page · 2026-11-11
+- `src/adhoc.js` draws the tab (`#adhoc`). Tests come from `src/data/adhocTests.js` (samples) plus `hub_adhocTests`. Saved as `save.adhoc` in `stickerQuest_v1`.
+- `U2_OWL` is a top-level `const`, so `window.U2_OWL` is undefined. Check it with `typeof`.
+- After Next or Check the page stays scrolled down on phones, so every new screen calls `toTop()`. The 🔥 streak also shows beside Next, because the top bar scrolls out of view.
+- Enter on a focused blank or number key must Check. Otherwise the browser's own button-Enter just re-selects the blank.
+- `DollarBank.earnedNow(g)` needs a getter. Without one, `items()` throws (caught) and returns nothing.
+- Headless runs: the rewardkit "A surprise!" gift (`.kb-veil`) can pop up mid-test and block clicks. Auto-click `.kb-ok` with a MutationObserver from the init script.
+- `test/phase0-foundations.js` keeps its own map of catalog `#hash` → handler file. Add new deep links there.
+- $1 challenge `stickerquest:adhoc-hard`: 3 stars on a test with `difficulty:"hard"` (Practice Mix doesn't count).
+
 ## FEATURE — Sticker Quest Ad-hoc Math Tests: Chapter 5 question engine · 2026-11-11
 - `adventurepack/stickerquest/src/engine/mathQuestions.js` (global `MathQuestions`) generates 6 multiplication types; no UI yet.
 - Ids and `mathKey` come from the numbers, so a test is replayable from its seed. `mathKey` (sorted factors) also stops the same multiplication showing up twice as different types (e.g. word 6×12 and single 12×6).

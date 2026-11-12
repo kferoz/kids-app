@@ -67,6 +67,7 @@
     A("subtraction", "Subtraction Notebook Quest", "📓", "adventurepack/subtraction/index.html", "subtraction", "math", "practice", ["g3"]),
     A("timesquest", "Times Table Quest", "🦉", "adventurepack/timesquest/index.html", "timesquest", "math", "tests", ["g3"]),
     A("stickerquest", "Sticker Quest", "🧩", "adventurepack/stickerquest/index.html", "stickerquest", "math", "practice", ["g3"]),
+    A("sq-adhoc", "Ad-hoc Math Tests", "✖️", "adventurepack/stickerquest/index.html#adhoc", "stickerquest", "math", "tests", ["g3"]),
 
     /* ---- Social Studies ---- */
     A("quiz-helpers", "Community Helpers", "🚒", "quiz/index.html#helpers", "quiz", "social", "learn", ["pk", "kg"]),

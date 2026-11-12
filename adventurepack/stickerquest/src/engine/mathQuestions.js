@@ -330,12 +330,12 @@
       var v = values && values[model.fields[n]] != null && values[model.fields[n]] !== "" ? fmt(+values[model.fields[n]]) : "?";
       out.push('<rect x="' + x + '" y="' + y0 + '" width="' + w + '" height="' + H + '" fill="' + fills[n % 3] +
         '" stroke="#2E2650" stroke-width="3"/>');
-      out.push('<text x="' + cx + '" y="' + (y0 - 10) + '" text-anchor="middle" font-size="18" font-weight="700" fill="#2E2650">' + fmt(model.parts[n]) + "</text>");
-      out.push('<text x="' + cx + '" y="' + (y0 + 46) + '" text-anchor="middle" font-size="16" fill="#2E2650">' + model.labels[n] + "</text>");
-      out.push('<text x="' + cx + '" y="' + (y0 + 84) + '" text-anchor="middle" font-size="26" font-weight="700" fill="#6C4CF1">' + v + "</text>");
+      out.push('<text x="' + cx + '" y="' + (y0 - 10) + '" text-anchor="middle" font-size="22" font-weight="700" fill="#2E2650">' + fmt(model.parts[n]) + "</text>");
+      out.push('<text x="' + cx + '" y="' + (y0 + 44) + '" text-anchor="middle" font-size="21" font-weight="600" fill="#2E2650">' + model.labels[n] + "</text>");
+      out.push('<text x="' + cx + '" y="' + (y0 + 88) + '" text-anchor="middle" font-size="28" font-weight="700" fill="#6C4CF1">' + v + "</text>");
       x += w;
     });
-    out.push('<text x="' + (x0 - 10) + '" y="' + (y0 + H / 2 + 6) + '" text-anchor="end" font-size="18" font-weight="700" fill="#2E2650">' + fmt(model.side) + "</text>");
+    out.push('<text x="' + (x0 - 10) + '" y="' + (y0 + H / 2 + 7) + '" text-anchor="end" font-size="22" font-weight="700" fill="#2E2650">' + fmt(model.side) + "</text>");
     var label = "Area model for " + model.title + ". " + model.labels.map(function (l) { return "One box is " + l + "."; }).join(" ");
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + (x0 + W + 10) + " " + (y0 + H + 10) +
       '" role="img" aria-label="' + speak(label) + '" class="mq-area" font-family="inherit">' + out.join("") + "</svg>";
