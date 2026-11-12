@@ -10,6 +10,9 @@
 - Each test has its own kids' page at `stickerquest/index.html#tests/<id>` (hash routes: no server on file:// or in the APK).
 - Bash tool: a very long `python - <<'EOF'` heredoc failed to parse ("unexpected EOF"). Write the patch script to a file instead.
 - Tests: `node test/admin-ui.js` (PIN, lockout, publish, kids' pages, import tampering, print, no external requests).
+- playwright-core is NOT a repo dependency: the browser tests need `PLAYWRIGHT_CORE=<its folder>` (or a local install).
+- Worksheet photos are re-encoded through a canvas (≤1400px JPEG). Formats the browser can't decode (iPhone HEIC in Chrome) are refused with a "try JPG/PNG" message.
+- No OCR on purpose (would need a network service or a heavy library); no PIN recovery: a forgotten PIN means clearing site data.
 
 ## FEATURE — Sticker Quest tab 5: Ad-hoc Math Tests page · 2026-11-11
 - `src/adhoc.js` draws the tab (`#adhoc`). Tests come from `src/data/adhocTests.js` (samples) plus `hub_adhocTests`. Saved as `save.adhoc` in `stickerQuest_v1`.
