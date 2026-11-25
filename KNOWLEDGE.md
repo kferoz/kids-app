@@ -1,9 +1,9 @@
 ## FEATURE — Bongo's Syllable Beats (syllables/, KG #kg + G3 #g3) on the AdHoc page · 2026-11-24
-- AdHoc can now carry ready-made apps: `EXTRAS adhoc.apps` lists catalog ids; hub.js `builtIn()` shows them even with grown-ups' topics off.
-- So the AdHoc card appears for KG/G3 learners regardless of the Admin switch; topics still need `HubSettings adhoc.enabled`.
+- `EXTRAS adhoc.apps` (catalog ids) show via hub.js `builtIn()` even with AdHoc off; topics still need `adhoc.enabled`.
 - Catalog deep links `#kg`/`#g3` are new hash keys in test/phase0-foundations.js (one handler file per hash).
 - syllables/js/listener.js joins a one-word target's heard chunks ("cup cake" → cupcake); phonics copy does not.
 - Syllable splits follow phonics rules (di-no-saur, ba-na-na); test/syllables.js rejects one word split two ways.
+- Driven Hub tests must create learners with `KidsDB.addKid`; hand-written `hub_kids` JSON just shows the login picker.
 - Browser tests: set `PLAYWRIGHT_CORE` to the npx-cache playwright-core (`npm-cache/_npx/*/node_modules/playwright-core`). admin-ui "date range"/"newest first" fail before this change too.
 
 ## FEATURE — Admin → Ad-hoc Tests (builder, worksheets, sight words) + parent PIN · 2026-11-11
@@ -481,6 +481,7 @@
 - `el.hidden = true` failed to hide: `.big-btn { display: block }` outranks the UA's `[hidden]`.
 - Add `[hidden] { display: none !important; }` whenever a toggled element has a display class.
 - Only a screenshot caught it — the DOM property was being set correctly all along.
+- Recurred 2026-11-24 in syllables/ (`.btn` buttons): put the global `[hidden]` rule in every new app's CSS.
 
 ## FINDING — Seeding per-learner progress in a driven browser · 2026-09-19
 - `profile-store.js` re-prefixes every non-`hub_`/`rw_` key, so seeding from an app page double-prefixes.
