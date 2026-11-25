@@ -81,13 +81,18 @@
     var Y = window.Syllabus, id = r.s;
     if (id === "language") id = r.l && r.l !== "english" ? "languages" : "english";   // links from before the Academy
     var subj = Y && id && Y.subject(id);
-    if (subj && subj.setting && !adhocOn()) subj = null;
+    if (subj && subj.setting && !adhocOn() && !builtIn(kid, subj).length) subj = null;
     if (!subj) renderSubjectHome(kid);
     else if (subj.id === "languages") renderLanguages(kid, subj, r.l);
     else if (subj.id === "adhoc") renderAdhoc(subj);
     else renderAcademySubject(kid, subj);
   }
   function adhocOn() { return !!(window.HubSettings && HubSettings.get().adhoc.enabled); }
+  // An extra's ready-made apps (EXTRAS[].apps catalog ids) for this learner's grade.
+  function builtIn(kid, s) {
+    if (!s.apps || !kid || !window.Catalog) return [];
+    return mine(kid).filter(function (it) { return s.apps.indexOf(it.id) >= 0; });
+  }
   // The learner's lesson progress (academy/js/lessons.js), read from their namespaced key.
   function progressOf(kid) {
     var s = null; try { s = JSON.parse(localStorage.getItem("k" + kid.id + "::acad_progress")); } catch (e) {}
@@ -147,7 +152,7 @@
         (got ? '<span class="subj-done">🏅 ' + got + " mastered</span>" : "") + "</a>";
     });
     Y.EXTRAS.forEach(function (s) {
-      if (s.setting && !adhocOn()) return;
+      if (s.setting && !adhocOn() && !builtIn(kid, s).length) return;
       if (s.grades && s.grades.indexOf(kid.grade) < 0) return;
       if (s.href) {
         html += '<a class="subj-card" href="' + s.href + '" data-app="' + s.id + '" data-app-name="' + escapeHtml(s.name) + '" style="--sc:' + s.color + '">' +
@@ -160,7 +165,7 @@
         var langs = window.Catalog.SUBJECTS.filter(function (c) { return c.id === "language"; })[0].langs.filter(function (l) { return s.langs.indexOf(l.id) >= 0; });
         body += '<span class="subj-count">' + appsFor(kid, s).length + " apps</span>" +
           '<span class="subj-langs">' + langs.map(function (l) { return "<span>" + l.emoji + " " + l.name + "</span>"; }).join("") + "</span>";
-      } else body += '<span class="subj-count">Tests and topics from your grown-up</span>';
+      } else body += '<span class="subj-count">' + (s.apps && !adhocOn() ? "Special practice apps" : "Tests and topics from your grown-up") + "</span>";
       html += '<a class="subj-card extra" href="#s=' + s.id + '" style="--sc:' + s.color + '">' + body + "</a>";
     });
     html += "</div></section>";
@@ -246,9 +251,14 @@
   }
 
   // AdHoc: topics and practice tests a grown-up writes in Admin → 🎓 Academy (js/adhoc.js).
+  // Ready-made apps (EXTRAS adhoc.apps) come first and show even while the topics are switched off.
   function renderAdhoc(s) {
-    var kid = DB.active(), list = window.AdhocStore ? AdhocStore.forGrade(kid.grade) : [], prog = progressOf(kid);
-    $("subjectHub").innerHTML = subjHead(s) + (list.length
+    var kid = DB.active(), on = adhocOn(), list = on && window.AdhocStore ? AdhocStore.forGrade(kid.grade) : [], prog = progressOf(kid);
+    var apps = builtIn(kid, s);
+    var ready = apps.length ? '<section class="icon-section subj-section"><h3 class="sec-title"><span>🎮</span> Ready to play</h3><div class="act-grid">' +
+      apps.map(actCard).join("") + "</div></section>" : "";
+    if (!on) { $("subjectHub").innerHTML = subjHead(s) + ready; return; }
+    $("subjectHub").innerHTML = subjHead(s) + ready + (apps.length && list.length ? '<h3 class="more-title">🧪 From your grown-up</h3>' : "") + (list.length
       ? '<div class="act-grid adhoc-list">' + list.map(function (t) {
           var r = prog["adhoc:" + t.id];
           return '<a class="act-card adhoc-card" href="academy/lesson.html#adhoc=' + encodeURIComponent(t.id) + '" data-app="academy" data-app-name="' + escapeHtml(t.title) + '">' +

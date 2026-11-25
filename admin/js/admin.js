@@ -81,6 +81,12 @@
         var ks = Object.keys(l).filter(function (k) { return l[k] && l[k].done && (k.indexOf("k-") === 0) === !!kg; });
         var stars = ks.reduce(function (a, k) { return a + (l[k].stars || 0); }, 0), pct = st.answered ? Math.round(100 * (st.first || 0) / st.answered) : 0;
         return { done: ks.length, total: n, label: (kg ? "Kindergarten · " : "") + ks.length + " of " + n + " lessons · " + stars + " of " + 3 * n + " stars" + (st.answered ? " · " + pct + "% first try on their own" : "") + " · " + (st.proofs || 0) + " proofs found" }; } },
+    { id: "syllables", name: "Bongo's Syllable Beats", emoji: "🥁", grades: ["kg", "g3"], subject: "Syllables & word reading",
+      // One app, two tracks: KG lessons k1–k8, G3 lessons g1–g11 (the last of each is the Beat Master Challenge).
+      progress: function (r, kid) { var kg = kid && ["pk", "kg", "g1", "g2"].indexOf(kid.grade) >= 0, pre = kg ? "k" : "g", n = kg ? 8 : 11, l = r.obj("sy_lessons"), st = r.obj("sy_stats");
+        var ks = Object.keys(l).filter(function (k) { return l[k] && l[k].done && k.charAt(0) === pre; });
+        var stars = ks.reduce(function (a, k) { return a + (l[k].stars || 0); }, 0), pct = st.answered ? Math.round(100 * (st.first || 0) / st.answered) : 0;
+        return { done: ks.length, total: n, label: (kg ? "Kindergarten · " : "Grade 3 · ") + ks.length + " of " + n + " lessons · " + stars + " of " + 3 * n + " stars" + (st.answered ? " · " + pct + "% first try" : "") + " · " + (st.reads || 0) + " words read aloud" + rlLabel(r, "syllables") }; } },
     { id: "spellingbee", name: "Spelling Bee", emoji: "🐝", grades: ["g3"], subject: "Spelling",
       progress: function (r) { var w = r.obj("sb_words"), m = Object.keys(w).filter(function (k) { return w[k] && w[k].m >= 2; }).length;
         var t = r.obj("sb_tests"), tn = Object.keys(t).length, jar = r.arr("sb_jar").length;
@@ -618,7 +624,8 @@
   /* ---------- 🐝 Spelling Bee: grown-ups' word sets (js/spellbee-store.js) + each learner's results ---------- */
   /* ---------------- 🎤 Reading Levels (../js/readlevel.js) ---------------- */
   // rl_<app> lives in each learner's namespace; Admin has no profile-store, so it reads/writes k<id>::rl_<app>
-  var RL_APPS = [{ id: "phonics", name: "🦜 Phonics Pals", grades: ["kg"] }, { id: "readrocket", name: "🚀 Read-Aloud Rocket", grades: ["g3"] }];
+  var RL_APPS = [{ id: "phonics", name: "🦜 Phonics Pals", grades: ["kg"] }, { id: "readrocket", name: "🚀 Read-Aloud Rocket", grades: ["g3"] },
+    { id: "syllables", name: "🥁 Syllable Beats", grades: ["kg", "g3"] }];
   // " · 🧭 Medium reading level" for the progress cards
   function rlLabel(r, app) { var v = r.obj("rl_" + app), RL = window.ReadLevel; if (!RL || !v.lv) return ""; var L = RL.LEVELS[Math.max(1, Math.min(4, v.lv)) - 1]; return " · " + L.emoji + " " + L.tag + " reading level"; }
   function rlKey(kid, app) { return "k" + kid + "::rl_" + app; }

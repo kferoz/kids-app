@@ -88,6 +88,8 @@
     A("quiz-words", "Word Wizards", "🪄", "quiz/index.html#words", "quiz", "language", "practice", ["g1", "g2"], "english"),
     A("readgym-kg", "Koa's Reading Gym: Listen & Think", "🐨", "readgym/index.html#g=kg", "readgym", "language", "learn", ["kg"], "english"),
     A("readgym", "Koa's Reading Gym", "🐨", "readgym/index.html", "readgym", "language", "learn", ["g3"], "english"),
+    A("syllables-kg", "Bongo's Syllable Beats: Clap the Beats", "🥁", "syllables/index.html#kg", "syllables", "language", "practice", ["kg"], "english"),
+    A("syllables", "Bongo's Syllable Beats", "🥁", "syllables/index.html#g3", "syllables", "language", "practice", ["g3"], "english"),
     A("reading", "Reading Trail", "🦉", "reading/index.html", "reading", "language", "learn", ["g3"], "english"),
     A("readrocket", "Read-Aloud Rocket", "🚀", "readrocket/index.html", "readrocket", "language", "stories", ["g3"], "english"),
     A("spellingbee", "Spelling Bee", "🐝", "spellingbee/index.html", "spellingbee", "language", "practice", ["g3"], "english"),

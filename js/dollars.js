@@ -111,6 +111,8 @@
     trophy("readgym", "rg_trophies", "champion", "Pass the Reading Champion Challenge in Koa's Reading Gym"),
     trophy("readgym", "rg_trophies", "k-champion", "Pass the Super Listener Challenge in the Kindergarten Reading Gym"),
     trophy("readgym", "rg_trophies", "allstars", "Get 3 stars on all 15 Reading Gym lessons"),
+    trophy("syllables", "sy_trophies", "kg-master", "Win the Kindergarten Beat Master Challenge in Syllable Beats"),
+    trophy("syllables", "sy_trophies", "g3-master", "Win the Grade 3 Syllable Master Challenge in Syllable Beats"),
     trophy("spellingbee", "sb_trophies", "bee-champion", "Win the 3rd-grade Grand Bee (all 50 words, 3 hearts)"),
     trophy("spellingbee", "sb_trophies", "hive-hero", "Master all 50 words of the 3rd-grade list"),
     trophy("writestudio", "ws_trophies", "perfect-5", "Get 3 stars on 5 pieces of writing"),

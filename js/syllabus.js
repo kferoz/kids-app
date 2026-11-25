@@ -53,7 +53,9 @@
     // Printable worksheets for every grade and subject (worksheets/)
     { id: "worksheets", name: "Worksheets", emoji: "📄", color: "#495057", href: "worksheets/index.html",
       note: "Print or save as PDF, with answer keys" },
-    { id: "adhoc",     name: "AdHoc",           emoji: "🧪", color: "#868e96", setting: "adhoc" }
+    // apps: ready-made catalog apps that always show on the AdHoc page (and keep its card on
+    // the Academy home for those grades even while the grown-ups' topics are switched off)
+    { id: "adhoc",     name: "AdHoc",           emoji: "🧪", color: "#868e96", setting: "adhoc", apps: ["syllables-kg", "syllables"] }
   ];
   var GRADES = ["pk", "kg", "g1", "g2", "g3", "g4", "g5"];
   var MATCH = {
@@ -137,7 +139,7 @@
       ],
       english: [
         U("🔤", "Letter Sounds", ["I know the sound of every letter.", "I can hear the first sound in a word."], "CCSS RF.K.3", "Y1 Phonics: phase 2–3", "Lgr22 Sv: reading and writing", ["kinder-letters", "speedway-letters", "phonics"]),
-        U("🧩", "Blend and Read CVC Words", ["I can blend sounds to read words like cat and sun.", "I can split a word into its sounds."], "CCSS RF.K.2", "Y1 Phonics: blending", "Lgr22 Sv: reading strategies", ["phonics", "homeschool-kg-eng"]),
+        U("🧩", "Blend and Read CVC Words", ["I can blend sounds to read words like cat and sun.", "I can split a word into its sounds."], "CCSS RF.K.2", "Y1 Phonics: blending", "Lgr22 Sv: reading strategies", ["phonics", "syllables-kg", "homeschool-kg-eng"]),
         U("👀", "Sight Words", ["I can read common words like the, and, is.", "I can find sight words in a book."], "CCSS RF.K.3c", "Y1 Common exception words", "Lgr22 Sv: reading", ["homeschool-kg-eng"]),
         U("🐚", "Two Letters, One Sound", ["I can read sh, ch, th and ck.", "I can read words with these sounds."], "CCSS RF.K.3", "Y1 Phonics: phase 3 digraphs", "Lgr22 Sv: sound and letter", ["phonics"]),
         U("📖", "Story Time", ["I can retell a story in order.", "I can name the characters and the setting."], "CCSS RL.K", "Y1 Reading: comprehension", "Lgr22 Sv: narrative texts", ["readgym-kg", "readingadventures"]),
@@ -307,7 +309,7 @@
         U("⬛", "Area, Perimeter and Graphs", ["I can find area by counting squares and multiplying.", "I can find the perimeter of a shape.", "I can read scaled bar graphs."], "CCSS 3.MD.3–8; 3.G", "Y4 Area; perimeter; statistics", "Lgr22 Ma: geometry; statistics")
       ],
       english: [
-        U("🔠", "Decode Long Words", ["I can split long words into syllables.", "I can read common prefixes and suffixes."], "CCSS RF.3.3", "Y4 Word reading", "Lgr22 Sv: reading strategies", ["reading", "homeschool-g3-eng"]),
+        U("🔠", "Decode Long Words", ["I can split long words into syllables.", "I can read common prefixes and suffixes."], "CCSS RF.3.3", "Y4 Word reading", "Lgr22 Sv: reading strategies", ["syllables", "reading", "homeschool-g3-eng"]),
         U("🚀", "Reading Fluency", ["I can read aloud smoothly and with expression.", "I can read at a good pace."], "CCSS RF.3.4", "Y4 Reading: fluency", "Lgr22 Sv: reading", ["readrocket"]),
         U("🕵️", "Main Idea and Details", ["I can find the main idea.", "I can pick details that support it."], "CCSS RI.3.2", "Y4 Reading: comprehension", "Lgr22 Sv: factual texts", ["readgym", "detectives", "clueisland", "readingadventures"]),
         U("🎭", "Characters and Point of View", ["I can describe a character's traits and feelings.", "I can tell my view from the narrator's."], "CCSS RL.3.3; RL.3.6", "Y4 Reading: inference", "Lgr22 Sv: narrative texts", ["readgym", "detectives", "readrocket"]),

@@ -1,3 +1,11 @@
+## FEATURE — Bongo's Syllable Beats (syllables/, KG #kg + G3 #g3) on the AdHoc page · 2026-11-24
+- AdHoc can now carry ready-made apps: `EXTRAS adhoc.apps` lists catalog ids; hub.js `builtIn()` shows them even with grown-ups' topics off.
+- So the AdHoc card appears for KG/G3 learners regardless of the Admin switch; topics still need `HubSettings adhoc.enabled`.
+- Catalog deep links `#kg`/`#g3` are new hash keys in test/phase0-foundations.js (one handler file per hash).
+- syllables/js/listener.js joins a one-word target's heard chunks ("cup cake" → cupcake); phonics copy does not.
+- Syllable splits follow phonics rules (di-no-saur, ba-na-na); test/syllables.js rejects one word split two ways.
+- Browser tests: set `PLAYWRIGHT_CORE` to the npx-cache playwright-core (`npm-cache/_npx/*/node_modules/playwright-core`). admin-ui "date range"/"newest first" fail before this change too.
+
 ## FEATURE — Admin → Ad-hoc Tests (builder, worksheets, sight words) + parent PIN · 2026-11-11
 - Saved tests hold engine SPECS only (`{type, difficulty, params}`). The kids' page rebuilds them with `MathQuestions.build`, so answers are always recomputed and an imported file can't inject markup. The test checks `build(q.spec)` equals every generated question.
 - `choose_correct_ways` picks its options from `params.seed`, so rebuilding gives the same choices. Hand-made ones derive the seed from x and y.
